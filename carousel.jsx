@@ -37,12 +37,43 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
     setIsTouch(touch);
 
     if (touch) {
-      // Timer-based rotation on touch (less jank than RAF, updates every 50ms)
+      // Timer-based rotation on touch + swipe support
       const SPEED = 20; // degrees per second (40 * 50ms = 2 degrees per update)
       let intervalId = setInterval(() => {
         setAngle(prev => (prev + SPEED * 0.05) % 360);
       }, 50);
-      return () => clearInterval(intervalId);
+
+      // Swipe detection
+      let touchStartX = 0;
+      let touchStartY = 0;
+
+      const onTouchStart = (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+      };
+
+      const onTouchEnd = (e) => {
+        const touchEndX = e.changedTouches[0].clientX;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+
+        // Only register swipe if horizontal movement > vertical movement
+        if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+          const degreesPerSwipe = 45; // rotate 45 degrees per swipe
+          const direction = deltaX > 0 ? -1 : 1; // right swipe = backward, left swipe = forward
+          setAngle(prev => (prev + direction * degreesPerSwipe) % 360);
+        }
+      };
+
+      document.addEventListener("touchstart", onTouchStart, false);
+      document.addEventListener("touchend", onTouchEnd, false);
+
+      return () => {
+        clearInterval(intervalId);
+        document.removeEventListener("touchstart", onTouchStart);
+        document.removeEventListener("touchend", onTouchEnd);
+      };
     }
 
     // Desktop: scroll-driven rotation
@@ -173,7 +204,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
             <h2 className="section-title">
               From the <span className="italic">archive.</span>
             </h2>
-            <div className="label dim">Scroll to orbit · click to expand</div>
+            <div className="label dim">{isTouch ? "Swipe to rotate · click to expand" : "Scroll to orbit · click to expand"}</div>
           </div>
 
           {/* Carousel ring */}
