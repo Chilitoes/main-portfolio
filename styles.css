@@ -927,25 +927,28 @@ body.theme-light .hero-content { color: #201C18; }
 /* ===== Portfolio Teaser ===== */
 .port-teaser-scroll-zone {
   position: relative;
-  height: 320vh;
+  height: 600vh;
 }
 .port-teaser {
   position: sticky;
   top: 0;
-  height: 100vh;
-  overflow: hidden;
+  height: auto;
   background: var(--bg);
+  padding: 100px 40px 80px;
 }
 .port-teaser-photo {
-  position: absolute;
-  top: 10vh; left: 6vw;
-  width: 34vw; height: 76vh;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(4.6);
+  transform-origin: center center;
+  width: 30vw;
+  height: 70vh;
   background-size: cover;
   background-position: center;
   border-radius: 10px;
-  transform-origin: center center;
   will-change: transform;
-  z-index: 2;
+  z-index: 100;
   overflow: hidden;
   box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.2);
   border: 1px solid rgba(255,255,255,0.07);
@@ -958,13 +961,14 @@ body.theme-light .hero-content { color: #201C18; }
   pointer-events: none;
 }
 .port-teaser-hero-label {
-  position: absolute;
-  bottom: 12vh;
-  left: 0; right: 0;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
-  z-index: 5;
+  z-index: 101;
   opacity: 0;
-  will-change: opacity, transform;
+  will-change: opacity;
   pointer-events: none;
 }
 .port-teaser-hero-label .label {
@@ -981,21 +985,17 @@ body.theme-light .hero-content { color: #201C18; }
 }
 .port-teaser-hero-label h2 .italic { font-style: italic; color: var(--ochre); }
 .port-teaser-grid {
-  position: absolute;
-  top: 10vh; right: 5vw;
-  width: 50vw; height: 76vh;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  gap: 10px;
-  z-index: 1;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  opacity: 0;
+  will-change: opacity;
 }
 .port-teaser-grid-item {
+  aspect-ratio: 3/2;
   background-size: cover;
   background-position: center;
   border-radius: 7px;
-  opacity: 0;
-  will-change: opacity, transform;
   overflow: hidden;
 }
 .port-teaser-cta {
@@ -1529,11 +1529,12 @@ footer.site-footer {
   .split-img-zoom { transform: none !important; z-index: 1; }
   .split-text { position: relative; left: auto; right: auto; top: auto; bottom: auto; padding: 50px 26px; z-index: 10; opacity: 1 !important; transform: none !important; }
   .port-teaser-scroll-zone { height: auto; }
-  .port-teaser { position: relative; height: auto; }
-  .port-teaser-photo { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: 70vh; transform: none !important; margin-bottom: 40px; }
-  .port-teaser-hero-label { position: relative !important; bottom: auto !important; opacity: 1 !important; transform: none !important; padding: 40px 26px 0; text-align: center; }
-  .port-teaser-grid { display: none; }
-  .port-teaser-cta { position: relative !important; left: auto !important; opacity: 1 !important; transform: none !important; padding: 40px 26px; text-align: center; }
+  .port-teaser { position: relative !important; height: auto; padding: 60px 22px; }
+  .port-teaser-photo { position: relative !important; top: auto !important; left: auto !important; transform: none !important; width: 100%; height: 60vh; margin-bottom: 50px; }
+  .port-teaser-hero-label { position: relative !important; top: auto !important; left: auto !important; transform: none !important; opacity: 1 !important; margin-bottom: 50px; text-align: center; }
+  .port-teaser-grid { grid-template-columns: 1fr; opacity: 1 !important; gap: 12px; }
+  .port-teaser-grid-item { aspect-ratio: 4/3; }
+  .port-teaser-cta { position: relative !important; left: auto !important; bottom: auto !important; opacity: 1 !important; transform: none !important; padding: 40px 0 0; text-align: center; }
   .about-hero { grid-template-columns: 1fr; }
   .about-portrait { min-height: 60vh; }
   .about-body { padding: 80px 26px; }

@@ -136,28 +136,22 @@ function Home({ go, onOpenLightbox }) {
       const labelOutProg = Math.max(0, Math.min(1, (progress - 0.2) / 0.15));
       if (label) {
         label.style.opacity = Math.max(0, labelInProg - labelOutProg);
-        label.style.transform = `translateY(${(1 - labelInProg) * 24}px)`;
       }
 
-      // Phase 0-55%: photo zooms from full-screen to card
+      // Phase 0-55%: photo zooms from full-screen to card size
       const photoProg = easeOut(Math.max(0, Math.min(1, progress / 0.55)));
-      photo.style.transform = `scale(${INIT_SCALE - (INIT_SCALE - 1) * photoProg})`;
+      const photoScale = INIT_SCALE - (INIT_SCALE - 1) * photoProg;
+      photo.style.transform = `translate(-50%, -50%) scale(${photoScale})`;
 
-      // Phase 45-85%: grid items fade in with stagger
+      // Phase 30-100%: grid fades in as photo zooms out
       if (grid) {
-        const items = grid.querySelectorAll('.port-teaser-grid-item');
-        items.forEach((item, i) => {
-          const start = 0.45 + i * 0.06;
-          const end = start + 0.14;
-          const itemProg = easeOut(Math.max(0, Math.min(1, (progress - start) / (end - start))));
-          item.style.opacity = itemProg;
-          item.style.transform = `translateY(${(1 - itemProg) * 36}px)`;
-        });
+        const gridProg = easeOut(Math.max(0, Math.min(1, (progress - 0.3) / 0.7)));
+        grid.style.opacity = gridProg;
       }
 
-      // Phase 80-100%: CTA appears
+      // Phase 90-100%: CTA appears at bottom
       if (cta) {
-        const ctaProg = easeOut(Math.max(0, Math.min(1, (progress - 0.78) / 0.22)));
+        const ctaProg = easeOut(Math.max(0, Math.min(1, (progress - 0.9) / 0.1)));
         cta.style.opacity = ctaProg;
         cta.style.transform = `translateY(${(1 - ctaProg) * 24}px)`;
       }
@@ -286,22 +280,13 @@ function Home({ go, onOpenLightbox }) {
           </div>
 
           <div className="port-teaser-grid" ref={portTeaserGridRef}>
-            {[
-              "Japan/IMG_1282.JPG",
-              "Japan/IMG_6229 2.JPG",
-              "Japan/IMG_6090.JPG",
-              "China/DSCF8199.JPG",
-            ].map((p, i) => {
-              const item = window.PORTFOLIO_BY_FILE?.[p];
-              if (!item) return null;
-              return (
-                <div
-                  key={i}
-                  className="port-teaser-grid-item"
-                  style={{ backgroundImage: `url(${item.src})` }}
-                />
-              );
-            })}
+            {(window.PORTFOLIO || []).map((item, i) => (
+              <div
+                key={item.id}
+                className="port-teaser-grid-item"
+                style={{ backgroundImage: `url(${item.src})` }}
+              />
+            ))}
           </div>
 
           <div className="port-teaser-cta" ref={portTeaserCtaRef}>
