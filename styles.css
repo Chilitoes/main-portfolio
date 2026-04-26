@@ -817,22 +817,25 @@ body.theme-light .hero-content { color: #201C18; }
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 8vw;
-  width: 28vw;
+  left: 18vw;
+  width: 24vw;
   background: var(--bg-elev);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
 }
 
 .split-img-inner {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: center 40%;
   transition: transform 10s linear;
 }
 
 .split-text {
   position: absolute;
-  left: 40vw;
+  left: 48vw;
   top: 0;
   right: 0;
   bottom: 0;
