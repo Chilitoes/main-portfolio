@@ -2,7 +2,7 @@
 
 function Nav({ route, go, theme, onToggleTheme }) {
   const links = [
-    { id: "home", label: "Index" },
+    { id: "home", label: "Home" },
     { id: "portfolio", label: "Portfolio" },
     { id: "about", label: "About" },
     { id: "contact", label: "Contact" },
