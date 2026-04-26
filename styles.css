@@ -831,17 +831,13 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-text {
   position: absolute;
-  right: 0;
-  top: 0;
-  height: 100%;
-  z-index: 10;
+  inset: 0;
+  z-index: 1;
   padding: 80px 60px;
-  width: 55%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 28px;
-  background: linear-gradient(90deg, rgba(20,18,16,0) 0%, var(--bg) 30%);
 }
 .split-text h2 {
   font-family: var(--serif);
@@ -872,7 +868,7 @@ body.theme-light .hero-content { color: #201C18; }
 .split-img-zoom {
   position: absolute;
   inset: 0;
-  transform-origin: top left;
+  transform-origin: bottom left;
   will-change: transform;
   z-index: 10;
 }
@@ -1409,7 +1405,8 @@ footer.site-footer {
   .t-sq-3, .t-sq-4, .t-sm-3 { grid-column: span 6; grid-row: span 3; }
   .split { position: relative; flex-direction: column; height: auto; }
   .split-img { position: relative; }
-  .split-text { position: relative; width: 100%; margin-left: 0; padding: 50px 26px; }
+  .split-img-zoom { transform: none !important; z-index: 1; }
+  .split-text { position: relative; padding: 50px 26px; z-index: 10; }
   .about-hero { grid-template-columns: 1fr; }
   .about-portrait { min-height: 60vh; }
   .about-body { padding: 80px 26px; }
