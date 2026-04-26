@@ -46,6 +46,15 @@ function Home({ go, onOpenLightbox }) {
       if (text) { text.style.opacity = '1'; text.style.transform = 'none'; }
       return;
     }
+    if (window.matchMedia('(max-width: 900px)').matches) {
+      card.style.opacity = '1';
+      card.style.transform = 'none';
+      if (zoom) zoom.style.transform = 'none';
+      if (text) { text.style.opacity = '1'; text.style.transform = 'none'; }
+      const btn = text?.querySelector('.btn-arrow');
+      if (btn) { btn.style.opacity = '1'; btn.style.transform = 'none'; }
+      return;
+    }
 
     // Calculate when quote reaches 80% toward top (20% from top of viewport)
     let quoteScrollTrigger = 0;
