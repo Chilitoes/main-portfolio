@@ -150,19 +150,17 @@ function Home({ go, onOpenLightbox }) {
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
 
       {/* Pull quote — same single line as the live site's philosophy block */}
-      <section className="pull-quote">
+      <section className="pull-quote" ref={quoteRef}>
         <p className="pull-quote-text">
           {"I don't look for extraordinary places."
             .split(" ")
             .map((w, i) => <span key={"a" + i} className="w">{w}&nbsp;</span>)}
-        </p>
-      </section>
-
-      <section className="pull-quote" ref={quoteRef}>
-        <p className="pull-quote-text italic">
+          <br />
+          <span className="italic">
           {"I look for ordinary places at extraordinary moments."
             .split(" ")
             .map((w, i) => <span key={"b" + i} className="w">{w}&nbsp;</span>)}
+          </span>
         </p>
       </section>
 

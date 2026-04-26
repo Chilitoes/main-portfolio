@@ -780,7 +780,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 /* ===== Pull quote ===== */
 .pull-quote {
-  padding: 180px 40px;
+  padding: 100px 40px;
   max-width: 1200px;
   margin: 0 auto;
   text-align: left;
@@ -889,7 +889,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-scroll-zone {
   position: relative;
-  height: 300vh;
+  height: 270vh;
 }
 
 .split {
