@@ -35,13 +35,25 @@ function Home({ go, onOpenLightbox }) {
       return;
     }
     const onScroll = () => {
-      const progress = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / window.innerHeight));
+      const scrolled = -zone.getBoundingClientRect().top;
+      const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
       zoom.style.transform = `scale(${3.5 - 2.5 * progress})`;
       if (text) {
-        // Text only starts appearing in the last 15% of zoom progress
+        // Text (excluding button) reveals at 85-100% of zoom
         const textProg = Math.max(0, Math.min(1, (progress - 0.85) / 0.15));
-        text.style.opacity = textProg;
+        // Button reveals later, during the pause (after ~120vh of scroll)
+        const btnProg = Math.max(0, Math.min(1, (scrolled - 120) / 30));
+
+        // Apply to text container
+        text.style.opacity = Math.max(textProg, btnProg > 0 ? 1 : 0);
         text.style.transform = `translateX(${(1 - textProg) * -80}px)`;
+
+        // Reveal button separately via data attribute
+        const btn = text.querySelector('.btn-arrow');
+        if (btn) {
+          btn.style.opacity = btnProg;
+          btn.style.transform = `translateY(${(1 - btnProg) * 20}px)`;
+        }
       }
     };
     onScroll();

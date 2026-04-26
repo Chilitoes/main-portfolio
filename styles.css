@@ -817,8 +817,8 @@ body.theme-light .hero-content { color: #201C18; }
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
-  width: 30vw;
+  left: 8vw;
+  width: 28vw;
   background: var(--bg-elev);
 }
 
@@ -832,7 +832,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-text {
   position: absolute;
-  left: 35vw;
+  left: 40vw;
   top: 0;
   right: 0;
   bottom: 0;
@@ -850,6 +850,8 @@ body.theme-light .hero-content { color: #201C18; }
   color: var(--ochre);
   border-bottom-color: var(--ochre);
   align-self: flex-start;
+  opacity: 0;
+  will-change: opacity, transform;
 }
 
 .split-text .btn-arrow svg {
