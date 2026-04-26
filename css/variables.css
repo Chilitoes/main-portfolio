@@ -1,0 +1,76 @@
+/* ============================================
+   DESIGN TOKENS
+   ============================================ */
+
+:root {
+  /* Colors */
+  --color-bg:          #0a0a0a;
+  --color-surface:     #141210;
+  --color-surface-2:   #1e1b17;
+  --color-border:      #2a2520;
+  --color-text:        #e8e0d0;
+  --color-text-muted:  #7a6f62;
+  --color-accent:      #c8a96e;
+  --color-accent-dim:  #8a6f3e;
+  --color-overlay:     rgba(8, 7, 6, 0.92);
+  --color-nav:         rgba(22, 17, 11, 0.93);
+
+  /* Typography */
+  --font-heading: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+  --font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+
+  /* Font Sizes */
+  --text-xs:   0.75rem;
+  --text-sm:   0.875rem;
+  --text-base: 1rem;
+  --text-lg:   1.125rem;
+  --text-xl:   1.25rem;
+  --text-2xl:  1.5rem;
+  --text-3xl:  2rem;
+  --text-4xl:  2.75rem;
+  --text-5xl:  3.75rem;
+  --text-6xl:  5rem;
+
+  /* Spacing */
+  --space-1:   8px;
+  --space-2:   16px;
+  --space-3:   24px;
+  --space-4:   32px;
+  --space-5:   48px;
+  --space-6:   64px;
+  --space-7:   96px;
+  --space-8:   128px;
+
+  /* Timing */
+  --ease-out:   cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --duration-fast:   150ms;
+  --duration-base:   300ms;
+  --duration-slow:   600ms;
+  --duration-xslow:  900ms;
+
+  /* Layout */
+  --max-width: 1400px;
+  --nav-height: 72px;
+
+  /* Breakpoints (used in JS too via comments) */
+  /* --bp-sm: 640px */
+  /* --bp-md: 768px */
+  /* --bp-lg: 1024px */
+  /* --bp-xl: 1280px */
+}
+
+/* ---- Light mode overrides ---- */
+[data-theme="light"] {
+  --color-bg:          #f5f0e8;
+  --color-surface:     #ede6d8;
+  --color-surface-2:   #e3dace;
+  --color-border:      #cfc4b0;
+  --color-text:        #1a1410;
+  --color-text-muted:  #6b5f52;
+  --color-accent:      #8a5e20;
+  --color-accent-dim:  #c8a96e;
+  --color-overlay:     rgba(245, 240, 232, 0.92);
+  --color-nav:         rgba(237, 230, 216, 0.95);
+}

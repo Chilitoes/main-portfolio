@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Portfolio gallery — travel and documentary photography across Japan, China, Malaysia, and Singapore by Alston Shi.">
+  <title>Portfolio — Alston Shi Photography</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/nav.css">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/gallery.css">
+  <link rel="stylesheet" href="css/lightbox.css">
+
+  <style>
+    .portfolio-page {
+      padding-top: var(--nav-height);
+      min-height: 100vh;
+    }
+
+    .gallery-section {
+      padding-top: var(--space-5);
+      padding-bottom: var(--space-7);
+    }
+
+    /* Staggered gallery entrance */
+    .gallery-item {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: galleryIn 0.5s var(--ease-out) forwards;
+    }
+
+    @keyframes galleryIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ============ NAVIGATION ============ -->
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-brand">Alston Shi</a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="portfolio.html">Portfolio</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+
+      <button class="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75 9.75 9.75 0 018.25 6a9.718 9.718 0 01.75-3.752A9.75 9.75 0 0021.752 15.002z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div class="nav-mobile" role="dialog" aria-label="Mobile menu">
+    <a href="index.html">Home</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <!-- ============ PORTFOLIO PAGE ============ -->
+  <main class="portfolio-page">
+    <div class="container">
+
+      <!-- Page header -->
+      <header class="page-header" style="padding-top: calc(var(--nav-height) + var(--space-5))">
+        <span class="label">All Work</span>
+        <h1>Portfolio</h1>
+        <p>Travel and documentary photography across Japan, China, Malaysia, Singapore, Taiwan, and Brunei.</p>
+      </header>
+
+      <!-- Gallery section -->
+      <section class="gallery-section" style="padding-top: 0">
+
+        <!-- Filter bar -->
+        <div class="filter-bar" role="group" aria-label="Filter gallery by country">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="japan">Japan</button>
+          <button class="filter-btn" data-filter="china">China</button>
+          <button class="filter-btn" data-filter="malaysia">Malaysia</button>
+          <button class="filter-btn" data-filter="singapore">Singapore</button>
+          <button class="filter-btn" data-filter="taiwan">Taiwan</button>
+          <button class="filter-btn" data-filter="brunei">Brunei</button>
+        </div>
+
+        <!-- Item count -->
+        <p class="gallery-count" aria-live="polite"></p>
+
+        <!-- Gallery grid -->
+        <div class="gallery-grid" role="list">
+
+          <!-- Japan -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Torii Gate, Hakone"
+               data-full="images/Japan/IMG_0393.JPG"
+               style="animation-delay: 0ms">
+            <img src="images/Japan/IMG_0393.JPG"
+                 alt="Red torii gate over a lake, Hakone" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Torii Gate, Hakone</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Skytree & Sakura"
+               data-full="images/Japan/IMG_0496.JPG"
+               style="animation-delay: 40ms">
+            <img src="images/Japan/IMG_0496.JPG"
+                 alt="Tokyo Skytree framed by cherry blossoms" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Skytree &amp; Sakura</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Canal Boat, Kyoto"
+               data-full="images/Japan/IMG_0544.JPG"
+               style="animation-delay: 80ms">
+            <img src="images/Japan/IMG_0544.JPG"
+                 alt="Traditional wooden boat on a Kyoto canal" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Canal Boat, Kyoto</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Osaka Castle"
+               data-full="images/Japan/IMG_0590.JPG"
+               style="animation-delay: 120ms">
+            <img src="images/Japan/IMG_0590.JPG"
+                 alt="Osaka Castle reflected in garden pond" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Osaka Castle</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Great Buddha, Kamakura"
+               data-full="images/Japan/IMG_0893.JPG"
+               style="animation-delay: 160ms">
+            <img src="images/Japan/IMG_0893.JPG"
+                 alt="Great Buddha of Kamakura" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Great Buddha, Kamakura</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Cherry Blossom Crossing"
+               data-full="images/Japan/IMG_1282.JPG"
+               style="animation-delay: 200ms">
+            <img src="images/Japan/IMG_1282.JPG"
+                 alt="Yellow train passing cherry blossoms at a city crossing" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Cherry Blossom Crossing</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Wedded Rocks, Ise"
+               data-full="images/Japan/IMG_2564.JPG"
+               style="animation-delay: 240ms">
+            <img src="images/Japan/IMG_2564.JPG"
+                 alt="Meoto Iwa — the Wedded Rocks at Futami, Ise" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Wedded Rocks, Ise</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Sakura Canal"
+               data-full="images/Japan/IMG_8970.JPG"
+               style="animation-delay: 280ms">
+            <img src="images/Japan/IMG_8970.JPG"
+                 alt="Pink cherry blossom trees lining a canal path" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Sakura Canal</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Daruma Dolls"
+               data-full="images/Japan/_MG_5886.JPG"
+               style="animation-delay: 320ms">
+            <img src="images/Japan/_MG_5886.JPG"
+                 alt="Collection of red Daruma dolls" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Daruma Dolls</p>
+            </div>
+          </div>
+
+          <!-- China -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Golden Campfire"
+               data-full="images/China/DSCF6798.JPG"
+               style="animation-delay: 360ms">
+            <img src="images/China/DSCF6798.JPG"
+                 alt="People gathered around a fire in golden misty light" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Golden Campfire</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Night Market Dumplings"
+               data-full="images/China/DSCF7118.JPG"
+               style="animation-delay: 400ms">
+            <img src="images/China/DSCF7118.JPG"
+                 alt="Street food vendor making dumplings at night" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Night Market Dumplings</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Hexagon Window"
+               data-full="images/China/DSCF8199.JPG"
+               style="animation-delay: 440ms">
+            <img src="images/China/DSCF8199.JPG"
+                 alt="Serene Chinese interior with hexagonal window and autumn branches" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Hexagon Window</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Redhead Duck"
+               data-full="images/China/DSCF8409.JPG"
+               style="animation-delay: 480ms">
+            <img src="images/China/DSCF8409.JPG"
+                 alt="Redhead duck swimming among dark reflections" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Redhead Duck</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Garden Pavilion"
+               data-full="images/China/DSCF8511.JPG"
+               style="animation-delay: 520ms">
+            <img src="images/China/DSCF8511.JPG"
+                 alt="Traditional Chinese garden pavilion over a pond" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Garden Pavilion</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Old City, Shanghai"
+               data-full="images/China/IMG_3029.JPG"
+               style="animation-delay: 560ms">
+            <img src="images/China/IMG_3029.JPG"
+                 alt="Traditional Shanghai building lit up at night" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Old City, Shanghai</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Canal, Suzhou"
+               data-full="images/China/IMG_3181.JPG"
+               style="animation-delay: 600ms">
+            <img src="images/China/IMG_3181.JPG"
+                 alt="Wooden boat on a canal lined with willow trees, Suzhou" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Canal, Suzhou</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Shanghai Night"
+               data-full="images/China/IMG_7694.JPG"
+               style="animation-delay: 640ms">
+            <img src="images/China/IMG_7694.JPG"
+                 alt="Round illuminated heritage building at night, Shanghai" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Shanghai Night</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Temple Incense"
+               data-full="images/China/IMG_9089.JPG"
+               style="animation-delay: 680ms">
+            <img src="images/China/IMG_9089.JPG"
+                 alt="Woman offering incense at a Chinese temple" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Temple Incense</p>
+            </div>
+          </div>
+
+          <!-- New Japan -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Dotonbori, Osaka"
+               data-full="images/Japan/IMG_5583.JPG"
+               style="animation-delay: 460ms">
+            <img src="images/Japan/IMG_5583.JPG"
+                 alt="Dotonbori canal lit up at night, Osaka" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Dotonbori, Osaka</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Rickshaw, Kyoto"
+               data-full="images/Japan/IMG_5305 2.JPG"
+               style="animation-delay: 500ms">
+            <img src="images/Japan/IMG_5305 2.JPG"
+                 alt="Rickshaw puller at torii gate with cherry blossoms" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Rickshaw, Kyoto</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Kanoko Train"
+               data-full="images/Japan/IMG_5768 3.JPG"
+               style="animation-delay: 540ms">
+            <img src="images/Japan/IMG_5768 3.JPG"
+                 alt="Colourful Kanoko tram at a level crossing" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Kanoko Train</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Tsutenkaku, Osaka"
+               data-full="images/Japan/IMG_5931.JPG"
+               style="animation-delay: 580ms">
+            <img src="images/Japan/IMG_5931.JPG"
+                 alt="Tsutenkaku tower above a busy Osaka street" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Tsutenkaku, Osaka</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Neon Alley"
+               data-full="images/Japan/IMG_5936.JPG"
+               style="animation-delay: 620ms">
+            <img src="images/Japan/IMG_5936.JPG"
+                 alt="Neon-lit narrow alley at night" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Neon Alley</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Sakura After Dark"
+               data-full="images/Japan/IMG_6090.JPG"
+               style="animation-delay: 660ms">
+            <img src="images/Japan/IMG_6090.JPG"
+                 alt="Cherry blossom trees lit up along a canal at night, Tokyo" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Sakura After Dark</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Night Traffic"
+               data-full="images/Japan/IMG_6143.JPG"
+               style="animation-delay: 700ms">
+            <img src="images/Japan/IMG_6143.JPG"
+                 alt="Night city traffic from above" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Night Traffic</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Shibuya Crossing"
+               data-full="images/Japan/IMG_6229 2.JPG"
+               style="animation-delay: 740ms">
+            <img src="images/Japan/IMG_6229 2.JPG"
+                 alt="Crowds at Shibuya Crossing, Tokyo" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Shibuya Crossing</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Late Night Corner"
+               data-full="images/Japan/IMG_6785.JPG"
+               style="animation-delay: 780ms">
+            <img src="images/Japan/IMG_6785.JPG"
+                 alt="Neon izakaya corner lit up at night" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Late Night Corner</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Street Karts, Tokyo"
+               data-full="images/Japan/IMG_6819 2.JPG"
+               style="animation-delay: 820ms">
+            <img src="images/Japan/IMG_6819 2.JPG"
+                 alt="Mario karts driving through a Tokyo street intersection, aerial view" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Street Karts, Tokyo</p>
+            </div>
+          </div>
+
+          <!-- New China -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="Night Market Vendor"
+               data-full="images/China/DSCF7231.JPG"
+               style="animation-delay: 860ms">
+            <img src="images/China/DSCF7231.JPG"
+                 alt="Energetic street food vendor at a night market" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">Night Market Vendor</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="West Lake, Hangzhou"
+               data-full="images/China/IMG_3244.JPG"
+               style="animation-delay: 900ms">
+            <img src="images/China/IMG_3244.JPG"
+                 alt="West Lake with willows and mountains, Hangzhou" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">West Lake, Hangzhou</p>
+            </div>
+          </div>
+
+          <!-- Malaysia -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="malaysia"
+               data-title="Steel Arch Bridge"
+               data-full="images/Malaysia/DSCF1058.JPG"
+               style="animation-delay: 720ms">
+            <img src="images/Malaysia/DSCF1058.JPG"
+                 alt="Modern steel arch pedestrian bridge in Kuala Lumpur" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Malaysia</span>
+              <p class="gallery-item-title">Steel Arch Bridge</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="malaysia"
+               data-title="KL Skyline"
+               data-full="images/Malaysia/DSCF1062.JPG"
+               style="animation-delay: 760ms">
+            <img src="images/Malaysia/DSCF1062.JPG"
+                 alt="Kuala Lumpur city skyline with highway and river" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Malaysia</span>
+              <p class="gallery-item-title">KL Skyline</p>
+            </div>
+          </div>
+
+          <!-- Singapore -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="singapore"
+               data-title="Tropical Garden"
+               data-full="images/Singapore/IMG_6462.JPG"
+               style="animation-delay: 800ms">
+            <img src="images/Singapore/IMG_6462.JPG"
+                 alt="Fan palm trees in a tropical Singapore garden" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Singapore</span>
+              <p class="gallery-item-title">Tropical Garden</p>
+            </div>
+          </div>
+
+          <!-- More Japan -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/DSC_0516.JPG"
+               style="animation-delay: 940ms">
+            <img src="images/Japan/DSC_0516.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_0546.JPG"
+               style="animation-delay: 980ms">
+            <img src="images/Japan/IMG_0546.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_0597.JPG"
+               style="animation-delay: 1020ms">
+            <img src="images/Japan/IMG_0597.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_0911.JPG"
+               style="animation-delay: 1060ms">
+            <img src="images/Japan/IMG_0911.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_1324.JPG"
+               style="animation-delay: 1100ms">
+            <img src="images/Japan/IMG_1324.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_1338.JPG"
+               style="animation-delay: 1140ms">
+            <img src="images/Japan/IMG_1338.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_1913.JPG"
+               style="animation-delay: 1180ms">
+            <img src="images/Japan/IMG_1913.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2010.JPG"
+               style="animation-delay: 1220ms">
+            <img src="images/Japan/IMG_2010.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2218 2.JPG"
+               style="animation-delay: 1260ms">
+            <img src="images/Japan/IMG_2218 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2253.JPG"
+               style="animation-delay: 1300ms">
+            <img src="images/Japan/IMG_2253.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2269.JPG"
+               style="animation-delay: 1340ms">
+            <img src="images/Japan/IMG_2269.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2341.JPG"
+               style="animation-delay: 1380ms">
+            <img src="images/Japan/IMG_2341.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2557.JPG"
+               style="animation-delay: 1420ms">
+            <img src="images/Japan/IMG_2557.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2558.JPG"
+               style="animation-delay: 1460ms">
+            <img src="images/Japan/IMG_2558.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_2571.JPG"
+               style="animation-delay: 1500ms">
+            <img src="images/Japan/IMG_2571.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5317.JPG"
+               style="animation-delay: 1540ms">
+            <img src="images/Japan/IMG_5317.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5336 2.JPG"
+               style="animation-delay: 1580ms">
+            <img src="images/Japan/IMG_5336 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5365.JPG"
+               style="animation-delay: 1620ms">
+            <img src="images/Japan/IMG_5365.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5385 2.JPG"
+               style="animation-delay: 1660ms">
+            <img src="images/Japan/IMG_5385 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5708 2.JPG"
+               style="animation-delay: 1700ms">
+            <img src="images/Japan/IMG_5708 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5804 3.JPG"
+               style="animation-delay: 1740ms">
+            <img src="images/Japan/IMG_5804 3.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5876 2.JPG"
+               style="animation-delay: 1780ms">
+            <img src="images/Japan/IMG_5876 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5953.JPG"
+               style="animation-delay: 1820ms">
+            <img src="images/Japan/IMG_5953.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_5959.JPG"
+               style="animation-delay: 1860ms">
+            <img src="images/Japan/IMG_5959.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6130 2.JPG"
+               style="animation-delay: 1900ms">
+            <img src="images/Japan/IMG_6130 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6248 2.JPG"
+               style="animation-delay: 1940ms">
+            <img src="images/Japan/IMG_6248 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6838 2.JPG"
+               style="animation-delay: 1980ms">
+            <img src="images/Japan/IMG_6838 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6845 2.JPG"
+               style="animation-delay: 2020ms">
+            <img src="images/Japan/IMG_6845 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6862 2.JPG"
+               style="animation-delay: 2060ms">
+            <img src="images/Japan/IMG_6862 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/IMG_6969 2.JPG"
+               style="animation-delay: 2100ms">
+            <img src="images/Japan/IMG_6969 2.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="japan"
+               data-title="Japan"
+               data-full="images/Japan/_MG_4298 3.JPG"
+               style="animation-delay: 2140ms">
+            <img src="images/Japan/_MG_4298 3.JPG" alt="Japan" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Japan</span>
+              <p class="gallery-item-title">Japan</p>
+            </div>
+          </div>
+
+          <!-- More China -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/DSCF7305.JPG"
+               style="animation-delay: 2180ms">
+            <img src="images/China/DSCF7305.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/DSCF8280.JPG"
+               style="animation-delay: 2220ms">
+            <img src="images/China/DSCF8280.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/DSCF8518.JPG"
+               style="animation-delay: 2260ms">
+            <img src="images/China/DSCF8518.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/DSCF8952.JPG"
+               style="animation-delay: 2300ms">
+            <img src="images/China/DSCF8952.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_2960.JPG"
+               style="animation-delay: 2340ms">
+            <img src="images/China/IMG_2960.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3228.JPG"
+               style="animation-delay: 2380ms">
+            <img src="images/China/IMG_3228.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3246.JPG"
+               style="animation-delay: 2420ms">
+            <img src="images/China/IMG_3246.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3297.JPG"
+               style="animation-delay: 2460ms">
+            <img src="images/China/IMG_3297.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3331.JPG"
+               style="animation-delay: 2500ms">
+            <img src="images/China/IMG_3331.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3335.JPG"
+               style="animation-delay: 2540ms">
+            <img src="images/China/IMG_3335.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3336.JPG"
+               style="animation-delay: 2580ms">
+            <img src="images/China/IMG_3336.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3338.JPG"
+               style="animation-delay: 2620ms">
+            <img src="images/China/IMG_3338.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_3342.JPG"
+               style="animation-delay: 2660ms">
+            <img src="images/China/IMG_3342.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_6010.JPG"
+               style="animation-delay: 2700ms">
+            <img src="images/China/IMG_6010.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_6956.JPG"
+               style="animation-delay: 2740ms">
+            <img src="images/China/IMG_6956.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_7111.JPG"
+               style="animation-delay: 2780ms">
+            <img src="images/China/IMG_7111.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_7145.JPG"
+               style="animation-delay: 2820ms">
+            <img src="images/China/IMG_7145.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_7212.JPG"
+               style="animation-delay: 2860ms">
+            <img src="images/China/IMG_7212.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_7705.JPG"
+               style="animation-delay: 2900ms">
+            <img src="images/China/IMG_7705.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_8614.JPG"
+               style="animation-delay: 2940ms">
+            <img src="images/China/IMG_8614.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_8660.JPG"
+               style="animation-delay: 2980ms">
+            <img src="images/China/IMG_8660.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_8661.JPG"
+               style="animation-delay: 3020ms">
+            <img src="images/China/IMG_8661.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_8662.JPG"
+               style="animation-delay: 3060ms">
+            <img src="images/China/IMG_8662.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_9090.JPG"
+               style="animation-delay: 3100ms">
+            <img src="images/China/IMG_9090.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="china"
+               data-title="China"
+               data-full="images/China/IMG_9091.JPG"
+               style="animation-delay: 3140ms">
+            <img src="images/China/IMG_9091.JPG" alt="China" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">China</span>
+              <p class="gallery-item-title">China</p>
+            </div>
+          </div>
+
+          <!-- More Malaysia -->
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="malaysia"
+               data-title="Malaysia"
+               data-full="images/Malaysia/DSCF1078.JPG"
+               style="animation-delay: 3180ms">
+            <img src="images/Malaysia/DSCF1078.JPG" alt="Malaysia" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Malaysia</span>
+              <p class="gallery-item-title">Malaysia</p>
+            </div>
+          </div>
+
+          <div class="gallery-item" role="listitem" tabindex="0"
+               data-category="malaysia"
+               data-title="Malaysia"
+               data-full="images/Malaysia/IMG_6274.JPG"
+               style="animation-delay: 3220ms">
+            <img src="images/Malaysia/IMG_6274.JPG" alt="Malaysia" loading="lazy">
+            <div class="gallery-item-overlay">
+              <span class="gallery-item-cat">Malaysia</span>
+              <p class="gallery-item-title">Malaysia</p>
+            </div>
+          </div>
+
+          <!-- Taiwan -->
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/DSCF3878.jpeg"><img src="images/Taiwan/DSCF3878.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/DSCF3903.jpeg"><img src="images/Taiwan/DSCF3903.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/DSCF4191.jpeg"><img src="images/Taiwan/DSCF4191.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/DSCF4224.jpeg"><img src="images/Taiwan/DSCF4224.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_3876.jpeg"><img src="images/Taiwan/IMG_3876.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_3883.jpeg"><img src="images/Taiwan/IMG_3883.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_3924.jpeg"><img src="images/Taiwan/IMG_3924.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_3935.jpeg"><img src="images/Taiwan/IMG_3935.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4057.jpeg"><img src="images/Taiwan/IMG_4057.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4112.jpeg"><img src="images/Taiwan/IMG_4112.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4169.jpeg"><img src="images/Taiwan/IMG_4169.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4211.jpeg"><img src="images/Taiwan/IMG_4211.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4289.jpeg"><img src="images/Taiwan/IMG_4289.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="taiwan" data-title="Taiwan" data-full="images/Taiwan/IMG_4412.jpeg"><img src="images/Taiwan/IMG_4412.jpeg" alt="Taiwan" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Taiwan</span><p class="gallery-item-title">Taiwan</p></div></div>
+
+          <!-- Brunei -->
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_5026.jpeg"><img src="images/Brunei/IMG_5026.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_7949.jpeg"><img src="images/Brunei/IMG_7949.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_7966.jpeg"><img src="images/Brunei/IMG_7966.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_7968.jpeg"><img src="images/Brunei/IMG_7968.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_7969.jpeg"><img src="images/Brunei/IMG_7969.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+          <div class="gallery-item" role="listitem" tabindex="0" data-category="brunei" data-title="Brunei" data-full="images/Brunei/IMG_8029.jpeg"><img src="images/Brunei/IMG_8029.jpeg" alt="Brunei" loading="lazy"><div class="gallery-item-overlay"><span class="gallery-item-cat">Brunei</span><p class="gallery-item-title">Brunei</p></div></div>
+
+        </div><!-- /gallery-grid -->
+
+        <div class="gallery-empty" role="status">No photos in this category yet.</div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ============ LIGHTBOX ============ -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Photo viewer">
+    <button class="lightbox-close" aria-label="Close lightbox">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <button class="lightbox-nav lightbox-prev" aria-label="Previous photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+
+    <button class="lightbox-nav lightbox-next" aria-label="Next photo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+
+    <div class="lightbox-media">
+      <img class="lightbox-img" src="" alt="" draggable="false">
+
+      <div class="lightbox-caption">
+        <div>
+          <p class="lightbox-caption-cat"></p>
+          <p class="lightbox-caption-title"></p>
+        </div>
+        <span class="lightbox-counter"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-brand">Alston Shi</div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <a href="portfolio.html">Portfolio</a>
+          <a href="about.html">About</a>
+          <a href="contact.html">Contact</a>
+        </nav>
+        <p class="footer-copy">© 2026 Alston Shi. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/theme.js"></script>
+  <script src="js/nav.js"></script>
+  <script src="js/gallery.js"></script>
+
+  <!-- Keyboard accessibility for gallery items -->
+  <script>
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          item.click();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
