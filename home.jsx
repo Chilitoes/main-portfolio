@@ -8,6 +8,11 @@ function Home({ go, onOpenLightbox }) {
   const splitImgRef = React.useRef(null);
   const splitZoomRef = React.useRef(null);
   const splitTextRef = React.useRef(null);
+  const portTeaserScrollRef = React.useRef(null);
+  const portTeaserPhotoRef = React.useRef(null);
+  const portTeaserLabelRef = React.useRef(null);
+  const portTeaserGridRef = React.useRef(null);
+  const portTeaserCtaRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
 
   React.useEffect(() => {
@@ -16,6 +21,7 @@ function Home({ go, onOpenLightbox }) {
     const zoom = heroZoomRef.current;
     if (!zone || !zoom) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.matchMedia('(max-width: 900px)').matches) return;
     const onScroll = () => {
       const progress = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / window.innerHeight));
       zoom.style.transform = `scale(${1.2 - 0.2 * progress})`;
@@ -51,38 +57,100 @@ function Home({ go, onOpenLightbox }) {
     const onScroll = () => {
       const scrolled = window.scrollY;
 
-      // Card entrance: starts when quote reaches 80% to top, over next 80vh
+      // Card entrance: starts when quote reaches 80% to top, over next 55vh
       const cardStart = quoteScrollTrigger;
-      const cardEnd = cardStart + (window.innerHeight * 0.8);
+      const cardEnd = cardStart + (window.innerHeight * 0.55);
       const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out 150vh after card starts)
+      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out 100vh after card starts)
       if (zoom) {
         const kenStart = cardStart;
-        const kenEnd = kenStart + (window.innerHeight * 1.5);
+        const kenEnd = kenStart + (window.innerHeight * 1.0);
         const kenProg = Math.max(0, Math.min(1, (scrolled - kenStart) / (kenEnd - kenStart)));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals starting when image is 80% zoomed out
-        const textStart = quoteScrollTrigger + (window.innerHeight * 1.2); // 120vh after card start
-        const textEnd = quoteScrollTrigger + (window.innerHeight * 1.8); // 180vh after card start
+        // Text reveals starting when image is ~80% zoomed out
+        const textStart = quoteScrollTrigger + (window.innerHeight * 0.85);
+        const textEnd = quoteScrollTrigger + (window.innerHeight * 1.25);
         const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
         // Button only appears during extra scroll after photo fully zoomed
-        const btnStart = quoteScrollTrigger + (window.innerHeight * 1.7); // 170vh after card start
-        const btnEnd = quoteScrollTrigger + (window.innerHeight * 2.5); // 250vh after card start
+        const btnStart = quoteScrollTrigger + (window.innerHeight * 1.2);
+        const btnEnd = quoteScrollTrigger + (window.innerHeight * 1.7);
         const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
           btn.style.transform = `translateX(${(1 - btnProg) * -100}px)`;
         }
+      }
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Portfolio teaser: torii gate zooms out to card, grid fades in
+  React.useEffect(() => {
+    const zone = portTeaserScrollRef.current;
+    const photo = portTeaserPhotoRef.current;
+    const label = portTeaserLabelRef.current;
+    const grid = portTeaserGridRef.current;
+    const cta = portTeaserCtaRef.current;
+    if (!zone || !photo) return;
+    if (window.matchMedia('(max-width: 900px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (label) { label.style.opacity = '1'; label.style.transform = 'none'; }
+      if (grid) { grid.querySelectorAll('.port-teaser-grid-item').forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; }); }
+      if (cta) { cta.style.opacity = '1'; cta.style.transform = 'none'; }
+      return;
+    }
+
+    const INIT_SCALE = 4.6;
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    const onScroll = () => {
+      const scrolled = window.scrollY;
+      const zoneTop = zone.offsetTop;
+      const zoneScrollable = zone.offsetHeight - window.innerHeight;
+      if (zoneScrollable <= 0) return;
+      const progress = Math.max(0, Math.min(1, (scrolled - zoneTop) / zoneScrollable));
+
+      // Phase 0-30%: label fades in over full-screen photo, then fades out
+      const labelInProg = easeOut(Math.max(0, Math.min(1, progress / 0.3)));
+      const labelOutProg = Math.max(0, Math.min(1, (progress - 0.2) / 0.15));
+      if (label) {
+        label.style.opacity = Math.max(0, labelInProg - labelOutProg);
+        label.style.transform = `translateY(${(1 - labelInProg) * 24}px)`;
+      }
+
+      // Phase 0-55%: photo zooms from full-screen to card
+      const photoProg = easeOut(Math.max(0, Math.min(1, progress / 0.55)));
+      photo.style.transform = `scale(${INIT_SCALE - (INIT_SCALE - 1) * photoProg})`;
+
+      // Phase 45-85%: grid items fade in with stagger
+      if (grid) {
+        const items = grid.querySelectorAll('.port-teaser-grid-item');
+        items.forEach((item, i) => {
+          const start = 0.45 + i * 0.06;
+          const end = start + 0.14;
+          const itemProg = easeOut(Math.max(0, Math.min(1, (progress - start) / (end - start))));
+          item.style.opacity = itemProg;
+          item.style.transform = `translateY(${(1 - itemProg) * 36}px)`;
+        });
+      }
+
+      // Phase 80-100%: CTA appears
+      if (cta) {
+        const ctaProg = easeOut(Math.max(0, Math.min(1, (progress - 0.78) / 0.22)));
+        cta.style.opacity = ctaProg;
+        cta.style.transform = `translateY(${(1 - ctaProg) * 24}px)`;
       }
     };
     onScroll();
@@ -191,6 +259,51 @@ function Home({ go, onOpenLightbox }) {
         </div>
       </section>
       </div>{/* end split-scroll-zone */}
+
+      {/* Portfolio teaser: torii gate zooms out to reveal gallery grid */}
+      <div className="port-teaser-scroll-zone" ref={portTeaserScrollRef}>
+        <section className="port-teaser">
+          <div
+            className="port-teaser-photo"
+            ref={portTeaserPhotoRef}
+            style={{ backgroundImage: `url(${window.PORTFOLIO_BY_FILE?.["Japan/IMG_0393.JPG"]?.src})` }}
+          >
+            <div className="port-teaser-overlay" />
+          </div>
+
+          <div className="port-teaser-hero-label" ref={portTeaserLabelRef}>
+            <div className="label">Japan &nbsp;·&nbsp; Hakone</div>
+            <h2>The <span className="italic">Portfolio.</span></h2>
+          </div>
+
+          <div className="port-teaser-grid" ref={portTeaserGridRef}>
+            {[
+              "Japan/IMG_1282.JPG",
+              "Japan/IMG_6229 2.JPG",
+              "Japan/IMG_6090.JPG",
+              "China/DSCF8199.JPG",
+            ].map((p, i) => {
+              const item = window.PORTFOLIO_BY_FILE?.[p];
+              if (!item) return null;
+              return (
+                <div
+                  key={i}
+                  className="port-teaser-grid-item"
+                  style={{ backgroundImage: `url(${item.src})` }}
+                />
+              );
+            })}
+          </div>
+
+          <div className="port-teaser-cta" ref={portTeaserCtaRef}>
+            <a className="btn-arrow" href="#/portfolio" data-cursor="hover"
+               onClick={(e) => { e.preventDefault(); go("portfolio"); }}>
+              View All Work
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </section>
+      </div>{/* end port-teaser-scroll-zone */}
 
       <Footer go={go} />
     </div>

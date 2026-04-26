@@ -5,17 +5,17 @@
 
 function Cinematic3DCarousel({ onOpenLightbox }) {
   // Pick representative shots — keyed by file path so it stays stable across
-  // data edits. Mix countries so the orbit feels like the whole archive.
+  // data edits. Japan-heavy per photographer preference.
   const items = React.useMemo(() => {
     const picks = [
+      "Japan/IMG_0393.JPG",       // Torii Gate, Hakone
       "Japan/IMG_6090.JPG",       // Sakura After Dark
+      "Japan/IMG_1282.JPG",       // Cherry Blossom Crossing
       "China/DSCF8199.JPG",       // Hexagon Window
-      "Taiwan/IMG_4112.jpeg",     // Taiwan, Taipei
       "Japan/IMG_5583.JPG",       // Dotonbori, Osaka
-      "Malaysia/DSCF1062.JPG",    // KL Skyline
-      "China/DSCF8511.JPG",       // Garden Pavilion
-      "Singapore/IMG_6462.JPG",   // Tropical Garden
-      "Brunei/IMG_7969.jpeg",     // Brunei
+      "Japan/IMG_8970.JPG",       // Sakura Canal
+      "Taiwan/IMG_4112.jpeg",     // Taiwan
+      "Japan/IMG_6229 2.JPG",     // Shibuya Crossing
     ];
     return picks
       .map((p) => window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[p])
@@ -30,8 +30,26 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
   const [expanded, setExpanded] = React.useState(null);
   const [expandAnim, setExpandAnim] = React.useState(false);
 
-  // Scroll-driven angle: 1 full rotation across the section's scroll range
+  // Scroll-driven angle on desktop; smooth auto-rotate on touch devices
   React.useEffect(() => {
+    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+
+    if (isTouch) {
+      let rafId;
+      let lastTime = null;
+      const SPEED = 18; // degrees per second
+      const tick = (time) => {
+        if (lastTime != null) {
+          const dt = (time - lastTime) / 1000;
+          setAngle((prev) => (prev + SPEED * dt) % 360);
+        }
+        lastTime = time;
+        rafId = requestAnimationFrame(tick);
+      };
+      rafId = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(rafId);
+    }
+
     const onScroll = () => {
       const sec = sectionRef.current;
       if (!sec) return;

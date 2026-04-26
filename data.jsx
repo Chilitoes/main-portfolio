@@ -50,7 +50,7 @@ const ITEMS = [
   ["china",     "West Lake, Hangzhou",       "China/IMG_3244.JPG"],
   ["malaysia",  "Steel Arch Bridge",         "Malaysia/DSCF1058.JPG"],
   ["malaysia",  "KL Skyline",                "Malaysia/DSCF1078.JPG"],
-  ["singapore", "Tropical Garden",           "Japan/IMG_0544.JPG"],
+  ["singapore", "Tropical Garden",           "Singapore/IMG_6462.JPG"],
 
   // Untitled archive — country only
   ["japan", "Japan", "Japan/DSC_0516.JPG"],
@@ -111,7 +111,6 @@ const ITEMS = [
   ["china", "China", "China/IMG_9090.JPG"],
   ["china", "China", "China/IMG_9091.JPG"],
 
-  ["malaysia", "Malaysia", "Malaysia/DSCF1078.JPG"],
   ["malaysia", "Malaysia", "Malaysia/IMG_6274.JPG"],
 
   ["taiwan", "Taiwan", "Taiwan/DSCF3878.jpeg"],
