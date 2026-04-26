@@ -1542,11 +1542,4 @@ footer.site-footer {
   .contact-grid { grid-template-columns: 1fr; gap: 48px; }
   .portfolio-head { padding: 140px 22px 40px; }
   .port-grid { padding: 20px 22px 80px; grid-auto-rows: 24vw; }
-  .c3 { height: auto; }
-  .c3-sticky { position: relative; height: 100vh; }
-  .c3-head { padding: 40px 22px 20px; }
-  .c3-head .section-title { font-size: 32px; }
-  .c3-ring-stage { height: 50vh; }
-  .c3-caption { padding: 20px 22px; text-align: center; }
-  .c3-progress-bar { display: none; }
 }
