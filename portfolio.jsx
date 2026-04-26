@@ -1,9 +1,15 @@
 // ============ Archive page ============
 
 function Portfolio({ go, onOpenLightbox }) {
-  const [filter, setFilter] = React.useState("All");
+  const initialCountry = sessionStorage.getItem("archiveCountry") || "All";
+  const [filter, setFilter] = React.useState(initialCountry);
   const [pillStyle, setPillStyle] = React.useState({});
   const pillsRef = React.useRef(null);
+
+  // Clear the stored country after using it
+  React.useEffect(() => {
+    sessionStorage.removeItem("archiveCountry");
+  }, []);
 
   // Position moving pill background
   React.useEffect(() => {

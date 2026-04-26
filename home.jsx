@@ -202,13 +202,73 @@ function Home({ go, onOpenLightbox }) {
       </section>
       </div>{/* end split-scroll-zone */}
 
-      {/* Archive CTA */}
-      <section style={{ padding: "120px 40px", textAlign: "center" }}>
-        <a className="btn-arrow" href="#/archive" data-cursor="hover"
-           onClick={(e) => { e.preventDefault(); go("archive"); }}>
-          View Archive
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-        </a>
+      {/* Archive CTA with Country Browse */}
+      <section style={{ padding: "120px 40px 80px" }}>
+        <div style={{ maxWidth: "1000px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "80px" }}>
+            <h2 style={{ fontSize: "48px", fontFamily: "var(--serif)", fontWeight: "300", marginBottom: "20px" }}>
+              Browse by <span style={{ fontStyle: "italic", color: "var(--ochre)" }}>Country</span>
+            </h2>
+            <p style={{ color: "var(--fg-dim)", fontSize: "14px", letterSpacing: "0.1em" }}>
+              Explore the complete archive of travel photography
+            </p>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "20px", marginBottom: "60px" }}>
+            {(window.COUNTRIES || []).filter(c => c !== "All").map((country) => {
+              const countryPhotos = (window.PORTFOLIO || []).filter(p => p.country === country);
+              const firstPhoto = countryPhotos[0];
+              return (
+                <a
+                  key={country}
+                  href={`#/archive?country=${country}`}
+                  data-cursor="hover"
+                  onClick={(e) => { e.preventDefault(); sessionStorage.setItem("archiveCountry", country); go("archive"); }}
+                  style={{
+                    position: "relative",
+                    aspectRatio: "2/1",
+                    backgroundImage: firstPhoto ? `url(${firstPhoto.src})` : "none",
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    borderRadius: "8px",
+                    overflow: "hidden",
+                    textDecoration: "none",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "transform 0.3s ease, filter 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = "scale(1.05)";
+                    e.target.style.filter = "brightness(0.6)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = "scale(1)";
+                    e.target.style.filter = "brightness(0.5)";
+                  }}
+                >
+                  <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />
+                  <div style={{ position: "relative", zIndex: 2, textAlign: "center" }}>
+                    <div style={{ fontSize: "24px", fontFamily: "var(--serif)", fontWeight: "300", marginBottom: "8px", color: "#F3ECDE" }}>
+                      {country}
+                    </div>
+                    <div style={{ fontSize: "12px", letterSpacing: "0.1em", color: "var(--fg-dim)" }}>
+                      {String(countryPhotos.length).padStart(2, "0")} PHOTOS
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+
+          <div style={{ textAlign: "center" }}>
+            <a className="btn-arrow" href="#/archive" data-cursor="hover"
+               onClick={(e) => { e.preventDefault(); go("archive"); }}>
+              View All
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
       </section>
 
       <Footer go={go} />
