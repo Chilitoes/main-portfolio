@@ -6,30 +6,47 @@ function Home({ go, onOpenLightbox }) {
   const heroZoomRef = React.useRef(null);
   const splitScrollRef = React.useRef(null);
   const splitZoomRef = React.useRef(null);
+  const splitTextRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
 
-  // Scroll-driven zoom-out: different ranges for hero vs split
-  const applyZoomEffect = (zone, zoom, isSplit) => {
+  React.useEffect(() => {
+    // Hero: 1.2 → 1.0
+    const zone = heroScrollRef.current;
+    const zoom = heroZoomRef.current;
     if (!zone || !zoom) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const onScroll = () => {
-      const scrolled = -zone.getBoundingClientRect().top;
-      const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
-      // Hero: 1.2 → 1.0; Split: 3.5 → 1.0 (scales down to small portrait rectangle on left)
-      const scale = isSplit ? 3.5 - 2.5 * progress : 1.2 - 0.2 * progress;
-      zoom.style.transform = `scale(${scale})`;
+      const progress = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / window.innerHeight));
+      zoom.style.transform = `scale(${1.2 - 0.2 * progress})`;
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  };
-
-  React.useEffect(() => {
-    return applyZoomEffect(heroScrollRef.current, heroZoomRef.current, false);
   }, []);
 
   React.useEffect(() => {
-    return applyZoomEffect(splitScrollRef.current, splitZoomRef.current, true);
+    // Split: 3.5 → 1.0; text slides in from left only after zoom completes
+    const zone = splitScrollRef.current;
+    const zoom = splitZoomRef.current;
+    const text = splitTextRef.current;
+    if (!zone || !zoom) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (text) { text.style.opacity = '1'; text.style.transform = 'none'; }
+      return;
+    }
+    const onScroll = () => {
+      const progress = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / window.innerHeight));
+      zoom.style.transform = `scale(${3.5 - 2.5 * progress})`;
+      if (text) {
+        // Text only starts appearing in the last 15% of zoom progress
+        const textProg = Math.max(0, Math.min(1, (progress - 0.85) / 0.15));
+        text.style.opacity = textProg;
+        text.style.transform = `translateX(${(1 - textProg) * -80}px)`;
+      }
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Word-by-word pull quote
@@ -114,7 +131,7 @@ function Home({ go, onOpenLightbox }) {
             <div className="split-img-inner" style={{ backgroundImage: `url(${window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG})` }} />
           </div>
         </div>
-        <div className="split-text reveal">
+        <div className="split-text" ref={splitTextRef}>
           <div className="label" style={{ color: "var(--ochre)" }}>About the photographer</div>
           <h2>
             Stories from the road <br /><span className="italic">and closer to home.</span>
