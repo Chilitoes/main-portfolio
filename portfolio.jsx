@@ -1,4 +1,4 @@
-// ============ Portfolio page ============
+// ============ Archive page ============
 
 function Portfolio({ go, onOpenLightbox }) {
   const [filter, setFilter] = React.useState("All");
@@ -24,8 +24,8 @@ function Portfolio({ go, onOpenLightbox }) {
   return (
     <div className="page">
       <header className="portfolio-head">
-        <div className="label reveal in" style={{ color: "var(--ochre)" }}>Selected Work</div>
-        <h1 className="portfolio-title reveal in">Portfolio</h1>
+        <div className="label reveal in" style={{ color: "var(--ochre)" }}>Complete Collection</div>
+        <h1 className="portfolio-title reveal in">Archive</h1>
 
         <div className="meta-row">
           <div className="filters" ref={pillsRef}>

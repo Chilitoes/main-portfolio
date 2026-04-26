@@ -37,7 +37,7 @@ function App() {
 
   let Page = null;
   if (route === "home") Page = window.Home;
-  else if (route === "portfolio") Page = window.Portfolio;
+  else if (route === "archive") Page = window.Portfolio;
   else if (route === "about") Page = window.About;
   else if (route === "contact") Page = window.Contact;
   else Page = window.Home;

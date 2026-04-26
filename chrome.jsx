@@ -3,7 +3,7 @@
 function Nav({ route, go, theme, onToggleTheme }) {
   const links = [
     { id: "home", label: "Home" },
-    { id: "portfolio", label: "Portfolio" },
+    { id: "archive", label: "Archive" },
     { id: "about", label: "About" },
     { id: "contact", label: "Contact" },
   ];
@@ -28,8 +28,8 @@ function Nav({ route, go, theme, onToggleTheme }) {
 }
 
 function SideMeta({ route }) {
-  const idx = ({ home: "01", portfolio: "02", about: "03", contact: "04" })[route] || "01";
-  const label = ({ home: "Index", portfolio: "Portfolio", about: "About", contact: "Contact" })[route] || "Index";
+  const idx = ({ home: "01", archive: "02", about: "03", contact: "04" })[route] || "01";
+  const label = ({ home: "Index", archive: "Archive", about: "About", contact: "Contact" })[route] || "Index";
   return (
     <div className="side-meta">
       N° {idx} &nbsp;·&nbsp; {label} &nbsp;·&nbsp; MMXXV
@@ -45,7 +45,7 @@ function Footer({ go }) {
         Alston <span className="italic">Shi</span>
       </a>
       <nav className="footer-nav" aria-label="Footer navigation">
-        <a href="#/portfolio" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("portfolio"); }}>Portfolio</a>
+        <a href="#/archive" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("archive"); }}>Archive</a>
         <a href="#/about" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("about"); }}>About</a>
         <a href="#/contact" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("contact"); }}>Contact</a>
       </nav>

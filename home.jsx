@@ -8,11 +8,6 @@ function Home({ go, onOpenLightbox }) {
   const splitImgRef = React.useRef(null);
   const splitZoomRef = React.useRef(null);
   const splitTextRef = React.useRef(null);
-  const portTeaserScrollRef = React.useRef(null);
-  const portTeaserPhotoRef = React.useRef(null);
-  const portTeaserLabelRef = React.useRef(null);
-  const portTeaserGridRef = React.useRef(null);
-  const portTeaserCtaRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
 
   React.useEffect(() => {
@@ -105,62 +100,6 @@ function Home({ go, onOpenLightbox }) {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Portfolio teaser: torii gate zooms out to card, grid fades in
-  React.useEffect(() => {
-    const zone = portTeaserScrollRef.current;
-    const photo = portTeaserPhotoRef.current;
-    const label = portTeaserLabelRef.current;
-    const grid = portTeaserGridRef.current;
-    const cta = portTeaserCtaRef.current;
-    if (!zone || !photo) return;
-    if (window.matchMedia('(max-width: 900px)').matches) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      if (label) { label.style.opacity = '1'; label.style.transform = 'none'; }
-      if (grid) { grid.querySelectorAll('.port-teaser-grid-item').forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; }); }
-      if (cta) { cta.style.opacity = '1'; cta.style.transform = 'none'; }
-      return;
-    }
-
-    const INIT_SCALE = 4.6;
-    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
-
-    const onScroll = () => {
-      const scrolled = window.scrollY;
-      const zoneTop = zone.offsetTop;
-      const zoneScrollable = zone.offsetHeight - window.innerHeight;
-      if (zoneScrollable <= 0) return;
-      const progress = Math.max(0, Math.min(1, (scrolled - zoneTop) / zoneScrollable));
-
-      // Phase 0-30%: label fades in over full-screen photo, then fades out
-      const labelInProg = easeOut(Math.max(0, Math.min(1, progress / 0.3)));
-      const labelOutProg = Math.max(0, Math.min(1, (progress - 0.2) / 0.15));
-      if (label) {
-        label.style.opacity = Math.max(0, labelInProg - labelOutProg);
-      }
-
-      // Phase 0-55%: photo zooms from full-screen to card size
-      const photoProg = easeOut(Math.max(0, Math.min(1, progress / 0.55)));
-      const photoScale = INIT_SCALE - (INIT_SCALE - 1) * photoProg;
-      photo.style.transform = `translate(-50%, -50%) scale(${photoScale})`;
-
-      // Phase 30-100%: grid fades in as photo zooms out
-      if (grid) {
-        const gridProg = easeOut(Math.max(0, Math.min(1, (progress - 0.3) / 0.7)));
-        grid.style.opacity = gridProg;
-      }
-
-      // Phase 90-100%: CTA appears at bottom
-      if (cta) {
-        const ctaProg = easeOut(Math.max(0, Math.min(1, (progress - 0.9) / 0.1)));
-        cta.style.opacity = ctaProg;
-        cta.style.transform = `translateY(${(1 - ctaProg) * 24}px)`;
-      }
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
   // Word-by-word pull quote
   const quoteRef = React.useRef(null);
   React.useEffect(() => {
@@ -206,9 +145,9 @@ function Home({ go, onOpenLightbox }) {
               I photograph places. I photograph people. <span className="em">Sometimes both at once.</span>
             </p>
             <div style={{ marginTop: 36 }}>
-              <a className="btn-arrow" href="#/portfolio" data-cursor="hover"
-                 onClick={(e) => { e.preventDefault(); go("portfolio"); }}>
-                View Portfolio
+              <a className="btn-arrow" href="#/archive" data-cursor="hover"
+                 onClick={(e) => { e.preventDefault(); go("archive"); }}>
+                View Archive
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
               </a>
             </div>
@@ -263,41 +202,14 @@ function Home({ go, onOpenLightbox }) {
       </section>
       </div>{/* end split-scroll-zone */}
 
-      {/* Portfolio teaser: torii gate zooms out to reveal gallery grid */}
-      <div className="port-teaser-scroll-zone" ref={portTeaserScrollRef}>
-        <section className="port-teaser">
-          <div
-            className="port-teaser-photo"
-            ref={portTeaserPhotoRef}
-            style={{ backgroundImage: `url(${window.PORTFOLIO_BY_FILE?.["Japan/IMG_0393.JPG"]?.src})` }}
-          >
-            <div className="port-teaser-overlay" />
-          </div>
-
-          <div className="port-teaser-hero-label" ref={portTeaserLabelRef}>
-            <div className="label">Japan &nbsp;·&nbsp; Hakone</div>
-            <h2>The <span className="italic">Portfolio.</span></h2>
-          </div>
-
-          <div className="port-teaser-grid" ref={portTeaserGridRef}>
-            {(window.PORTFOLIO || []).map((item, i) => (
-              <div
-                key={item.id}
-                className="port-teaser-grid-item"
-                style={{ backgroundImage: `url(${item.src})` }}
-              />
-            ))}
-          </div>
-
-          <div className="port-teaser-cta" ref={portTeaserCtaRef}>
-            <a className="btn-arrow" href="#/portfolio" data-cursor="hover"
-               onClick={(e) => { e.preventDefault(); go("portfolio"); }}>
-              View All Work
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </a>
-          </div>
-        </section>
-      </div>{/* end port-teaser-scroll-zone */}
+      {/* Archive CTA */}
+      <section style={{ padding: "120px 40px", textAlign: "center" }}>
+        <a className="btn-arrow" href="#/archive" data-cursor="hover"
+           onClick={(e) => { e.preventDefault(); go("archive"); }}>
+          View Archive
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </section>
 
       <Footer go={go} />
     </div>
