@@ -38,7 +38,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
 
     if (touch) {
       // Timer-based rotation on touch (less jank than RAF, updates every 50ms)
-      const SPEED = 10; // degrees per second (20 * 50ms = 1 degree per update)
+      const SPEED = 20; // degrees per second (40 * 50ms = 2 degrees per update)
       let intervalId = setInterval(() => {
         setAngle(prev => (prev + SPEED * 0.05) % 360);
       }, 50);
