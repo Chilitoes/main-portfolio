@@ -5,6 +5,7 @@ function Home({ go, onOpenLightbox }) {
   const heroScrollRef = React.useRef(null);
   const heroZoomRef = React.useRef(null);
   const splitScrollRef = React.useRef(null);
+  const splitImgRef = React.useRef(null);
   const splitZoomRef = React.useRef(null);
   const splitTextRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
@@ -25,32 +26,46 @@ function Home({ go, onOpenLightbox }) {
   }, []);
 
   React.useEffect(() => {
-    // Split: 3.5 → 1.0; text slides in from left only after zoom completes
+    // Split: card slides up + fades in, image has subtle ken-burns. Text and button reveal much later.
     const zone = splitScrollRef.current;
+    const card = splitImgRef.current;
     const zoom = splitZoomRef.current;
     const text = splitTextRef.current;
-    if (!zone || !zoom) return;
+    if (!zone || !card) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      card.style.opacity = '1';
+      card.style.transform = 'none';
+      if (zoom) zoom.style.transform = 'none';
       if (text) { text.style.opacity = '1'; text.style.transform = 'none'; }
       return;
     }
+    const easeOut = (t) => 1 - Math.pow(1 - t, 3);
     const onScroll = () => {
       const scrolled = -zone.getBoundingClientRect().top;
-      const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
-      zoom.style.transform = `scale(${3.5 - 2.5 * progress})`;
-      if (text) {
-        // Text reveals slowly during the pause: 110vh to 150vh of scroll (40vh range)
-        const textProg = Math.max(0, Math.min(1, (scrolled - 110) / 40));
-        // Button reveals much later: 180vh to 220vh of scroll
-        const btnProg = Math.max(0, Math.min(1, (scrolled - 180) / 40));
 
+      // Card entrance: 0-80vh of scroll. Slides up + fades in with subtle scale.
+      const cardProg = easeOut(Math.max(0, Math.min(1, scrolled / (window.innerHeight * 0.8))));
+      card.style.opacity = cardProg;
+      card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
+
+      // Inner image ken-burns: subtle 1.15 → 1.0 over a longer range
+      if (zoom) {
+        const kenProg = Math.max(0, Math.min(1, scrolled / (window.innerHeight * 1.5)));
+        zoom.style.transform = `scale(${1.15 - 0.15 * kenProg})`;
+      }
+
+      if (text) {
+        // Text reveals slowly: 110vh-180vh of scroll (70vh range)
+        const textProg = Math.max(0, Math.min(1, (scrolled - 110) / 70));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
+        // Button reveals very slowly and much later: 220vh-320vh (100vh range)
+        const btnProg = Math.max(0, Math.min(1, (scrolled - 220) / 100));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
-          btn.style.transform = `translateY(${(1 - btnProg) * 24}px)`;
+          btn.style.transform = `translateY(${(1 - btnProg) * 28}px)`;
         }
       }
     };
@@ -136,7 +151,7 @@ function Home({ go, onOpenLightbox }) {
       {/* About teaser */}
       <div className="split-scroll-zone" ref={splitScrollRef}>
       <section className="split">
-        <div className="split-img reveal-img">
+        <div className="split-img reveal-img" ref={splitImgRef}>
           <div ref={splitZoomRef} className="split-img-zoom">
             <div className="split-img-inner" style={{ backgroundImage: `url(${window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG})` }} />
           </div>
