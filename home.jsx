@@ -2,7 +2,25 @@
 
 function Home({ go, onOpenLightbox }) {
   const heroBgRef = React.useRef(null);
+  const heroScrollRef = React.useRef(null);
+  const heroZoomRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
+
+  // Scroll-driven zoom-out: scale 1.4 → 1.0 as you scroll through the hero zone
+  React.useEffect(() => {
+    const zone = heroScrollRef.current;
+    const zoom = heroZoomRef.current;
+    if (!zone || !zoom) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const onScroll = () => {
+      const scrolled = -zone.getBoundingClientRect().top;
+      const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
+      zoom.style.transform = `scale(${1.4 - 0.4 * progress})`;
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   // Word-by-word pull quote
   const quoteRef = React.useRef(null);
@@ -27,13 +45,16 @@ function Home({ go, onOpenLightbox }) {
 
   return (
     <div className="page">
-      {/* Hero */}
+      {/* Hero — scroll zone gives sticky room for zoom-out effect */}
+      <div className="hero-scroll-zone" ref={heroScrollRef}>
       <section className="hero">
-        <div
-          ref={heroBgRef}
-          className="hero-bg"
-          style={{ backgroundImage: `url(${window.HERO_IMG})` }}
-        />
+        <div ref={heroZoomRef} className="hero-bg-zoom">
+          <div
+            ref={heroBgRef}
+            className="hero-bg"
+            style={{ backgroundImage: `url(${window.HERO_IMG})` }}
+          />
+        </div>
         <div className="hero-content">
           <div className="stagger">
             <div className="hero-meta">
@@ -55,6 +76,7 @@ function Home({ go, onOpenLightbox }) {
           </div>
         </div>
       </section>
+      </div>{/* end hero-scroll-zone */}
 
       {/* 3D carousel ring (replaces the swirl gallery) */}
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />

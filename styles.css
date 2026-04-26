@@ -548,12 +548,25 @@ a { color: inherit; text-decoration: none; cursor: pointer; }
 }
 
 /* ===== Home: hero ===== */
-.hero {
+.hero-scroll-zone {
   position: relative;
+  height: 200vh;
+}
+
+.hero {
+  position: sticky;
+  top: 0;
   height: 100vh;
-  min-height: 700px;
   overflow: hidden;
 }
+
+.hero-bg-zoom {
+  position: absolute;
+  inset: 0;
+  transform-origin: center center;
+  will-change: transform;
+}
+
 .hero-bg {
   position: absolute;
   inset: -6%;
@@ -1343,6 +1356,7 @@ footer.site-footer {
     scroll-behavior: auto !important;
   }
   .hero-bg { animation: none; transform: none; }
+  .hero-bg-zoom { transform: none !important; }
   .marquee-track { animation-play-state: paused; }
   body { cursor: auto; }
   .grain { display: none; }
