@@ -830,15 +830,18 @@ body.theme-light .hero-content { color: #201C18; }
 }
 
 .split-text {
-  position: relative;
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
   z-index: 10;
-  margin-left: auto;
   padding: 80px 60px;
-  width: 45%;
+  width: 55%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 28px;
+  background: linear-gradient(90deg, rgba(20,18,16,0) 0%, var(--bg) 30%);
 }
 .split-text h2 {
   font-family: var(--serif);
@@ -869,7 +872,7 @@ body.theme-light .hero-content { color: #201C18; }
 .split-img-zoom {
   position: absolute;
   inset: 0;
-  transform-origin: center center;
+  transform-origin: top left;
   will-change: transform;
 }
 

@@ -8,14 +8,16 @@ function Home({ go, onOpenLightbox }) {
   const splitZoomRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
 
-  // Scroll-driven zoom-out: scale 1.4 → 1.0 as you scroll through zones
-  const applyZoomEffect = (zone, zoom) => {
+  // Scroll-driven zoom-out: different ranges for hero vs split
+  const applyZoomEffect = (zone, zoom, isSplit) => {
     if (!zone || !zoom) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const onScroll = () => {
       const scrolled = -zone.getBoundingClientRect().top;
       const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
-      zoom.style.transform = `scale(${1.4 - 0.4 * progress})`;
+      // Hero: 1.2 → 1.0; Split: 1.4 → 0.5 (shrinks to 50% width on left)
+      const scale = isSplit ? 1.4 - 0.9 * progress : 1.2 - 0.2 * progress;
+      zoom.style.transform = `scale(${scale})`;
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -23,11 +25,11 @@ function Home({ go, onOpenLightbox }) {
   };
 
   React.useEffect(() => {
-    return applyZoomEffect(heroScrollRef.current, heroZoomRef.current);
+    return applyZoomEffect(heroScrollRef.current, heroZoomRef.current, false);
   }, []);
 
   React.useEffect(() => {
-    return applyZoomEffect(splitScrollRef.current, splitZoomRef.current);
+    return applyZoomEffect(splitScrollRef.current, splitZoomRef.current, true);
   }, []);
 
   // Word-by-word pull quote
