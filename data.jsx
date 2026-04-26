@@ -158,7 +158,7 @@ window.PORTRAIT_IMG_HOME = IMG("alston shi/IMG_7403.jpg");
 window.PORTRAIT_IMG_SECONDARY = IMG("alston shi/IMG_1014.jpg");
 
 // Filter labels (match the live portfolio's category set)
-window.COUNTRIES = ["All", "Japan", "China", "Taiwan", "Malaysia", "Singapore", "Brunei"];
+window.COUNTRIES = ["All", "Japan", "China", "Taiwan", "Korea", "Indonesia", "Malaysia", "Singapore", "Brunei"];
 
 // Gear (from the live About page)
 window.GEAR = [

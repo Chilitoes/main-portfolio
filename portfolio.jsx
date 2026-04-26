@@ -36,16 +36,26 @@ function Portfolio({ go, onOpenLightbox }) {
         <div className="meta-row">
           <div className="filters" ref={pillsRef}>
             <div className="filters-bg" style={pillStyle} />
-            {window.COUNTRIES.map((c) => (
-              <button
-                key={c}
-                className={"filter-pill" + (filter === c ? " active" : "")}
-                onClick={() => setFilter(c)}
-                data-cursor="hover"
-              >
-                {c}
-              </button>
-            ))}
+            {window.COUNTRIES.map((c) => {
+              const countryPhotos = c === "All" ? items : items.filter(i => i.country === c);
+              const hasPhotos = countryPhotos.length > 0;
+              return (
+                <button
+                  key={c}
+                  className={"filter-pill" + (filter === c ? " active" : "") + (!hasPhotos ? " disabled" : "")}
+                  onClick={() => hasPhotos && setFilter(c)}
+                  data-cursor={hasPhotos ? "hover" : "auto"}
+                  disabled={!hasPhotos}
+                  style={{
+                    opacity: hasPhotos ? 1 : 0.5,
+                    cursor: hasPhotos ? "pointer" : "default",
+                  }}
+                  title={!hasPhotos ? "Coming Soon" : ""}
+                >
+                  {c}
+                </button>
+              );
+            })}
           </div>
           <div className="label">
             {filter === "All"

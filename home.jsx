@@ -218,6 +218,36 @@ function Home({ go, onOpenLightbox }) {
             {(window.COUNTRIES || []).filter(c => c !== "All").map((country) => {
               const countryPhotos = (window.PORTFOLIO || []).filter(p => p.country === country);
               const firstPhoto = countryPhotos[0];
+              const hasPhotos = countryPhotos.length > 0;
+
+              if (!hasPhotos) {
+                return (
+                  <div
+                    key={country}
+                    style={{
+                      position: "relative",
+                      aspectRatio: "2/1",
+                      background: "rgba(200, 162, 101, 0.08)",
+                      borderRadius: "8px",
+                      overflow: "hidden",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: "1px solid rgba(200, 162, 101, 0.2)",
+                    }}
+                  >
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontSize: "24px", fontFamily: "var(--serif)", fontWeight: "300", marginBottom: "8px", color: "var(--ochre)" }}>
+                        {country}
+                      </div>
+                      <div style={{ fontSize: "11px", letterSpacing: "0.15em", color: "var(--fg-dim)", textTransform: "uppercase" }}>
+                        Coming Soon
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+
               return (
                 <a
                   key={country}
@@ -227,7 +257,7 @@ function Home({ go, onOpenLightbox }) {
                   style={{
                     position: "relative",
                     aspectRatio: "2/1",
-                    backgroundImage: firstPhoto ? `url(${firstPhoto.src})` : "none",
+                    backgroundImage: `url(${firstPhoto.src})`,
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     borderRadius: "8px",
