@@ -1,0 +1,51 @@
+name: Deploy to alstonshi.com
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: sftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Mirror repo to SFTP
+        env:
+          SFTP_HOST: ${{ secrets.FTP_SERVER }}
+          SFTP_USER: ${{ secrets.FTP_USERNAME }}
+          SFTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+        run: |
+          set -euo pipefail
+          if [ -z "${REMOTE_DIR:-}" ]; then
+            echo "FTP_REMOTE_DIR secret is not set" >&2
+            exit 1
+          fi
+          lftp -c "
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            set net:timeout 30;
+            set net:reconnect-interval-base 5;
+            open -u '$SFTP_USER','$SFTP_PASS' sftp://$SFTP_HOST;
+            mirror -R --verbose --parallel=4 \
+              --exclude-glob .git \
+              --exclude-glob .git/* \
+              --exclude-glob .github \
+              --exclude-glob .github/* \
+              --exclude-glob .gitignore \
+              --exclude-glob .gitattributes \
+              --exclude-glob README.md \
+              --exclude-glob .DS_Store \
+              ./ '$REMOTE_DIR';
+            bye
+          "
