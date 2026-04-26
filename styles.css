@@ -820,8 +820,9 @@ body.theme-light .hero-content { color: #201C18; }
   left: 18vw;
   width: 24vw;
   background: var(--bg-elev);
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35), 0 4px 16px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   overflow: hidden;
 }
 

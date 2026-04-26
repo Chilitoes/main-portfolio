@@ -39,20 +39,20 @@ function Home({ go, onOpenLightbox }) {
       const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
       zoom.style.transform = `scale(${3.5 - 2.5 * progress})`;
       if (text) {
-        // Text (excluding button) reveals at 85-100% of zoom
-        const textProg = Math.max(0, Math.min(1, (progress - 0.85) / 0.15));
-        // Button reveals later, during the pause (after ~120vh of scroll)
-        const btnProg = Math.max(0, Math.min(1, (scrolled - 120) / 30));
+        // Text (excluding button) reveals later, at 95-100% of zoom
+        const textProg = Math.max(0, Math.min(1, (progress - 0.95) / 0.05));
+        // Button reveals much later, during the pause (after ~140vh of scroll)
+        const btnProg = Math.max(0, Math.min(1, (scrolled - 140) / 35));
 
-        // Apply to text container
-        text.style.opacity = Math.max(textProg, btnProg > 0 ? 1 : 0);
-        text.style.transform = `translateX(${(1 - textProg) * -80}px)`;
+        // Apply to text container - move and appear simultaneously with larger slide distance
+        text.style.opacity = textProg;
+        text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Reveal button separately via data attribute
+        // Reveal button separately
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
-          btn.style.transform = `translateY(${(1 - btnProg) * 20}px)`;
+          btn.style.transform = `translateY(${(1 - btnProg) * 24}px)`;
         }
       }
     };
