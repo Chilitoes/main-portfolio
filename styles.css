@@ -810,14 +810,15 @@ body.theme-light .hero-content { color: #201C18; }
 /* ===== About teaser split ===== */
 .split {
   position: relative;
-  display: flex;
-  align-items: center;
+  overflow: hidden;
 }
 
 .split-img {
   position: absolute;
-  inset: 0;
-  overflow: hidden;
+  bottom: 0;
+  left: 0;
+  width: 30vw;
+  height: 75vh;
   background: var(--bg-elev);
 }
 
@@ -831,7 +832,10 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-text {
   position: absolute;
-  inset: 0;
+  left: 35vw;
+  top: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
   padding: 80px 60px;
   display: flex;
@@ -856,7 +860,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-scroll-zone {
   position: relative;
-  height: 150vh;
+  height: 250vh;
 }
 
 .split {
@@ -1403,10 +1407,11 @@ footer.site-footer {
   .t-wide-2, .t-wide-3, .t-wide-full { grid-column: span 12; grid-row: span 4; }
   .t-tall { grid-column: span 6; grid-row: span 4; }
   .t-sq-3, .t-sq-4, .t-sm-3 { grid-column: span 6; grid-row: span 3; }
-  .split { position: relative; flex-direction: column; height: auto; }
-  .split-img { position: relative; }
+  .split-scroll-zone { height: auto; }
+  .split { position: relative; flex-direction: column; height: auto; overflow: visible; }
+  .split-img { position: relative; width: 100%; height: 60vh; }
   .split-img-zoom { transform: none !important; z-index: 1; }
-  .split-text { position: relative; padding: 50px 26px; z-index: 10; }
+  .split-text { position: relative; left: auto; right: auto; top: auto; bottom: auto; padding: 50px 26px; z-index: 10; }
   .about-hero { grid-template-columns: 1fr; }
   .about-portrait { min-height: 60vh; }
   .about-body { padding: 80px 26px; }
