@@ -780,7 +780,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 /* ===== Pull quote ===== */
 .pull-quote {
-  padding: 100px 40px;
+  padding: 60px 40px;
   max-width: 1200px;
   margin: 0 auto;
   text-align: left;
@@ -843,11 +843,11 @@ body.theme-light .hero-content { color: #201C18; }
   right: 0;
   bottom: 0;
   z-index: 1;
-  padding: 80px 60px;
+  padding: 60px 60px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 28px;
+  gap: 24px;
   opacity: 0;
   will-change: opacity, transform;
 }
@@ -889,7 +889,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-scroll-zone {
   position: relative;
-  height: 210vh;
+  height: 170vh;
 }
 
 .split {
