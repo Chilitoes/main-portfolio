@@ -31,6 +31,7 @@ function Home({ go, onOpenLightbox }) {
     const card = splitImgRef.current;
     const zoom = splitZoomRef.current;
     const text = splitTextRef.current;
+    const quote = quoteRef.current;
     if (!zone || !card) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       card.style.opacity = '1';
@@ -39,37 +40,48 @@ function Home({ go, onOpenLightbox }) {
       if (text) { text.style.opacity = '1'; text.style.transform = 'none'; }
       return;
     }
+
+    // Calculate when quote reaches 80% toward top (20% from top of viewport)
+    let quoteScrollTrigger = 0;
+    if (quote) {
+      quoteScrollTrigger = quote.offsetTop - (window.innerHeight * 0.2);
+    }
+
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
     const onScroll = () => {
-      const scrolled = -zone.getBoundingClientRect().top;
+      const scrolled = window.scrollY;
 
-      // Card entrance: 0-80vh
-      const cardProg = easeOut(Math.max(0, Math.min(1, scrolled / (window.innerHeight * 0.8))));
+      // Card entrance: starts when quote reaches 80% to top, over next 80vh
+      const cardStart = quoteScrollTrigger;
+      const cardEnd = cardStart + (window.innerHeight * 0.8);
+      const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out at scrolled=150vh)
+      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out 150vh after card starts)
       if (zoom) {
-        const kenProg = Math.max(0, Math.min(1, scrolled / (window.innerHeight * 1.5)));
+        const kenStart = cardStart;
+        const kenEnd = kenStart + (window.innerHeight * 1.5);
+        const kenProg = Math.max(0, Math.min(1, (scrolled - kenStart) / (kenEnd - kenStart)));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals starting when image is 80% zoomed out (scrolled ~120vh)
-        const textStart = window.innerHeight * 1.2; // 120vh
-        const textEnd = window.innerHeight * 1.8; // 180vh
+        // Text reveals starting when image is 80% zoomed out
+        const textStart = quoteScrollTrigger + (window.innerHeight * 1.2); // 120vh after card start
+        const textEnd = quoteScrollTrigger + (window.innerHeight * 1.8); // 180vh after card start
         const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button only appears during extra scroll after photo fully zoomed (scrolled 150vh+)
-        const btnStart = window.innerHeight * 1.7; // 170vh (20vh into the extra scroll)
-        const btnEnd = window.innerHeight * 2.5; // 250vh
+        // Button only appears during extra scroll after photo fully zoomed
+        const btnStart = quoteScrollTrigger + (window.innerHeight * 1.7); // 170vh after card start
+        const btnEnd = quoteScrollTrigger + (window.innerHeight * 2.5); // 250vh after card start
         const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
-          btn.style.transform = `translateY(${(1 - btnProg) * 28}px)`;
+          btn.style.transform = `translateX(${(1 - btnProg) * -100}px)`;
         }
       }
     };
