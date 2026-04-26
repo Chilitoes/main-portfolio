@@ -39,16 +39,14 @@ function Home({ go, onOpenLightbox }) {
       const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
       zoom.style.transform = `scale(${3.5 - 2.5 * progress})`;
       if (text) {
-        // Text (excluding button) reveals later, at 95-100% of zoom
-        const textProg = Math.max(0, Math.min(1, (progress - 0.95) / 0.05));
-        // Button reveals much later, during the pause (after ~140vh of scroll)
-        const btnProg = Math.max(0, Math.min(1, (scrolled - 140) / 35));
+        // Text reveals slowly during the pause: 110vh to 150vh of scroll (40vh range)
+        const textProg = Math.max(0, Math.min(1, (scrolled - 110) / 40));
+        // Button reveals much later: 180vh to 220vh of scroll
+        const btnProg = Math.max(0, Math.min(1, (scrolled - 180) / 40));
 
-        // Apply to text container - move and appear simultaneously with larger slide distance
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Reveal button separately
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;

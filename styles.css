@@ -815,8 +815,8 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-img {
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 10vh;
+  bottom: 10vh;
   left: 18vw;
   width: 24vw;
   background: var(--bg-elev);
@@ -887,7 +887,7 @@ body.theme-light .hero-content { color: #201C18; }
 
 .split-scroll-zone {
   position: relative;
-  height: 250vh;
+  height: 320vh;
 }
 
 .split {
