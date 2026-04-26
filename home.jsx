@@ -4,12 +4,12 @@ function Home({ go, onOpenLightbox }) {
   const heroBgRef = React.useRef(null);
   const heroScrollRef = React.useRef(null);
   const heroZoomRef = React.useRef(null);
+  const splitScrollRef = React.useRef(null);
+  const splitZoomRef = React.useRef(null);
   window.useMouseParallax(heroBgRef, 14);
 
-  // Scroll-driven zoom-out: scale 1.4 → 1.0 as you scroll through the hero zone
-  React.useEffect(() => {
-    const zone = heroScrollRef.current;
-    const zoom = heroZoomRef.current;
+  // Scroll-driven zoom-out: scale 1.4 → 1.0 as you scroll through zones
+  const applyZoomEffect = (zone, zoom) => {
     if (!zone || !zoom) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const onScroll = () => {
@@ -20,6 +20,14 @@ function Home({ go, onOpenLightbox }) {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  };
+
+  React.useEffect(() => {
+    return applyZoomEffect(heroScrollRef.current, heroZoomRef.current);
+  }, []);
+
+  React.useEffect(() => {
+    return applyZoomEffect(splitScrollRef.current, splitZoomRef.current);
   }, []);
 
   // Word-by-word pull quote
@@ -97,9 +105,12 @@ function Home({ go, onOpenLightbox }) {
       </section>
 
       {/* About teaser */}
+      <div className="split-scroll-zone" ref={splitScrollRef}>
       <section className="split">
         <div className="split-img reveal-img">
-          <div className="split-img-inner" style={{ backgroundImage: `url(${window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG})` }} />
+          <div ref={splitZoomRef} className="split-img-zoom">
+            <div className="split-img-inner" style={{ backgroundImage: `url(${window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG})` }} />
+          </div>
         </div>
         <div className="split-text reveal">
           <div className="label" style={{ color: "var(--ochre)" }}>About the photographer</div>
@@ -119,6 +130,7 @@ function Home({ go, onOpenLightbox }) {
           </a>
         </div>
       </section>
+      </div>{/* end split-scroll-zone */}
 
       <Footer go={go} />
     </div>
