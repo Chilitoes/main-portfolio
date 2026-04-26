@@ -182,8 +182,11 @@ body.theme-light .swirl-bg-grid {
   inset: 0;
   border-radius: 4px;
   overflow: hidden;
-  cursor: pointer;
+  cursor: auto;
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.6s var(--ease-soft);
+}
+.swirl-card-inner:hover {
+  cursor: pointer;
   box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.3);
   /* Slight translucent frame: card shows through background faintly */
   background: rgba(20, 18, 16, 0.35);
@@ -330,16 +333,18 @@ body {
   overflow-x: hidden;
   letter-spacing: 0.005em;
   transition: background 0.8s var(--ease-soft), color 0.8s var(--ease-soft);
-  cursor: pointer;
+  cursor: auto;
 }
 @media (hover: none) {
   body { cursor: auto; }
 }
 
 img { display: block; max-width: 100%; }
-button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: auto; }
+button:hover { cursor: pointer; }
 input, textarea { font: inherit; color: inherit; background: none; border: 0; outline: none; }
-a { color: inherit; text-decoration: none; cursor: pointer; }
+a { color: inherit; text-decoration: none; cursor: auto; }
+a:hover { cursor: pointer; }
 
 /* ===== Typography helpers ===== */
 .serif { font-family: var(--serif); }
@@ -804,25 +809,32 @@ body.theme-light .hero-content { color: #201C18; }
 
 /* ===== About teaser split ===== */
 .split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0;
-  min-height: 80vh;
-  align-items: stretch;
-}
-.split-img {
   position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.split-img {
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: var(--bg-elev);
-  min-height: 520px;
 }
+
 .split-img-inner {
-  position: absolute; inset: 0;
-  background-size: cover; background-position: center;
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
   transition: transform 10s linear;
 }
+
 .split-text {
+  position: relative;
+  z-index: 10;
+  margin-left: auto;
   padding: 80px 60px;
+  width: 45%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1357,10 +1369,10 @@ footer.site-footer {
 .about-strip-item {
   background-size: cover;
   background-position: center;
-  cursor: pointer;
+  cursor: auto;
   transition: transform 0.7s var(--ease-soft), filter 0.5s var(--ease-soft);
 }
-.about-strip-item:hover { transform: scale(1.03); filter: brightness(1.08); }
+.about-strip-item:hover { cursor: pointer; transform: scale(1.03); filter: brightness(1.08); }
 @media (max-width: 900px) {
   .about-strip { grid-template-columns: repeat(3, 1fr); height: 360px; }
 }
@@ -1391,8 +1403,9 @@ footer.site-footer {
   .t-wide-2, .t-wide-3, .t-wide-full { grid-column: span 12; grid-row: span 4; }
   .t-tall { grid-column: span 6; grid-row: span 4; }
   .t-sq-3, .t-sq-4, .t-sm-3 { grid-column: span 6; grid-row: span 3; }
-  .split { grid-template-columns: 1fr; height: auto; }
-  .split-text { padding: 50px 26px; }
+  .split { position: relative; flex-direction: column; height: auto; }
+  .split-img { position: relative; }
+  .split-text { position: relative; width: 100%; margin-left: 0; padding: 50px 26px; }
   .about-hero { grid-template-columns: 1fr; }
   .about-portrait { min-height: 60vh; }
   .about-body { padding: 80px 26px; }
