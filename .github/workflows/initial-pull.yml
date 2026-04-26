@@ -10,6 +10,10 @@ on:
         description: 'Branch to commit pulled files to'
         required: true
         default: 'main'
+  push:
+    branches: [main]
+    paths:
+      - '.bootstrap-trigger'
 
 jobs:
   pull:
@@ -20,7 +24,7 @@ jobs:
       - name: Checkout target branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.target_branch }}
+          ref: ${{ github.event.inputs.target_branch || github.ref_name }}
           fetch-depth: 0
 
       - name: Install lftp
@@ -56,6 +60,9 @@ jobs:
           rsync -av --exclude='.git/' --exclude='.github/' _sftp_pull/ ./
           rm -rf _sftp_pull
 
+      - name: Remove bootstrap trigger file
+        run: rm -f .bootstrap-trigger
+
       - name: Commit and push
         run: |
           set -euo pipefail
@@ -67,4 +74,4 @@ jobs:
             exit 0
           fi
           git commit -m "Initial import of alstonshi.com from SFTP [skip ci]"
-          git push origin HEAD:${{ github.event.inputs.target_branch }}
+          git push origin HEAD:${{ github.event.inputs.target_branch || github.ref_name }}
