@@ -1,0 +1,70 @@
+name: Initial pull from SFTP
+
+# One-off bootstrap: downloads the live site over SFTP and commits it to the repo.
+# Run this once via the Actions tab "Run workflow" button, then delete this file.
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_branch:
+        description: 'Branch to commit pulled files to'
+        required: true
+        default: 'main'
+
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_branch }}
+          fetch-depth: 0
+
+      - name: Install lftp
+        run: sudo apt-get update && sudo apt-get install -y lftp
+
+      - name: Mirror remote site into staging dir
+        env:
+          SFTP_HOST: ${{ secrets.FTP_SERVER }}
+          SFTP_USER: ${{ secrets.FTP_USERNAME }}
+          SFTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+        run: |
+          set -euo pipefail
+          if [ -z "${REMOTE_DIR:-}" ]; then
+            echo "FTP_REMOTE_DIR secret is not set" >&2
+            exit 1
+          fi
+          mkdir -p _sftp_pull
+          lftp -c "
+            set sftp:auto-confirm yes;
+            set net:max-retries 3;
+            set net:timeout 30;
+            open -u '$SFTP_USER','$SFTP_PASS' sftp://$SFTP_HOST;
+            mirror --verbose --parallel=4 '$REMOTE_DIR' ./_sftp_pull;
+            bye
+          "
+
+      - name: Move pulled files into repo root
+        run: |
+          set -euo pipefail
+          shopt -s dotglob nullglob
+          # Don't overwrite .github (where this workflow lives) or .git
+          rsync -av --exclude='.git/' --exclude='.github/' _sftp_pull/ ./
+          rm -rf _sftp_pull
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "Initial import of alstonshi.com from SFTP [skip ci]"
+          git push origin HEAD:${{ github.event.inputs.target_branch }}
