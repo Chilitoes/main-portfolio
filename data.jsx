@@ -130,7 +130,6 @@ const ITEMS = [
   ["taiwan", "Taiwan", "Taiwan/IMG_4412.jpeg"],
 
   ["brunei", "Brunei", "Brunei/IMG_7949.jpeg"],
-  ["brunei", "Brunei", "Brunei/IMG_7949.jpeg"],
   ["brunei", "Brunei", "Brunei/IMG_7966.jpeg"],
   ["brunei", "Brunei", "Brunei/IMG_7968.jpeg"],
   ["brunei", "Brunei", "Brunei/IMG_7969.jpeg"],
