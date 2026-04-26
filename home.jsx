@@ -15,8 +15,8 @@ function Home({ go, onOpenLightbox }) {
     const onScroll = () => {
       const scrolled = -zone.getBoundingClientRect().top;
       const progress = Math.max(0, Math.min(1, scrolled / window.innerHeight));
-      // Hero: 1.2 → 1.0; Split: 1.4 → 0.5 (shrinks to 50% width on left)
-      const scale = isSplit ? 1.4 - 0.9 * progress : 1.2 - 0.2 * progress;
+      // Hero: 1.2 → 1.0; Split: 1.2 → 0.25 (shrinks to small on left)
+      const scale = isSplit ? 1.2 - 0.95 * progress : 1.2 - 0.2 * progress;
       zoom.style.transform = `scale(${scale})`;
     };
     onScroll();

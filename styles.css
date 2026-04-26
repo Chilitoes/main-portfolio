@@ -874,6 +874,7 @@ body.theme-light .hero-content { color: #201C18; }
   inset: 0;
   transform-origin: top left;
   will-change: transform;
+  z-index: 10;
 }
 
 .btn-arrow {
