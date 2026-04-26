@@ -43,25 +43,29 @@ function Home({ go, onOpenLightbox }) {
     const onScroll = () => {
       const scrolled = -zone.getBoundingClientRect().top;
 
-      // Card entrance: 0-80vh of scroll. Slides up + fades in with subtle scale.
+      // Card entrance: 0-80vh
       const cardProg = easeOut(Math.max(0, Math.min(1, scrolled / (window.innerHeight * 0.8))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: subtle 1.15 → 1.0 over a longer range
+      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out at scrolled=150vh)
       if (zoom) {
         const kenProg = Math.max(0, Math.min(1, scrolled / (window.innerHeight * 1.5)));
-        zoom.style.transform = `scale(${1.15 - 0.15 * kenProg})`;
+        zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals slowly: 110vh-180vh of scroll (70vh range)
-        const textProg = Math.max(0, Math.min(1, (scrolled - 110) / 70));
+        // Text reveals starting when image is 80% zoomed out (scrolled ~120vh)
+        const textStart = window.innerHeight * 1.2; // 120vh
+        const textEnd = window.innerHeight * 1.8; // 180vh
+        const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button reveals very slowly and much later: 220vh-320vh (100vh range)
-        const btnProg = Math.max(0, Math.min(1, (scrolled - 220) / 100));
+        // Button only appears during extra scroll after photo fully zoomed (scrolled 150vh+)
+        const btnStart = window.innerHeight * 1.7; // 170vh (20vh into the extra scroll)
+        const btnEnd = window.innerHeight * 2.5; // 250vh
+        const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
