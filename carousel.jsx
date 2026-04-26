@@ -37,7 +37,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
     if (isTouch) {
       let rafId;
       let lastTime = null;
-      const SPEED = 18; // degrees per second
+      const SPEED = 8; // degrees per second
       const tick = (time) => {
         if (lastTime != null) {
           const dt = (time - lastTime) / 1000;

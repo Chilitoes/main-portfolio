@@ -1528,6 +1528,12 @@ footer.site-footer {
   .split-img { position: relative; top: auto; bottom: auto; left: auto; width: 90%; height: 60vh; margin: 20px auto; opacity: 1 !important; transform: none !important; }
   .split-img-zoom { transform: none !important; z-index: 1; }
   .split-text { position: relative; left: auto; right: auto; top: auto; bottom: auto; padding: 50px 26px; z-index: 10; opacity: 1 !important; transform: none !important; }
+  .port-teaser-scroll-zone { height: auto; }
+  .port-teaser { position: relative; height: auto; }
+  .port-teaser-photo { position: relative !important; top: auto !important; left: auto !important; width: 100% !important; height: 70vh; transform: none !important; margin-bottom: 40px; }
+  .port-teaser-hero-label { position: relative !important; bottom: auto !important; opacity: 1 !important; transform: none !important; padding: 40px 26px 0; text-align: center; }
+  .port-teaser-grid { display: none; }
+  .port-teaser-cta { position: relative !important; left: auto !important; opacity: 1 !important; transform: none !important; padding: 40px 26px; text-align: center; }
   .about-hero { grid-template-columns: 1fr; }
   .about-portrait { min-height: 60vh; }
   .about-body { padding: 80px 26px; }
