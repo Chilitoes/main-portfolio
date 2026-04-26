@@ -27,29 +27,25 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
 
   const sectionRef = React.useRef(null);
   const [angle, setAngle] = React.useState(0);
+  const [isTouch, setIsTouch] = React.useState(false);
   const [expanded, setExpanded] = React.useState(null);
   const [expandAnim, setExpandAnim] = React.useState(false);
 
-  // Scroll-driven angle on desktop; smooth auto-rotate on touch devices
+  // Detect touch and apply smooth timer-based rotation; scroll-driven on desktop
   React.useEffect(() => {
-    const isTouch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const touch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    setIsTouch(touch);
 
-    if (isTouch) {
-      let rafId;
-      let lastTime = null;
-      const SPEED = 8; // degrees per second
-      const tick = (time) => {
-        if (lastTime != null) {
-          const dt = (time - lastTime) / 1000;
-          setAngle((prev) => (prev + SPEED * dt) % 360);
-        }
-        lastTime = time;
-        rafId = requestAnimationFrame(tick);
-      };
-      rafId = requestAnimationFrame(tick);
-      return () => cancelAnimationFrame(rafId);
+    if (touch) {
+      // Timer-based rotation on touch (less jank than RAF, updates every 50ms)
+      const SPEED = 10; // degrees per second (20 * 50ms = 1 degree per update)
+      let intervalId = setInterval(() => {
+        setAngle(prev => (prev + SPEED * 0.05) % 360);
+      }, 50);
+      return () => clearInterval(intervalId);
     }
 
+    // Desktop: scroll-driven rotation
     const onScroll = () => {
       const sec = sectionRef.current;
       if (!sec) return;
