@@ -32,6 +32,7 @@ function Home({ go, onOpenLightbox }) {
     const card = splitImgRef.current;
     const zoom = splitZoomRef.current;
     const text = splitTextRef.current;
+    const quote = quoteRef.current;
     if (!zone || !card) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       card.style.opacity = '1';
@@ -50,34 +51,42 @@ function Home({ go, onOpenLightbox }) {
       return;
     }
 
+    // Calculate when quote reaches 80% toward top (20% from top of viewport)
+    let quoteScrollTrigger = 0;
+    if (quote) {
+      quoteScrollTrigger = quote.offsetTop - (window.innerHeight * 0.2);
+    }
+
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
     const onScroll = () => {
       const scrolled = window.scrollY;
-      const zoneTop = zone.offsetTop;
-      const zoneHeight = zone.offsetHeight;
 
-      // Card entrance: over first 30% of scroll zone
-      const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - zoneTop) / (zoneHeight * 0.3))));
+      // Card entrance: starts when quote reaches 80% to top, over next 55vh
+      const cardStart = quoteScrollTrigger;
+      const cardEnd = cardStart + (window.innerHeight * 0.55);
+      const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out over 60% of zone)
+      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out 100vh after card starts)
       if (zoom) {
-        const kenProg = Math.max(0, Math.min(1, (scrolled - zoneTop) / (zoneHeight * 0.6)));
+        const kenStart = cardStart;
+        const kenEnd = kenStart + (window.innerHeight * 1.0);
+        const kenProg = Math.max(0, Math.min(1, (scrolled - kenStart) / (kenEnd - kenStart)));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals starting at 40% of scroll zone
-        const textStart = zoneTop + (zoneHeight * 0.4);
-        const textEnd = zoneTop + zoneHeight;
+        // Text reveals starting when image is ~80% zoomed out
+        const textStart = quoteScrollTrigger + (window.innerHeight * 0.85);
+        const textEnd = quoteScrollTrigger + (window.innerHeight * 1.25);
         const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button appears at 70% of scroll zone
-        const btnStart = zoneTop + (zoneHeight * 0.7);
-        const btnEnd = zoneTop + zoneHeight;
+        // Button only appears during extra scroll after photo fully zoomed
+        const btnStart = quoteScrollTrigger + (window.innerHeight * 1.2);
+        const btnEnd = quoteScrollTrigger + (window.innerHeight * 1.7);
         const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
@@ -89,6 +98,27 @@ function Home({ go, onOpenLightbox }) {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Word-by-word pull quote
+  const quoteRef = React.useRef(null);
+  React.useEffect(() => {
+    const el = quoteRef.current;
+    if (!el) return;
+    const words = el.querySelectorAll(".w");
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          el.classList.add("in");
+          words.forEach((w, i) => {
+            w.style.transitionDelay = (0.05 + i * 0.06) + "s";
+          });
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    io.observe(el);
+    return () => io.disconnect();
   }, []);
 
   return (
@@ -130,6 +160,20 @@ function Home({ go, onOpenLightbox }) {
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
 
       {/* Pull quote — same single line as the live site's philosophy block */}
+      <section className="pull-quote" ref={quoteRef}>
+        <p className="pull-quote-text">
+          {"I don't look for extraordinary places."
+            .split(" ")
+            .map((w, i) => <span key={"a" + i} className="w">{w}&nbsp;</span>)}
+          <br />
+          <span className="italic">
+          {"I look for ordinary places at extraordinary moments."
+            .split(" ")
+            .map((w, i) => <span key={"b" + i} className="w">{w}&nbsp;</span>)}
+          </span>
+        </p>
+      </section>
+
       {/* About teaser */}
       <div className="split-scroll-zone" ref={splitScrollRef}>
       <section className="split">
@@ -139,19 +183,6 @@ function Home({ go, onOpenLightbox }) {
           </div>
         </div>
         <div className="split-text" ref={splitTextRef}>
-          <div style={{ marginBottom: "40px" }}>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px, 3vw, 36px)", fontWeight: "300", lineHeight: "1.3", letterSpacing: "-0.018em", color: "var(--fg)", marginBottom: "16px" }}>
-              {"I don't look for extraordinary places."
-                .split(" ")
-                .map((w, i) => <span key={"a" + i}>{w}&nbsp;</span>)}
-            </p>
-            <p style={{ fontFamily: "var(--serif)", fontSize: "clamp(24px, 3vw, 36px)", fontWeight: "300", lineHeight: "1.3", letterSpacing: "-0.018em", color: "var(--ochre)", fontStyle: "italic" }}>
-              {"I look for ordinary places at extraordinary moments."
-                .split(" ")
-                .map((w, i) => <span key={"b" + i}>{w}&nbsp;</span>)}
-            </p>
-          </div>
-
           <div className="label" style={{ color: "var(--ochre)" }}>About the photographer</div>
           <h2>
             Stories from the road <br /><span className="italic">and closer to home.</span>
