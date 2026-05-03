@@ -20,13 +20,12 @@ html.intro-seen #intro { display: none !important; }
   animation: i-in 0.3s ease-out forwards;
 }
 .intro.gone {
-  animation: i-out 0.5s ease-out forwards;
+  animation: i-out 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 @keyframes i-in  { to { opacity: 1; } }
 @keyframes i-out {
-  0%, 70% { opacity: 1; }
-  100%    { opacity: 0; visibility: hidden; }
+  to { opacity: 0; visibility: hidden; }
 }
 
 /* ─── Scene 1 : Film grain ──────────────────────────────────────────── */
@@ -425,10 +424,14 @@ html.intro-seen #intro { display: none !important; }
 
 /* ─── Mobile ────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
-  .i-img-main { left: 10%; width: 80vw; top: 20%; height: 50%; }
-  .i-img-l    { display: none; }
-  .i-img-r    { width: 38vw; right: 1%; top: 26%; height: 46%; }
-  .i-tag      { left: 5%; bottom: 10%; }
+  /* Symmetric three-photo layout on mobile */
+  .i-img-l    { display: block; left: 3%;  width: 22vw; top: 26%; height: 38%; }
+  .i-img-main { left: 27%;  width: 46vw; top: 30%; height: 30%; }
+  .i-img-r    { right: 3%;  width: 22vw; top: 26%; height: 38%; }
+  .i-tag      { left: 5%;   bottom: 10%; }
   .i-name     { font-size: 22px; letter-spacing: 0.14em; }
   .i-skip     { bottom: 16px; right: 16px; padding: 8px 14px; }
+  /* Tighten viewfinder corners on small screens so they don't crowd the photos */
+  .i-vfc.tl, .i-vfc.tr { top: 20%; }
+  .i-vfc.bl, .i-vfc.br { bottom: 20%; }
 }
