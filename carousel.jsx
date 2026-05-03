@@ -9,10 +9,10 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
   const items = React.useMemo(() => {
     const picks = [
       "Japan/IMG_0393.JPG",       // Torii Gate, Hakone
-      "Japan/IMG_6090.JPG",       // Sakura After Dark
+      "Japan/IMG_0496.JPG",       // Skytree & Sakura
       "Japan/IMG_1282.JPG",       // Cherry Blossom Crossing
-      "China/DSCF8199.JPG",       // Hexagon Window
-      "Japan/IMG_5583.JPG",       // Dotonbori, Osaka
+      "China/IMG_7694.JPG",       // Shanghai Night
+      "Japan/IMG_5936.JPG",       // Neon Alley
       "Japan/IMG_8970.JPG",       // Sakura Canal
       "Taiwan/IMG_4112.jpeg",     // Taiwan
       "Japan/IMG_6229 2.JPG",     // Shibuya Crossing
