@@ -61,32 +61,32 @@ function Home({ go, onOpenLightbox }) {
     const onScroll = () => {
       const scrolled = window.scrollY;
 
-      // Card entrance: starts when quote reaches 80% to top, over next 55vh
+      // Card entrance: starts when quote reaches 80% to top, over next 40vh
       const cardStart = quoteScrollTrigger;
-      const cardEnd = cardStart + (window.innerHeight * 0.55);
+      const cardEnd = cardStart + (window.innerHeight * 0.4);
       const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: 1.3 → 1.0 (fully zoomed out 100vh after card starts)
+      // Inner image ken-burns: 1.3 → 1.0 over 65vh
       if (zoom) {
         const kenStart = cardStart;
-        const kenEnd = kenStart + (window.innerHeight * 1.0);
+        const kenEnd = kenStart + (window.innerHeight * 0.65);
         const kenProg = Math.max(0, Math.min(1, (scrolled - kenStart) / (kenEnd - kenStart)));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals starting when image is ~80% zoomed out
-        const textStart = quoteScrollTrigger + (window.innerHeight * 0.85);
-        const textEnd = quoteScrollTrigger + (window.innerHeight * 1.25);
+        // Text reveals as split appears
+        const textStart = quoteScrollTrigger + (window.innerHeight * 0.4);
+        const textEnd = quoteScrollTrigger + (window.innerHeight * 0.75);
         const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button only appears during extra scroll after photo fully zoomed
-        const btnStart = quoteScrollTrigger + (window.innerHeight * 1.2);
-        const btnEnd = quoteScrollTrigger + (window.innerHeight * 1.7);
+        // Button reveals near end of sticky range so it's fully visible before split slides off
+        const btnStart = quoteScrollTrigger + (window.innerHeight * 0.7);
+        const btnEnd = quoteScrollTrigger + (window.innerHeight * 1.0);
         const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
