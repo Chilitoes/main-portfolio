@@ -50,34 +50,48 @@ function Home({ go, onOpenLightbox }) {
       return;
     }
 
+    const quoteEl = quoteRef.current;
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+    const getPositions = () => {
+      const scrolled = window.scrollY;
+      const zoneTop = zone.getBoundingClientRect().top + scrolled;
+      const stickyRange = zone.offsetHeight - window.innerHeight;
+      // Card starts when the quote is 60% scrolled past (well before split zone)
+      const quoteBottom = quoteEl
+        ? quoteEl.getBoundingClientRect().top + scrolled + quoteEl.offsetHeight
+        : zoneTop;
+      const cardStart = quoteBottom - window.innerHeight * 0.6;
+      const cardEnd = zoneTop; // fully in by the time split zone starts
+      return { zoneTop, stickyRange, cardStart, cardEnd };
+    };
+
     const onScroll = () => {
       const scrolled = window.scrollY;
-      // Reliable document-relative zone top (works regardless of offset parent)
-      const zoneTop = zone.getBoundingClientRect().top + scrolled;
-      const stickyRange = zone.offsetHeight - window.innerHeight; // = 70vh at current CSS
+      const { zoneTop, stickyRange, cardStart, cardEnd } = getPositions();
 
-      // p goes 0 → 1 as user scrolls through the sticky range; capped at 1 when split slides off
+      // p goes 0 → 1 across the sticky range
       const p = Math.max(0, Math.min(1, (scrolled - zoneTop) / stickyRange));
 
-      // Card slides in over first 35% of sticky
-      const cardProg = easeOut(Math.max(0, Math.min(1, p / 0.35)));
+      // Card: starts as quote scrolls off, finishes when split zone begins
+      const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Ken-burns finishes at 40% — faster zoom so user scrolls less
+      // Ken-burns: same start as card, finishes at 40% into sticky range
       if (zoom) {
-        const kenProg = Math.max(0, Math.min(1, p / 0.4));
+        const kenEnd = zoneTop + stickyRange * 0.4;
+        const kenProg = Math.max(0, Math.min(1, (scrolled - cardStart) / (kenEnd - cardStart)));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals 20% → 55%
+        // Text reveals 20% → 55% of sticky
         const textProg = easeOut(Math.max(0, Math.min(1, (p - 0.2) / 0.35)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button reveals 45% → 80% — fully out with ~20% sticky range to spare
+        // Button reveals 45% → 80% of sticky — fully out before split slides off
         const btnProg = easeOut(Math.max(0, Math.min(1, (p - 0.45) / 0.35)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
@@ -88,7 +102,11 @@ function Home({ go, onOpenLightbox }) {
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener('resize', onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
   }, []);
 
   // Word-by-word pull quote
