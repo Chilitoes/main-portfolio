@@ -35,8 +35,8 @@ function hideLoader() {
     setTimeout(() => el.remove(), 800);
   };
 
-  // Auto-dismiss after the choreographed sequence completes
-  const total = 4500;
+  // Auto-dismiss after the choreographed sequence completes (~13s animation + 0.5s buffer)
+  const total = 13500;
   const autoTimer = setTimeout(dismiss, total);
 
   const skipNow = () => { clearTimeout(autoTimer); dismiss(); };

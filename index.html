@@ -11,6 +11,7 @@
 
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="carousel.css" />
+  <link rel="stylesheet" href="intro.css" />
 
   <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
@@ -29,33 +30,65 @@
     }
   </script>
 
-  <!-- Cinematic intro -->
-  <div id="intro" class="intro" role="presentation">
-    <div class="intro-grain"></div>
-    <div class="intro-leak"></div>
+  <!-- Cinematic intro v2 -->
+  <div id="intro" class="intro" role="presentation" aria-hidden="true">
 
-    <div class="intro-frame">
-      <span class="intro-corner tl"></span>
-      <span class="intro-corner tr"></span>
-      <span class="intro-corner bl"></span>
-      <span class="intro-corner br"></span>
-      <span class="intro-line top"></span>
-      <span class="intro-line bot"></span>
+    <!-- Scene 1: Atmosphere -->
+    <div class="i-grain"></div>
+    <div class="i-vignette"></div>
+    <div class="i-diag-leak"></div>
+    <div class="i-focus-sq"></div>
 
-      <div class="intro-photo p1" style="background-image:url('images/Japan/IMG_0393.JPG')"></div>
-      <div class="intro-photo p2" style="background-image:url('images/Japan/IMG_8970.JPG')"></div>
-      <div class="intro-photo p3" style="background-image:url('images/Japan/IMG_6229%202.JPG')"></div>
-      <div class="intro-vignette"></div>
+    <!-- Scene 2: Viewfinder -->
+    <div class="i-vf">
+      <div class="i-vfl i-vfl-h h1"></div>
+      <div class="i-vfl i-vfl-h h2"></div>
+      <div class="i-vfl i-vfl-v v1"></div>
+      <div class="i-vfl i-vfl-v v2"></div>
+      <div class="i-vfl i-vfl-h h3"></div>
+      <div class="i-vfl i-vfl-v v3"></div>
+      <div class="i-vfc tl"><span class="h"></span><span class="v"></span></div>
+      <div class="i-vfc tr"><span class="h"></span><span class="v"></span></div>
+      <div class="i-vfc bl"><span class="h"></span><span class="v"></span></div>
+      <div class="i-vfc br"><span class="h"></span><span class="v"></span></div>
+      <div class="i-vf-fp fp1"></div>
+      <div class="i-vf-fp fp2"></div>
+    </div>
+    <div class="i-ui">
+      <div class="i-ui-item iso">ISO 1600</div>
+      <div class="i-ui-item fstop">f / 1.4</div>
+      <div class="i-ui-item ss">1/250</div>
+      <div class="i-ui-item exp">EXP +0.3</div>
     </div>
 
-    <div class="intro-tag">
-      <div class="intro-tag-name">Alston <span class="intro-italic">Shi</span></div>
-      <div class="intro-tag-sub">Photography &nbsp;·&nbsp; Est. 2020</div>
+    <!-- Scene 3: Editorial images -->
+    <div class="i-imgs">
+      <div class="i-img-bg"></div>
+      <div class="i-img-main"></div>
+      <div class="i-img-l"></div>
+      <div class="i-img-r"></div>
+      <div class="i-rack-focus"></div>
     </div>
 
-    <div class="intro-logo">A<span class="intro-italic">S</span></div>
+    <!-- Scene 4: Accents -->
+    <div class="i-edge-t"></div>
+    <div class="i-edge-b"></div>
+    <div class="i-flare"></div>
 
-    <button class="intro-skip" aria-label="Skip intro">Skip</button>
+    <!-- Scene 5: Typography -->
+    <div class="i-tag">
+      <p class="i-name">Alston <em>Shi</em></p>
+      <p class="i-sub">Photography &nbsp;&middot;&nbsp; Est.&nbsp;2020</p>
+    </div>
+
+    <!-- Scene 6: Logo -->
+    <div class="i-logo-bg-leak"></div>
+    <div class="i-logo">A<em>S</em></div>
+
+    <!-- Exit -->
+    <div class="i-snap"></div>
+
+    <button class="i-skip">SKIP</button>
   </div>
 
   <div id="app"></div>
