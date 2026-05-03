@@ -32,7 +32,6 @@ function Home({ go, onOpenLightbox }) {
     const card = splitImgRef.current;
     const zoom = splitZoomRef.current;
     const text = splitTextRef.current;
-    const quote = quoteRef.current;
     if (!zone || !card) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       card.style.opacity = '1';
@@ -51,43 +50,35 @@ function Home({ go, onOpenLightbox }) {
       return;
     }
 
-    // Calculate when quote reaches 80% toward top (20% from top of viewport)
-    let quoteScrollTrigger = 0;
-    if (quote) {
-      quoteScrollTrigger = quote.offsetTop - (window.innerHeight * 0.2);
-    }
-
     const easeOut = (t) => 1 - Math.pow(1 - t, 3);
     const onScroll = () => {
       const scrolled = window.scrollY;
+      // Reliable document-relative zone top (works regardless of offset parent)
+      const zoneTop = zone.getBoundingClientRect().top + scrolled;
+      const stickyRange = zone.offsetHeight - window.innerHeight; // = 70vh at current CSS
 
-      // Card entrance: starts when quote reaches 80% to top, over next 40vh
-      const cardStart = quoteScrollTrigger;
-      const cardEnd = cardStart + (window.innerHeight * 0.4);
-      const cardProg = easeOut(Math.max(0, Math.min(1, (scrolled - cardStart) / (cardEnd - cardStart))));
+      // p goes 0 → 1 as user scrolls through the sticky range; capped at 1 when split slides off
+      const p = Math.max(0, Math.min(1, (scrolled - zoneTop) / stickyRange));
+
+      // Card slides in over first 35% of sticky
+      const cardProg = easeOut(Math.max(0, Math.min(1, p / 0.35)));
       card.style.opacity = cardProg;
       card.style.transform = `translateY(${(1 - cardProg) * 80}px) scale(${0.95 + 0.05 * cardProg})`;
 
-      // Inner image ken-burns: 1.3 → 1.0 over 65vh
+      // Ken-burns finishes at 40% — faster zoom so user scrolls less
       if (zoom) {
-        const kenStart = cardStart;
-        const kenEnd = kenStart + (window.innerHeight * 0.65);
-        const kenProg = Math.max(0, Math.min(1, (scrolled - kenStart) / (kenEnd - kenStart)));
+        const kenProg = Math.max(0, Math.min(1, p / 0.4));
         zoom.style.transform = `scale(${1.3 - 0.3 * kenProg})`;
       }
 
       if (text) {
-        // Text reveals as split appears
-        const textStart = quoteScrollTrigger + (window.innerHeight * 0.4);
-        const textEnd = quoteScrollTrigger + (window.innerHeight * 0.75);
-        const textProg = Math.max(0, Math.min(1, (scrolled - textStart) / (textEnd - textStart)));
+        // Text reveals 20% → 55%
+        const textProg = easeOut(Math.max(0, Math.min(1, (p - 0.2) / 0.35)));
         text.style.opacity = textProg;
         text.style.transform = `translateX(${(1 - textProg) * -120}px)`;
 
-        // Button reveals near end of sticky range so it's fully visible before split slides off
-        const btnStart = quoteScrollTrigger + (window.innerHeight * 0.7);
-        const btnEnd = quoteScrollTrigger + (window.innerHeight * 1.0);
-        const btnProg = Math.max(0, Math.min(1, (scrolled - btnStart) / (btnEnd - btnStart)));
+        // Button reveals 45% → 80% — fully out with ~20% sticky range to spare
+        const btnProg = easeOut(Math.max(0, Math.min(1, (p - 0.45) / 0.35)));
         const btn = text.querySelector('.btn-arrow');
         if (btn) {
           btn.style.opacity = btnProg;
