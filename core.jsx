@@ -35,12 +35,12 @@ function hideLoader() {
     setTimeout(() => el.remove(), 800);
   };
 
-  // Auto-dismiss at snap peak (~11.5s) so the blur masks the cut
-  const total = 11500;
+  // Auto-dismiss at snap peak (~7s) so the blur masks the cut
+  const total = 7000;
   const autoTimer = setTimeout(dismiss, total);
 
   const skipNow = () => { clearTimeout(autoTimer); dismiss(); };
-  const skipBtn = el.querySelector(".intro-skip");
+  const skipBtn = el.querySelector(".i-skip");
   if (skipBtn) skipBtn.addEventListener("click", skipNow, { once: true });
   const onKey = (e) => {
     if (e.key === "Escape" || e.key === "Enter") { skipNow(); window.removeEventListener("keydown", onKey); }
