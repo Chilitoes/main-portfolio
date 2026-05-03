@@ -35,8 +35,8 @@ function hideLoader() {
     setTimeout(() => el.remove(), 800);
   };
 
-  // Auto-dismiss at snap peak (~7s) so the blur masks the cut
-  const total = 7000;
+  // Auto-dismiss when the AS logo splits — bg fade overlaps the split
+  const total = 7500;
   const autoTimer = setTimeout(dismiss, total);
 
   const skipNow = () => { clearTimeout(autoTimer); dismiss(); };

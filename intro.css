@@ -20,7 +20,7 @@ html.intro-seen #intro { display: none !important; }
   animation: i-in 0.3s ease-out forwards;
 }
 .intro.gone {
-  animation: i-out 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation: i-out 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
   pointer-events: none;
 }
 @keyframes i-in  { to { opacity: 1; } }
@@ -379,19 +379,37 @@ html.intro-seen #intro { display: none !important; }
   100% { opacity: 1; transform: translate(-50%,-50%) scale(1.00); text-shadow: 0 0 28px rgba(200,162,101,0.22); }
 }
 
-/* Exit: focus-snap — blur overlay that snaps clear */
-.i-snap {
-  position: absolute; inset: 0;
-  backdrop-filter: blur(0);
-  opacity: 0; pointer-events: none;
-  z-index: 20;
-  animation: i-snap-in 0.5s ease-in 6.7s both;
+/* Split open into the home page — A drifts left, S drifts right */
+.i-logo .al-a, .i-logo .al-s {
+  display: inline-block;
+  will-change: transform, opacity;
 }
-@keyframes i-snap-in {
-  0%   { opacity: 0; backdrop-filter: blur(0); }
-  50%  { opacity: 1; backdrop-filter: blur(6px); }
-  100% { opacity: 0; backdrop-filter: blur(0); }
+.i-logo .al-a {
+  animation: i-split-a 1.5s cubic-bezier(0.65, 0, 0.35, 1) 7.5s both;
 }
+.i-logo .al-s {
+  animation: i-split-s 1.5s cubic-bezier(0.65, 0, 0.35, 1) 7.5s both;
+  font-style: italic;
+  color: rgba(200,162,101,0.95);
+}
+@keyframes i-split-a {
+  0%   { transform: translateX(0);     opacity: 1; }
+  100% { transform: translateX(-72vw); opacity: 0; }
+}
+@keyframes i-split-s {
+  0%   { transform: translateX(0);    opacity: 1; }
+  100% { transform: translateX(72vw); opacity: 0; }
+}
+/* The orange glow softens out alongside the split */
+.i-logo-bg-leak {
+  animation:
+    i-logo-leak     1.6s ease-out 5.0s both,
+    i-logo-leak-out 1.2s ease-out 7.5s both;
+}
+@keyframes i-logo-leak-out { to { opacity: 0; } }
+
+/* Snap overlay no longer needed — split provides the exit */
+.i-snap { display: none; }
 
 /* Hide the unused legacy elements that were tied to removed clip-path wipes */
 .i-rack-focus, .i-edge-t, .i-edge-b, .i-flare { display: none; }
