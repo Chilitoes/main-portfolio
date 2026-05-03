@@ -45,6 +45,31 @@ a { color: inherit; text-decoration: none; }
 img { max-width: 100%; display: block; }
 button { font-family: inherit; }
 
+/* ─── 3D Terrain background mount ─────────────────────────── */
+.terrain-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+}
+.terrain-bg canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+/* Lift all content above the terrain canvas */
+.nav-bar,
+.hero,
+.band,
+.footer,
+.project-modal,
+.lightbox { position: relative; z-index: 1; }
+.nav-bar { z-index: 100; }
+.project-modal,
+.lightbox { z-index: 200; }
+
 /* ─── Reveal on scroll ────────────────────────────────────────── */
 .reveal {
   opacity: 0;
