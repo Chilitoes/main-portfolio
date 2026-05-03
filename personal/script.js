@@ -178,7 +178,27 @@ const modalLink   = document.getElementById('modal-link');
 
 function openProjectModal(data) {
   if (!modal) return;
-  modalImage.style.backgroundImage = data.image ? `url('${data.image}')` : 'none';
+
+  // Image vs styled placeholder
+  modalImage.querySelectorAll('.modal-placeholder').forEach(n => n.remove());
+  if (data.image) {
+    modalImage.style.backgroundImage = `url('${data.image}')`;
+    modalImage.classList.remove('proj-placeholder');
+  } else {
+    modalImage.style.backgroundImage = 'none';
+    modalImage.classList.add('proj-placeholder');
+    const ph = document.createElement('div');
+    ph.className = 'modal-placeholder placeholder-inner';
+    ph.innerHTML = `
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+        <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>
+      </svg>
+      <span class="placeholder-label">${data.title || 'Project'}</span>
+      <span class="placeholder-note">Internal · Not publicly deployed</span>
+    `;
+    modalImage.appendChild(ph);
+  }
+
   modalTags.innerHTML = (data.tags || []).map(t => `<span class="proj-tag">${t}</span>`).join('');
   modalTitle.textContent = data.title || '';
   modalDesc.textContent = data.longDescription || data.description || '';
@@ -191,6 +211,8 @@ function openProjectModal(data) {
   if (data.link) {
     modalLink.href = data.link;
     modalLink.style.display = '';
+    const isGithub = /github\.com/i.test(data.link);
+    modalLink.textContent = isGithub ? 'Source code →' : 'View live →';
   } else {
     modalLink.style.display = 'none';
   }
