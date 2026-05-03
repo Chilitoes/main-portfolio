@@ -17,22 +17,35 @@ function useReveal(deps = []) {
   }, deps);
 }
 
-// ---- Loader (shown once on first visit) ----
+// ---- Cinematic intro (shown once per session) ----
 function hideLoader() {
-  const el = document.getElementById("loader");
+  const el = document.getElementById("intro");
   if (!el) return;
-  const counter = el.querySelector(".loader-counter");
-  const start = performance.now();
-  const total = 2400;
-  const step = (t) => {
-    const p = Math.min(1, (t - start) / total);
-    if (counter) counter.textContent = String(Math.floor(p * 100)).padStart(3, "0");
-    if (p < 1) requestAnimationFrame(step);
-    else {
-      setTimeout(() => el.classList.add("gone"), 280);
-    }
+  // Already seen this session — bail without playing
+  if (sessionStorage.getItem("as-intro-seen")) {
+    el.remove();
+    return;
+  }
+
+  const dismiss = () => {
+    if (el.classList.contains("gone")) return;
+    el.classList.add("gone");
+    sessionStorage.setItem("as-intro-seen", "1");
+    document.documentElement.classList.add("intro-seen");
+    setTimeout(() => el.remove(), 800);
   };
-  requestAnimationFrame(step);
+
+  // Auto-dismiss after the choreographed sequence completes
+  const total = 4500;
+  const autoTimer = setTimeout(dismiss, total);
+
+  const skipNow = () => { clearTimeout(autoTimer); dismiss(); };
+  const skipBtn = el.querySelector(".intro-skip");
+  if (skipBtn) skipBtn.addEventListener("click", skipNow, { once: true });
+  const onKey = (e) => {
+    if (e.key === "Escape" || e.key === "Enter") { skipNow(); window.removeEventListener("keydown", onKey); }
+  };
+  window.addEventListener("keydown", onKey);
 }
 
 // ---- Theme toggle ----

@@ -22,17 +22,40 @@
 
   </div>
 
-  <!-- Cinematic loader -->
-  <div id="loader" class="loader">
-    <div class="loader-inner">
-      <div class="loader-mark">A<span class="italic serif ochre">S</span></div>
-      <div class="loader-line"><div class="loader-line-fill"></div></div>
-      <div class="loader-meta">
-        <span>ALSTON SHI</span>
-        <span class="loader-counter">000</span>
-        <span>PHOTOGRAPHY · EST. 2020</span>
-      </div>
+  <!-- Skip cinematic intro on subsequent navigations within the session -->
+  <script>
+    if (sessionStorage.getItem('as-intro-seen')) {
+      document.documentElement.classList.add('intro-seen');
+    }
+  </script>
+
+  <!-- Cinematic intro -->
+  <div id="intro" class="intro" role="presentation">
+    <div class="intro-grain"></div>
+    <div class="intro-leak"></div>
+
+    <div class="intro-frame">
+      <span class="intro-corner tl"></span>
+      <span class="intro-corner tr"></span>
+      <span class="intro-corner bl"></span>
+      <span class="intro-corner br"></span>
+      <span class="intro-line top"></span>
+      <span class="intro-line bot"></span>
+
+      <div class="intro-photo p1" style="background-image:url('images/Japan/IMG_0393.JPG')"></div>
+      <div class="intro-photo p2" style="background-image:url('images/Japan/IMG_8970.JPG')"></div>
+      <div class="intro-photo p3" style="background-image:url('images/Japan/IMG_6229%202.JPG')"></div>
+      <div class="intro-vignette"></div>
     </div>
+
+    <div class="intro-tag">
+      <div class="intro-tag-name">Alston <span class="intro-italic">Shi</span></div>
+      <div class="intro-tag-sub">Photography &nbsp;·&nbsp; Est. 2020</div>
+    </div>
+
+    <div class="intro-logo">A<span class="intro-italic">S</span></div>
+
+    <button class="intro-skip" aria-label="Skip intro">Skip</button>
   </div>
 
   <div id="app"></div>
