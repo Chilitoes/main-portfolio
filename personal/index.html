@@ -4,111 +4,113 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Alston Shi — Portfolio</title>
+  <link rel="icon" href="favicon.gif" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
   <!-- ─── NAV ─────────────────────────────────────────────────── -->
-  <header class="nav-header" id="nav-header">
-    <nav class="nav-inner">
-      <a href="#hero" class="nav-logo">AS<span class="dot">.</span></a>
-      <ul class="nav-links">
-        <li><a href="#about">About</a></li>
-        <li><a href="#skills">Skills</a></li>
-        <li><a href="#experience">Experience</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#photos">Photos</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+  <nav class="nav-bar" id="nav-bar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo">alston<span class="logo-suffix">.shi</span></a>
+      <div class="nav-links">
+        <a href="#about" data-link="about">About</a>
+        <a href="#projects" data-link="projects">Projects</a>
+        <a href="#skills" data-link="skills">Skills</a>
+        <a href="#experience" data-link="experience">Experience</a>
+        <a href="#photos" data-link="photos">Photos</a>
+        <a href="#contact" data-link="contact">Contact</a>
+      </div>
+      <a href="#contact" class="nav-cta">Get in touch</a>
       <button class="nav-hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
-    </nav>
+    </div>
     <div class="nav-mobile" id="nav-mobile">
       <a href="#about" class="mobile-link">About</a>
+      <a href="#projects" class="mobile-link">Projects</a>
       <a href="#skills" class="mobile-link">Skills</a>
       <a href="#experience" class="mobile-link">Experience</a>
-      <a href="#projects" class="mobile-link">Projects</a>
       <a href="#photos" class="mobile-link">Photos</a>
       <a href="#contact" class="mobile-link">Contact</a>
     </div>
-  </header>
+  </nav>
 
   <!-- ─── HERO ─────────────────────────────────────────────────── -->
   <section class="hero" id="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content reveal">
-      <p class="hero-greeting">Hi, I'm</p>
-      <h1 class="hero-name">Alston Shi</h1>
-      <p class="hero-title">
-        <span class="typed-text" id="typed"></span><span class="cursor">|</span>
-      </p>
-      <p class="hero-desc">
-        Infocomm &amp; Security graduate from Nanyang Polytechnic — specialising in
-        cybersecurity, cloud architecture, UX/UI design, and full‑stack development.
-        Built a cross‑platform Azure cloud storage app for my FYP and interned as a UX/UI &amp; GRC engineer in China.
-        Based in <span class="accent">Singapore</span>.
-      </p>
-      <div class="hero-cta">
-        <a href="#projects" class="btn btn-primary">View My Work</a>
-        <a href="#contact" class="btn btn-ghost">Get In Touch</a>
+    <div class="hero-glow"></div>
+    <div class="hero-particles" id="hero-particles"></div>
+    <div class="hero-container">
+      <div class="hero-text reveal">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          Available for opportunities
+        </div>
+        <h1 class="hero-h1">Alston Shi</h1>
+        <p class="hero-sub">
+          Infocomm &amp; Security graduate building secure, thoughtful digital products at the intersection of engineering and design. Based in Singapore.
+        </p>
+        <div class="hero-ctas">
+          <a href="#projects" class="btn btn-primary">View projects</a>
+          <a href="#contact" class="btn btn-secondary">Contact me</a>
+        </div>
       </div>
-      <div class="hero-socials">
-        <a href="mailto:swnssoe@gmail.com" class="social-link" title="Email">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </a>
-        <a href="https://alstonsjpeg.netlify.app/" target="_blank" class="social-link" title="Photography">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-        </a>
+      <div class="hero-terminal-wrap reveal" data-direction="left">
+        <div class="terminal" id="terminal">
+          <div class="terminal-titlebar">
+            <span class="term-dot" style="background:#ff5f57"></span>
+            <span class="term-dot" style="background:#febc2e"></span>
+            <span class="term-dot" style="background:#28c840"></span>
+            <span class="term-title">terminal</span>
+          </div>
+          <div class="terminal-body" id="terminal-body"></div>
+        </div>
       </div>
-    </div>
-    <div class="hero-scroll-hint">
-      <span>scroll</span>
-      <div class="scroll-arrow"></div>
     </div>
   </section>
 
   <!-- ─── ABOUT ─────────────────────────────────────────────────── -->
-  <section class="section" id="about">
+  <section class="band" id="about">
     <div class="container">
-      <h2 class="section-title reveal">About Me</h2>
+      <div class="reveal">
+        <span class="section-label">About</span>
+      </div>
       <div class="about-grid">
-        <div class="about-photo reveal">
-          <div class="photo-frame">
-            <img
-              src="../images/alston%20shi/IMG_7403.jpg"
-              alt="Alston Shi"
-              loading="lazy"
-            />
-          </div>
+        <div class="about-photo reveal" data-direction="right">
+          <img src="../images/alston%20shi/IMG_7403.jpg" alt="Alston Shi" loading="lazy" />
         </div>
-        <div class="about-text reveal">
-          <p>
-            I am a <strong>Diploma in Infocomm &amp; Security</strong> graduate from Nanyang Polytechnic
-            with hands‑on experience spanning UX/UI design, front‑end development, cybersecurity, and
-            governance, risk &amp; compliance (GRC). I thrive at the intersection of security and design —
-            building digital products that are both functional and resilient.
+        <div class="reveal" data-delay="0.1">
+          <h2 class="band-h2">Building at the intersection of security and design</h2>
+          <p class="band-body">
+            I'm a <strong>Diploma in Infocomm &amp; Security</strong> graduate from Nanyang Polytechnic with hands‑on experience spanning UX/UI design, front‑end development, cybersecurity, and governance, risk &amp; compliance (GRC). I thrive at the intersection of security and design — building digital products that are both functional and resilient.
           </p>
-          <p>
-            During my internship at <strong>Suzhou Konggu Network Technology (KGU)</strong>, I led
-            UX/UI redesigns for international clients across Vietnam, China, and Germany; implemented
-            SEO strategies using SEMrush and Google Analytics; and contributed to GRC research
-            covering ISO 27001, PCI DSS v4.0, SOC 2, and GDPR/CCPA. I also supported a
-            Drata compliance automation proof‑of‑concept and SonarQube CI/CD integration —
-            gaining real‑world exposure to enterprise‑grade security workflows.
+          <p class="band-body">
+            During my internship at <strong>Suzhou Konggu Network Technology (KGU)</strong>, I led UX/UI redesigns for international clients across Vietnam, China, and Germany; implemented SEO strategies; and contributed to GRC research covering ISO 27001, PCI DSS v4.0, SOC 2, and GDPR/CCPA.
           </p>
-          <p>
-            I hold a <span class="accent">Certified Ethical Hacker (CEH)</span> certification and
-            an Alibaba Cloud credential, and I completed an overseas academic exchange at
-            Hallym University in South Korea. I am actively seeking opportunities in information
-            security, risk management, or full‑stack web development where I can apply my
-            technical skills and grow within a high‑impact team.
+          <p class="band-body">
+            I hold a <span class="text-accent">Certified Ethical Hacker (CEH)</span> credential and an Alibaba Cloud certification, and completed an overseas exchange at Hallym University in South Korea.
           </p>
+
+          <div class="about-stats">
+            <div class="stat" data-stat="4" data-suffix="+">
+              <div class="stat-number">0+</div>
+              <div class="stat-label">Years in tech</div>
+            </div>
+            <div class="stat" data-stat="9" data-suffix="+">
+              <div class="stat-number">0+</div>
+              <div class="stat-label">Projects shipped</div>
+            </div>
+            <div class="stat" data-stat="25" data-suffix="+">
+              <div class="stat-number">0+</div>
+              <div class="stat-label">Technologies</div>
+            </div>
+          </div>
+
           <div class="about-edu">
-            <h3>Education</h3>
+            <h3 class="edu-heading">Education</h3>
             <div class="edu-item">
               <div class="edu-badge">NYP</div>
               <div>
@@ -131,348 +133,261 @@
     </div>
   </section>
 
-  <!-- ─── SKILLS ─────────────────────────────────────────────────── -->
-  <section class="section section-alt" id="skills">
+  <!-- ─── PROJECTS ──────────────────────────────────────────────── -->
+  <section class="band" id="projects">
     <div class="container">
-      <h2 class="section-title reveal">Technical Skills</h2>
+      <div class="reveal text-center">
+        <span class="section-label">Featured Work</span>
+        <h2 class="band-h2 centered">Projects I've built and shipped</h2>
+      </div>
+
+      <div class="tag-filter reveal" data-delay="0.1" id="project-filter">
+        <button class="filter-pill active" data-filter="All">All</button>
+        <button class="filter-pill" data-filter="Web">Web</button>
+        <button class="filter-pill" data-filter="AI/ML">AI/ML</button>
+        <button class="filter-pill" data-filter="Cross-Platform">Cross-Platform</button>
+      </div>
+
+      <div class="projects-grid" id="projects-grid">
+
+        <article class="project-card reveal" data-category="AI/ML" data-project='{"title":"SG Bus AI","tags":["Python","Machine Learning","LTA API"],"category":"AI/ML","description":"Real-time Singapore bus arrival tracker enhanced with machine learning predictions.","longDescription":"A real-time Singapore bus arrival tracker enhanced with a Gradient Boosting Regressor trained on LTA API data to predict delays. Features hourly model retraining, live statistics dashboards, and a clean responsive interface.","stack":["Python","Flask","Scikit-learn","Gradient Boosting","LTA API","Railway"],"highlights":["Live LTA bus arrival data integration","Gradient Boosting model retrained hourly","Statistics dashboard with delay analytics","Deployed continuously on Railway"],"link":"https://sg-bus-ai-production.up.railway.app/","image":"images/sgbusai.jpg"}'>
+          <div class="proj-image">
+            <img src="images/sgbusai.jpg" alt="SG Bus AI" loading="lazy" />
+            <div class="proj-overlay"><span>View details →</span></div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">Python</span>
+              <span class="proj-tag">Machine Learning</span>
+              <span class="proj-tag">LTA API</span>
+            </div>
+            <h3 class="proj-title">SG Bus AI</h3>
+            <p class="proj-desc">Real-time Singapore bus arrival tracker enhanced with machine learning predictions and live statistics dashboards.</p>
+            <div class="proj-metrics">
+              <span class="proj-metric"><span class="metric-icon">◆</span> Hourly retrain</span>
+              <span class="proj-metric"><span class="metric-icon">◆</span> Live LTA data</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-category="Web" data-project='{"title":"DMO Wisdom","tags":["HTML5","CSS3","JavaScript"],"category":"Web","description":"Educational platform offering online courses based on the DCI System.","longDescription":"An educational platform offering online courses based on the DCI System — a personal development framework by Geshe Michael Roach. Features a global community across 15+ countries, dark mode, testimonials, and multi-language support.","stack":["HTML5","CSS3","JavaScript","Responsive Design","SEO","Dark Mode"],"highlights":["Multi-language support across 15+ countries","Dark mode toggle with persisted preference","SEO-optimised content structure","Testimonials and community highlights"],"link":"https://dmowisdom.com/","image":"images/dmowisdom.jpg"}'>
+          <div class="proj-image">
+            <img src="images/dmowisdom.jpg" alt="DMO Wisdom" loading="lazy" />
+            <div class="proj-overlay"><span>View details →</span></div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">HTML5</span>
+              <span class="proj-tag">CSS3</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+            <h3 class="proj-title">DMO Wisdom</h3>
+            <p class="proj-desc">Educational platform with global community, dark mode, and multi-language support based on the DCI System.</p>
+            <div class="proj-metrics">
+              <span class="proj-metric"><span class="metric-icon">◆</span> 15+ countries</span>
+              <span class="proj-metric"><span class="metric-icon">◆</span> Multi-lang</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-category="Web" data-project='{"title":"DMO Yoga","tags":["HTML5","CSS3","JavaScript"],"category":"Web","description":"Yoga studio website with calming teal & terra-cotta aesthetic.","longDescription":"A yoga studio website with a calming teal and terra-cotta aesthetic. Features class offerings (Vinyasa, Hatha, Restorative, Yin, Meditation), student testimonials, a responsive CSS Grid layout, and smooth scroll behaviour.","stack":["HTML5","CSS3","JavaScript","CSS Grid","Responsive Design"],"highlights":["Five distinct class offerings showcased","Smooth scroll and section transitions","Responsive CSS Grid layout","Calming teal and terra-cotta palette"],"link":"http://dmoyoga.com/","image":"images/dmoyoga.jpg"}'>
+          <div class="proj-image">
+            <img src="images/dmoyoga.jpg" alt="DMO Yoga" loading="lazy" />
+            <div class="proj-overlay"><span>View details →</span></div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">HTML5</span>
+              <span class="proj-tag">CSS3</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+            <h3 class="proj-title">DMO Yoga</h3>
+            <p class="proj-desc">Yoga studio website with calming teal &amp; terra-cotta aesthetic, class offerings, and smooth interactions.</p>
+            <div class="proj-metrics">
+              <span class="proj-metric"><span class="metric-icon">◆</span> 5 class types</span>
+              <span class="proj-metric"><span class="metric-icon">◆</span> CSS Grid</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-category="Web" data-project='{"title":"Alston JPEG","tags":["HTML5","CSS3","JavaScript"],"category":"Web","description":"Personal photography portfolio across Asia.","longDescription":"A personal photography portfolio documenting ordinary places at extraordinary moments across Asia — primarily Japan and China. Dark minimal design with lazy-loaded image grid, parallax effects, and keyframe animations. Est. 2020.","stack":["HTML5","CSS3","JavaScript","Lazy Loading","Parallax","Netlify"],"highlights":["Lazy-loaded image grid for performance","Parallax scrolling and keyframe animations","Dark minimal editorial design","Active since 2020"],"link":"https://alstonsjpeg.netlify.app/","image":"images/alstonsjpeg.jpg"}'>
+          <div class="proj-image">
+            <img src="images/alstonsjpeg.jpg" alt="Alston JPEG" loading="lazy" />
+            <div class="proj-overlay"><span>View details →</span></div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">HTML5</span>
+              <span class="proj-tag">CSS3</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+            <h3 class="proj-title">Alston JPEG</h3>
+            <p class="proj-desc">Personal photography portfolio documenting ordinary places at extraordinary moments across Asia.</p>
+            <div class="proj-metrics">
+              <span class="proj-metric"><span class="metric-icon">◆</span> Est. 2020</span>
+              <span class="proj-metric"><span class="metric-icon">◆</span> Parallax</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-category="Cross-Platform" data-project='{"title":"Azure Blob Storage Manager","tags":["C# / .NET MAUI","ASP.NET Core","Azure"],"category":"Cross-Platform","description":"Final Year Project — cross-platform mobile app for managing Azure Blob Storage.","longDescription":"Final Year Project — a full-stack cross-platform mobile application for managing Microsoft Azure Blob Storage. Built with .NET MAUI (C#) for iOS, Android & Windows, backed by an ASP.NET Core Web API deployed on Azure App Service. Supports full container and blob CRUD without needing the Azure portal.","stack":["C# / .NET MAUI","ASP.NET Core","Microsoft Azure","Azure Blob Storage","Azure App Service","RESTful API"],"highlights":["Cross-platform: iOS, Android, Windows","Full container and blob CRUD operations","ASP.NET Core Web API on Azure App Service","Eliminates dependency on Azure portal"],"link":"https://github.com/Chilitoes/Storage-Management","image":"images/fyp.jpg","badge":"FYP"}'>
+          <div class="proj-image">
+            <img src="images/fyp.jpg" alt="Azure Blob Storage Manager" loading="lazy" onerror="this.style.display='none';this.parentNode.classList.add('proj-image-fallback');" />
+            <div class="proj-overlay"><span>View details →</span></div>
+            <span class="proj-fyp-badge">FYP</span>
+          </div>
+          <div class="proj-body">
+            <div class="proj-tags">
+              <span class="proj-tag">C# / .NET MAUI</span>
+              <span class="proj-tag">ASP.NET Core</span>
+              <span class="proj-tag">Azure</span>
+            </div>
+            <h3 class="proj-title">Azure Blob Storage Manager</h3>
+            <p class="proj-desc">Cross-platform mobile app (iOS, Android, Windows) for managing Microsoft Azure Blob Storage with full CRUD support.</p>
+            <div class="proj-metrics">
+              <span class="proj-metric"><span class="metric-icon">◆</span> 3 platforms</span>
+              <span class="proj-metric"><span class="metric-icon">◆</span> Full CRUD</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SKILLS ────────────────────────────────────────────────── -->
+  <section class="band" id="skills">
+    <div class="container">
+      <div class="reveal text-center">
+        <span class="section-label">Skills &amp; Tools</span>
+        <h2 class="band-h2 centered">Technologies I work with</h2>
+      </div>
       <div class="skills-grid">
-
         <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-          </div>
-          <h3>Programming &amp; Web</h3>
-          <div class="tags">
-            <span class="tag">Python</span>
-            <span class="tag">JavaScript</span>
-            <span class="tag">C# / .NET MAUI</span>
-            <span class="tag">ASP.NET Core</span>
-            <span class="tag">HTML5</span>
-            <span class="tag">CSS3</span>
-            <span class="tag">SQL</span>
-            <span class="tag">Xcode</span>
+          <h3 class="skill-title">Languages &amp; Web</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Python</span>
+            <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">C# / .NET MAUI</span>
+            <span class="skill-tag">ASP.NET Core</span>
+            <span class="skill-tag">HTML5</span>
+            <span class="skill-tag">CSS3</span>
+            <span class="skill-tag">SQL</span>
           </div>
         </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          </div>
-          <h3>UX/UI &amp; Design</h3>
-          <div class="tags">
-            <span class="tag">Figma</span>
-            <span class="tag">Adobe Photoshop</span>
-            <span class="tag">Lightroom Classic</span>
-            <span class="tag">Xmind</span>
+        <div class="skill-card reveal" data-delay="0.1">
+          <h3 class="skill-title">Design &amp; UX</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Figma</span>
+            <span class="skill-tag">Adobe Photoshop</span>
+            <span class="skill-tag">Lightroom Classic</span>
+            <span class="skill-tag">Xmind</span>
+            <span class="skill-tag">Final Cut Pro</span>
+            <span class="skill-tag">DaVinci Resolve</span>
           </div>
         </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <h3>Security &amp; GRC</h3>
-          <div class="tags">
-            <span class="tag">ISO 27001</span>
-            <span class="tag">PCI DSS v4.0</span>
-            <span class="tag">GDPR / CCPA</span>
-            <span class="tag">SOC 2</span>
-            <span class="tag">SonarQube</span>
-            <span class="tag">Drata</span>
-            <span class="tag">CEH</span>
-          </div>
-        </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          </div>
-          <h3>Infrastructure &amp; Tools</h3>
-          <div class="tags">
-            <span class="tag">Linux Debian</span>
-            <span class="tag">Windows Server</span>
-            <span class="tag">VMware Workstation</span>
-            <span class="tag">VMware Fusion</span>
-            <span class="tag">Jira</span>
-            <span class="tag">WeChat Work</span>
+        <div class="skill-card reveal" data-delay="0.2">
+          <h3 class="skill-title">Security &amp; GRC</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">CEH</span>
+            <span class="skill-tag">ISO 27001</span>
+            <span class="skill-tag">PCI DSS v4.0</span>
+            <span class="skill-tag">GDPR / CCPA</span>
+            <span class="skill-tag">SOC 2</span>
+            <span class="skill-tag">SonarQube</span>
+            <span class="skill-tag">Drata</span>
+            <span class="skill-tag">Wireshark</span>
+            <span class="skill-tag">Nmap</span>
+            <span class="skill-tag">Nessus</span>
           </div>
         </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M3 12h3M18 12h3M12 3v3M12 18v3"/></svg>
-          </div>
-          <h3>Web &amp; Analytics</h3>
-          <div class="tags">
-            <span class="tag">Google Analytics</span>
-            <span class="tag">SEMrush</span>
-            <span class="tag">KXP CMS</span>
-          </div>
-        </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
-          </div>
-          <h3>Networking Tools</h3>
-          <div class="tags">
-            <span class="tag">Wireshark</span>
-            <span class="tag">Cisco Packet Tracer</span>
-            <span class="tag">Nmap</span>
-            <span class="tag">PuTTY</span>
-            <span class="tag">Nessus</span>
-            <span class="tag">NetScanTools</span>
-            <span class="tag">Angry IP Scanner</span>
+        <div class="skill-card reveal" data-delay="0.3">
+          <h3 class="skill-title">Cloud &amp; Infra</h3>
+          <div class="skill-tags">
+            <span class="skill-tag">Microsoft Azure</span>
+            <span class="skill-tag">Alibaba Cloud</span>
+            <span class="skill-tag">Azure App Service</span>
+            <span class="skill-tag">Railway</span>
+            <span class="skill-tag">Netlify</span>
+            <span class="skill-tag">Git / GitHub</span>
+            <span class="skill-tag">Linux</span>
+            <span class="skill-tag">VMware</span>
+            <span class="skill-tag">MySQL</span>
+            <span class="skill-tag">Tableau</span>
           </div>
         </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-          </div>
-          <h3>Media Production</h3>
-          <div class="tags">
-            <span class="tag">Final Cut Pro X</span>
-            <span class="tag">DaVinci Resolve 18</span>
-            <span class="tag">Blackmagic ATEM</span>
-          </div>
-        </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-          </div>
-          <h3>Cloud &amp; Deployment</h3>
-          <div class="tags">
-            <span class="tag">Microsoft Azure</span>
-            <span class="tag">Alibaba Cloud</span>
-            <span class="tag">Azure App Service</span>
-            <span class="tag">Railway</span>
-            <span class="tag">Netlify</span>
-            <span class="tag">GitHub Pages</span>
-            <span class="tag">Git / GitHub</span>
-          </div>
-        </div>
-
-        <div class="skill-card reveal">
-          <div class="skill-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <h3>Database &amp; Data</h3>
-          <div class="tags">
-            <span class="tag">MySQL</span>
-            <span class="tag">SQL</span>
-            <span class="tag">Tableau</span>
-            <span class="tag">Data Visualisation</span>
-            <span class="tag">ER Diagrams</span>
-          </div>
-        </div>
-
       </div>
     </div>
   </section>
 
   <!-- ─── EXPERIENCE ────────────────────────────────────────────── -->
-  <section class="section" id="experience">
+  <section class="band" id="experience">
     <div class="container">
-      <h2 class="section-title reveal">Work Experience</h2>
+      <div class="reveal text-center">
+        <span class="section-label">Experience</span>
+        <h2 class="band-h2 centered">Where I've worked</h2>
+      </div>
       <div class="timeline">
 
         <div class="timeline-item reveal">
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">Nov 2024 – Jan 2025</div>
-          <div class="timeline-card">
-            <h3>UX/UI Designer &amp; GRC Intern</h3>
-            <p class="timeline-company">Suzhou Konggu Network Technology Co., Ltd. (KGU) · China</p>
-            <ul>
-              <li>Designed &amp; optimised UX/UI for international client websites (AUX Vietnam, Zhejiang Baima, SolaX Power) using Figma — improving navigation, mobile responsiveness, and user engagement.</li>
-              <li>Developed responsive front‑end features with HTML5, CSS3, and JavaScript; managed content via KXP CMS.</li>
-              <li>Implemented SEO best practices using SEMrush; integrated Google Analytics for performance monitoring.</li>
-              <li>Contributed to GRC research on GDPR, CCPA, SOC 2, ISO 27001, and PCI DSS v4.0; assisted in Drata compliance automation POC and SonarQube CI/CD integration.</li>
-              <li>Collaborated with cross‑cultural teams across China, Vietnam, and Germany using Jira.</li>
-            </ul>
-            <div class="tags tight">
-              <span class="tag">Figma</span>
-              <span class="tag">HTML/CSS/JS</span>
-              <span class="tag">SEMrush</span>
-              <span class="tag">ISO 27001</span>
-              <span class="tag">Drata</span>
-              <span class="tag">SonarQube</span>
+          <div class="timeline-rail">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-period">Nov 2024 — Jan 2025</div>
+            <h3 class="timeline-role">UX/UI Designer &amp; GRC Intern</h3>
+            <div class="timeline-company">Suzhou Konggu Network Technology (KGU) · China</div>
+            <p class="timeline-desc">
+              Led UX/UI redesigns for international clients across Vietnam, China, and Germany using Figma. Implemented SEO with SEMrush and Google Analytics; contributed to GRC research on ISO 27001, PCI DSS v4.0, SOC 2, and GDPR/CCPA. Supported a Drata compliance automation POC and SonarQube CI/CD integration.
+            </p>
+            <div class="timeline-tags">
+              <span class="proj-tag">Figma</span>
+              <span class="proj-tag">HTML/CSS/JS</span>
+              <span class="proj-tag">SEMrush</span>
+              <span class="proj-tag">ISO 27001</span>
+              <span class="proj-tag">Drata</span>
+              <span class="proj-tag">SonarQube</span>
             </div>
           </div>
         </div>
 
-        <div class="timeline-item reveal">
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">Jan 2023 – Mar 2023</div>
-          <div class="timeline-card">
-            <h3>E‑commerce &amp; Admin Assistant</h3>
-            <p class="timeline-company">Angel Accents PTE LTD · Singapore</p>
-            <ul>
-              <li>Managed e‑commerce listings and operations on Lazada, Shopee, and Qoo10.</li>
-              <li>Designed marketing posters, generated sales reports, and maintained accurate inventory records.</li>
-              <li>Conducted regular data backups to ensure business continuity.</li>
-            </ul>
-            <div class="tags tight">
-              <span class="tag">E-commerce</span>
-              <span class="tag">Photoshop</span>
-              <span class="tag">Inventory Management</span>
+        <div class="timeline-item reveal" data-delay="0.15">
+          <div class="timeline-rail">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-period">Jan 2023 — Mar 2023</div>
+            <h3 class="timeline-role">E‑commerce &amp; Admin Assistant</h3>
+            <div class="timeline-company">Angel Accents PTE LTD · Singapore</div>
+            <p class="timeline-desc">
+              Managed e‑commerce listings and operations on Lazada, Shopee, and Qoo10. Designed marketing posters, generated sales reports, maintained inventory records, and conducted regular data backups for business continuity.
+            </p>
+            <div class="timeline-tags">
+              <span class="proj-tag">E-commerce</span>
+              <span class="proj-tag">Photoshop</span>
+              <span class="proj-tag">Inventory</span>
             </div>
           </div>
         </div>
 
-        <div class="timeline-item reveal">
-          <div class="timeline-dot"></div>
-          <div class="timeline-date">Jun 2021 – Aug 2021</div>
-          <div class="timeline-card">
-            <h3>IT Back‑End Support</h3>
-            <p class="timeline-company">Glorious Melodies Consultancy PTE LTD · Singapore</p>
-            <ul>
-              <li>Managed MacOS systems and automated weekly backups with local NAS.</li>
-              <li>Set up Blackmagic Design ATEM console and lightboxes for live multi‑camera productions and Zoom presentations.</li>
-              <li>Performed video and photo editing for production deliverables.</li>
-            </ul>
-            <div class="tags tight">
-              <span class="tag">MacOS</span>
-              <span class="tag">Blackmagic ATEM</span>
-              <span class="tag">DaVinci Resolve</span>
-              <span class="tag">NAS Backup</span>
-            </div>
+        <div class="timeline-item reveal" data-delay="0.3">
+          <div class="timeline-rail">
+            <div class="timeline-dot"></div>
           </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── PROJECTS ──────────────────────────────────────────────── -->
-  <section class="section section-alt" id="projects">
-    <div class="container">
-      <h2 class="section-title reveal">Projects</h2>
-      <p class="section-sub reveal">A selection of websites and applications I've built.</p>
-      <div class="projects-grid">
-
-        <div class="project-card reveal">
-          <div class="project-preview project-screenshot">
-            <img src="images/sgbusai.jpg" alt="SG Bus AI screenshot" loading="lazy" />
-          </div>
-          <div class="project-body">
-            <div class="project-header">
-              <h3>SG Bus AI</h3>
-              <div class="project-links">
-                <a href="https://sg-bus-ai-production.up.railway.app/" target="_blank" class="icon-link" title="Live Site">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              </div>
-            </div>
-            <p>Real‑time Singapore bus arrival tracker enhanced with <strong>machine learning predictions</strong>. Uses a Gradient Boosting Regressor trained on LTA API data to predict delays, with hourly model retraining and live statistics dashboards.</p>
-            <div class="tags tight">
-              <span class="tag accent-tag">Python</span>
-              <span class="tag accent-tag">Machine Learning</span>
-              <span class="tag">LTA API</span>
-              <span class="tag">Railway</span>
-              <span class="tag">Gradient Boosting</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card reveal">
-          <div class="project-preview project-screenshot">
-            <img src="images/dmowisdom.jpg" alt="DMO Wisdom screenshot" loading="lazy" />
-          </div>
-          <div class="project-body">
-            <div class="project-header">
-              <h3>DMO Wisdom</h3>
-              <div class="project-links">
-                <a href="https://dmowisdom.com/" target="_blank" class="icon-link" title="Live Site">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              </div>
-            </div>
-            <p>Educational platform offering online courses based on the DCI System — a personal development framework by Geshe Michael Roach. Features a global community across 15+ countries, dark mode, testimonials, and multi‑language support.</p>
-            <div class="tags tight">
-              <span class="tag accent-tag">HTML5</span>
-              <span class="tag accent-tag">CSS3</span>
-              <span class="tag accent-tag">JavaScript</span>
-              <span class="tag">Dark Mode</span>
-              <span class="tag">SEO</span>
-              <span class="tag">Responsive</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card reveal">
-          <div class="project-preview project-screenshot">
-            <img src="images/dmoyoga.jpg" alt="DMO Yoga screenshot" loading="lazy" />
-          </div>
-          <div class="project-body">
-            <div class="project-header">
-              <h3>DMO Yoga</h3>
-              <div class="project-links">
-                <a href="http://dmoyoga.com/" target="_blank" class="icon-link" title="Live Site">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              </div>
-            </div>
-            <p>Yoga studio website with a calming teal &amp; terra‑cotta aesthetic. Features class offerings (Vinyasa, Hatha, Restorative, Yin, Meditation), student testimonials, a responsive CSS Grid layout, and smooth scroll behaviour.</p>
-            <div class="tags tight">
-              <span class="tag accent-tag">HTML5</span>
-              <span class="tag accent-tag">CSS3</span>
-              <span class="tag accent-tag">JavaScript</span>
-              <span class="tag">CSS Grid</span>
-              <span class="tag">Responsive</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card reveal">
-          <div class="project-preview project-screenshot">
-            <img src="images/alstonsjpeg.jpg" alt="Alston's JPEG screenshot" loading="lazy" />
-          </div>
-          <div class="project-body">
-            <div class="project-header">
-              <h3>Alston's JPEG</h3>
-              <div class="project-links">
-                <a href="https://alstonsjpeg.netlify.app/" target="_blank" class="icon-link" title="Live Site">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-                </a>
-              </div>
-            </div>
-            <p>Personal photography portfolio documenting "ordinary places at extraordinary moments" across Asia — primarily Japan and China. Dark minimal design with lazy‑loaded image grid, parallax effects, and keyframe animations. Est. 2020.</p>
-            <div class="tags tight">
-              <span class="tag accent-tag">HTML5</span>
-              <span class="tag accent-tag">CSS3</span>
-              <span class="tag accent-tag">JavaScript</span>
-              <span class="tag">Netlify</span>
-              <span class="tag">Photography</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="project-card reveal project-card-featured">
-          <div class="project-preview project-placeholder">
-            <div class="placeholder-inner">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-              <span>Azure Blob Storage Manager</span>
-            </div>
-          </div>
-          <div class="project-body">
-            <div class="project-header">
-              <h3>Azure Blob Storage Manager <span class="badge-fyp">FYP</span></h3>
-              <div class="project-links">
-                <a href="https://github.com/Chilitoes/Storage-Management" target="_blank" class="icon-link" title="GitHub">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-                </a>
-              </div>
-            </div>
-            <p>Final Year Project — a <strong>full-stack cross-platform mobile application</strong> for managing Microsoft Azure Blob Storage. Built with .NET MAUI (C#) for iOS, Android &amp; Windows, backed by an ASP.NET Core Web API deployed on Azure App Service. Supports full container and blob CRUD without needing the Azure portal.</p>
-            <div class="tags tight">
-              <span class="tag accent-tag">C# / .NET MAUI</span>
-              <span class="tag accent-tag">ASP.NET Core</span>
-              <span class="tag accent-tag">Microsoft Azure</span>
-              <span class="tag">Azure Blob Storage</span>
-              <span class="tag">RESTful API</span>
-              <span class="tag">Cross-Platform</span>
+          <div class="timeline-content">
+            <div class="timeline-period">Jun 2021 — Aug 2021</div>
+            <h3 class="timeline-role">IT Back‑End Support</h3>
+            <div class="timeline-company">Glorious Melodies Consultancy PTE LTD · Singapore</div>
+            <p class="timeline-desc">
+              Managed MacOS systems and automated weekly backups with local NAS. Set up Blackmagic Design ATEM console and lightboxes for live multi‑camera productions and Zoom presentations. Performed video and photo editing for production deliverables.
+            </p>
+            <div class="timeline-tags">
+              <span class="proj-tag">MacOS</span>
+              <span class="proj-tag">Blackmagic ATEM</span>
+              <span class="proj-tag">DaVinci Resolve</span>
+              <span class="proj-tag">NAS Backup</span>
             </div>
           </div>
         </div>
@@ -482,10 +397,12 @@
   </section>
 
   <!-- ─── PHOTOS ────────────────────────────────────────────────── -->
-  <section class="section" id="photos">
+  <section class="band" id="photos">
     <div class="container">
-      <h2 class="section-title reveal">Photos</h2>
-      <p class="section-sub reveal">Moments captured across Japan &amp; China — shot by me.</p>
+      <div class="reveal text-center">
+        <span class="section-label">Photography</span>
+        <h2 class="band-h2 centered">Moments captured across Asia</h2>
+      </div>
       <div class="photo-gallery">
         <div class="photo-item reveal wide">
           <img src="../images/Japan/IMG_2564.JPG" alt="Japan" loading="lazy" />
@@ -533,18 +450,21 @@
         </div>
       </div>
       <div class="photo-cta reveal">
-        <a href="/" class="btn btn-ghost">View Full Gallery →</a>
+        <a href="/" class="btn btn-secondary">View Full Gallery →</a>
       </div>
     </div>
   </section>
 
   <!-- ─── CONTACT ───────────────────────────────────────────────── -->
-  <section class="section section-alt" id="contact">
+  <section class="band" id="contact">
     <div class="container contact-container">
-      <h2 class="section-title reveal">Get In Touch</h2>
-      <p class="section-sub reveal">
-        I'm open to new opportunities, freelance work, or just a good chat about tech and photography.
-      </p>
+      <div class="reveal text-center">
+        <span class="section-label">Contact</span>
+        <h2 class="band-h2 centered contact-h2">Let's work together</h2>
+        <p class="band-body centered contact-sub">
+          I'm open to new opportunities, freelance work, or just a good chat about tech and photography.
+        </p>
+      </div>
       <div class="contact-grid">
         <div class="contact-info reveal">
           <div class="contact-item">
@@ -562,7 +482,7 @@
             </div>
             <div>
               <p class="contact-label">Phone</p>
-              <a href="tel:+6592377622">+65 9237-7622</a>
+              <a href="tel:+6592377622">+65 9237‑7622</a>
             </div>
           </div>
           <div class="contact-item">
@@ -579,7 +499,7 @@
             Download Resume
           </a>
         </div>
-        <div class="contact-form-wrap reveal">
+        <div class="contact-form-wrap reveal" data-delay="0.1">
           <form class="contact-form" id="contact-form">
             <div class="form-group">
               <label for="name">Name</label>
@@ -602,11 +522,44 @@
 
   <!-- ─── FOOTER ────────────────────────────────────────────────── -->
   <footer class="footer">
-    <div class="container">
-      <p>Designed &amp; built by <strong>Alston Shi</strong> · Singapore · 2025</p>
-      <p class="footer-sub">Infocomm &amp; Security · UX/UI · Photography</p>
+    <div class="footer-inner">
+      <div>
+        <span class="nav-logo">alston<span class="logo-suffix">.shi</span></span>
+        <p class="footer-tagline">Software Engineer · Singapore</p>
+      </div>
+      <div class="footer-links">
+        <a href="https://github.com/Chilitoes" target="_blank" rel="noopener">GitHub</a>
+        <a href="mailto:swnssoe@gmail.com">Email</a>
+        <a href="/" target="_blank" rel="noopener">Photography</a>
+      </div>
+      <div class="footer-copy">© 2026 Alston Shi</div>
     </div>
   </footer>
+
+  <!-- ─── PROJECT MODAL ─────────────────────────────────────────── -->
+  <div class="project-modal" id="project-modal">
+    <div class="modal-card" id="modal-card">
+      <div class="modal-image" id="modal-image">
+        <button class="modal-close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="proj-tags" id="modal-tags"></div>
+        <h2 class="modal-title" id="modal-title"></h2>
+        <p class="modal-desc" id="modal-desc"></p>
+        <div class="modal-section">
+          <h3 class="modal-section-title">Key highlights</h3>
+          <div class="modal-highlights" id="modal-highlights"></div>
+        </div>
+        <div class="modal-section">
+          <h3 class="modal-section-title">Tech stack</h3>
+          <div class="modal-stack" id="modal-stack"></div>
+        </div>
+        <div class="modal-ctas">
+          <a id="modal-link" href="#" target="_blank" rel="noopener" class="btn btn-primary">View live →</a>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ─── LIGHTBOX ──────────────────────────────────────────────── -->
   <div class="lightbox" id="lightbox">

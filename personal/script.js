@@ -1,159 +1,271 @@
-/* ── Typed text animation ──────────────────────────────── */
-const phrases = [
-  'Infocomm & Security Graduate',
-  'UX/UI Designer',
-  'Web Developer',
-  'Cybersecurity Enthusiast',
-  'Photographer',
-];
+/* ═══════════════════════════════════════════════════════════════════════
+   Alston Shi — Digital Portfolio v2 · script
+   ═══════════════════════════════════════════════════════════════════════ */
 
-let phraseIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-const typedEl = document.getElementById('typed');
-
-function type() {
-  const current = phrases[phraseIndex];
-  if (!typedEl) return;
-
-  if (!isDeleting) {
-    typedEl.textContent = current.slice(0, charIndex + 1);
-    charIndex++;
-    if (charIndex === current.length) {
-      isDeleting = true;
-      setTimeout(type, 1800);
-      return;
-    }
-  } else {
-    typedEl.textContent = current.slice(0, charIndex - 1);
-    charIndex--;
-    if (charIndex === 0) {
-      isDeleting = false;
-      phraseIndex = (phraseIndex + 1) % phrases.length;
-    }
-  }
-  setTimeout(type, isDeleting ? 55 : 80);
-}
-
-setTimeout(type, 800);
-
-/* ── Scroll-based nav ──────────────────────────────────── */
-const navHeader = document.getElementById('nav-header');
-window.addEventListener('scroll', () => {
-  if (window.scrollY > 60) {
-    navHeader.classList.add('scrolled');
-  } else {
-    navHeader.classList.remove('scrolled');
-  }
-}, { passive: true });
-
-/* ── Mobile hamburger ──────────────────────────────────── */
+/* ─── Mobile hamburger ──────────────────────────────────── */
 const hamburger = document.getElementById('hamburger');
 const navMobile = document.getElementById('nav-mobile');
+if (hamburger && navMobile) {
+  hamburger.addEventListener('click', () => navMobile.classList.toggle('open'));
+  document.querySelectorAll('.mobile-link').forEach(link => {
+    link.addEventListener('click', () => navMobile.classList.remove('open'));
+  });
+}
 
-hamburger.addEventListener('click', () => {
-  navMobile.classList.toggle('open');
-});
+/* ─── Reveal on scroll (stagger by sibling index) ───────── */
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry) => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    const customDelay = parseFloat(el.dataset.delay);
+    if (!Number.isNaN(customDelay)) {
+      el.style.transitionDelay = `${customDelay}s`;
+    } else {
+      const parent = el.closest('.skills-grid, .projects-grid, .photo-gallery, .about-grid, .timeline, .contact-grid');
+      if (parent) {
+        const all = Array.from(parent.querySelectorAll('.reveal:not(.visible)'));
+        const idx = all.indexOf(el);
+        if (idx >= 0) el.style.transitionDelay = `${idx * 80}ms`;
+      }
+    }
+    el.classList.add('visible');
+    revealObserver.unobserve(el);
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
-document.querySelectorAll('.mobile-link').forEach(link => {
-  link.addEventListener('click', () => {
-    navMobile.classList.remove('open');
+/* ─── Active nav link ───────────────────────────────────── */
+const navLinks = document.querySelectorAll('.nav-links a[data-link]');
+const sectionObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const id = entry.target.id;
+    navLinks.forEach(link => {
+      link.classList.toggle('active', link.dataset.link === id);
+    });
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('section[id]').forEach(s => sectionObs.observe(s));
+
+/* ─── Hero floating particles ──────────────────────────── */
+const particleHost = document.getElementById('hero-particles');
+if (particleHost) {
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 2 + Math.random() * 4;
+    p.style.left = `${Math.random() * 100}%`;
+    p.style.top = `${Math.random() * 100}%`;
+    p.style.width = `${size}px`;
+    p.style.height = `${size}px`;
+    p.style.opacity = (0.15 + Math.random() * 0.3).toFixed(2);
+    p.style.setProperty('--dur', `${(15 + Math.random() * 25).toFixed(1)}s`);
+    p.style.setProperty('--delay', `${(-Math.random() * 20).toFixed(1)}s`);
+    frag.appendChild(p);
+  }
+  particleHost.appendChild(frag);
+}
+
+/* ─── Animated terminal (typing reveal) ────────────────── */
+const termBody = document.getElementById('terminal-body');
+const terminal = document.getElementById('terminal');
+if (termBody && terminal) {
+  const lines = [
+    { prompt: true,  text: 'whoami' },
+    { prompt: false, text: 'alston shi — infocomm & security grad · singapore' },
+    { prompt: true,  text: 'cat skills.txt' },
+    { prompt: false, text: 'python · javascript · figma · ceh · azure · grc' },
+    { prompt: true,  text: 'ls projects/' },
+    { prompt: false, text: 'sg-bus-ai/  dmo-wisdom/  dmo-yoga/  azure-fyp/' },
+    { prompt: true,  text: 'echo $STATUS' },
+    { prompt: false, text: '✓ open to new opportunities' },
+  ];
+  const totalChars = lines.reduce((s, l) => s + l.text.length + (l.prompt ? 2 : 0), 0);
+  let started = false;
+  let visibleChars = 0;
+  let raf = null;
+
+  const render = () => {
+    let budget = visibleChars;
+    let html = '';
+    for (let i = 0; i < lines.length; i++) {
+      const l = lines[i];
+      if (budget <= 0) break;
+      const fullLen = l.text.length + (l.prompt ? 2 : 0);
+      const shown = budget >= fullLen ? l.text : l.text.slice(0, Math.max(0, budget - (l.prompt ? 2 : 0)));
+      const isLast = budget < fullLen;
+      const cursor = isLast ? '<span class="term-cursor">▎</span>' : '';
+      const promptMark = l.prompt ? '<span class="term-prompt-mark">❯</span>' : '';
+      html += `<div class="term-line ${l.prompt ? 'prompt' : 'output'}">${promptMark}${escapeHtml(shown)}${cursor}</div>`;
+      budget -= fullLen;
+    }
+    if (visibleChars >= totalChars) {
+      html += '<span class="term-cursor">▎</span>';
+    }
+    termBody.innerHTML = html;
+  };
+
+  const escapeHtml = (s) => s.replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+  const tick = () => {
+    visibleChars += 1;
+    render();
+    if (visibleChars < totalChars) {
+      raf = setTimeout(tick, 28);
+    }
+  };
+
+  const obs = new IntersectionObserver(([e]) => {
+    if (e.isIntersecting && !started) {
+      started = true;
+      obs.disconnect();
+      tick();
+    }
+  }, { threshold: 0.3 });
+  obs.observe(terminal);
+}
+
+/* ─── Animated stat counters ───────────────────────────── */
+const stats = document.querySelectorAll('.stat');
+const statObs = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    const el = entry.target;
+    statObs.unobserve(el);
+    const target = parseInt(el.dataset.stat, 10);
+    const suffix = el.dataset.suffix || '';
+    const numEl = el.querySelector('.stat-number');
+    if (!numEl) return;
+    const duration = 1200;
+    const startTime = performance.now();
+    const step = (now) => {
+      const t = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      numEl.textContent = Math.round(target * eased) + suffix;
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  });
+}, { threshold: 0.5 });
+stats.forEach(s => statObs.observe(s));
+
+/* ─── Project filter ──────────────────────────────────── */
+const filterPills = document.querySelectorAll('.filter-pill');
+const projectCards = document.querySelectorAll('.project-card');
+filterPills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    filterPills.forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    const filter = pill.dataset.filter;
+    projectCards.forEach(card => {
+      const match = filter === 'All' || card.dataset.category === filter;
+      card.classList.toggle('hidden', !match);
+    });
   });
 });
 
-/* ── Scroll reveal ─────────────────────────────────────── */
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry, i) => {
-      if (entry.isIntersecting) {
-        // Stagger siblings
-        const siblings = entry.target.closest('.skills-grid, .projects-grid, .photo-gallery, .about-grid, .timeline, .contact-grid');
-        if (siblings) {
-          const all = Array.from(siblings.querySelectorAll('.reveal:not(.visible)'));
-          const idx = all.indexOf(entry.target);
-          entry.target.style.transitionDelay = `${idx * 80}ms`;
-        }
-        entry.target.classList.add('visible');
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
-);
+/* ─── Project modal ───────────────────────────────────── */
+const modal       = document.getElementById('project-modal');
+const modalClose  = document.getElementById('modal-close');
+const modalImage  = document.getElementById('modal-image');
+const modalTags   = document.getElementById('modal-tags');
+const modalTitle  = document.getElementById('modal-title');
+const modalDesc   = document.getElementById('modal-desc');
+const modalHi     = document.getElementById('modal-highlights');
+const modalStack  = document.getElementById('modal-stack');
+const modalLink   = document.getElementById('modal-link');
 
-document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+function openProjectModal(data) {
+  if (!modal) return;
+  modalImage.style.backgroundImage = data.image ? `url('${data.image}')` : 'none';
+  modalTags.innerHTML = (data.tags || []).map(t => `<span class="proj-tag">${t}</span>`).join('');
+  modalTitle.textContent = data.title || '';
+  modalDesc.textContent = data.longDescription || data.description || '';
+  modalHi.innerHTML = (data.highlights || []).map(h =>
+    `<div class="modal-highlight"><span class="modal-highlight-mark">▸</span><span>${h}</span></div>`
+  ).join('');
+  modalStack.innerHTML = (data.stack || []).map(s =>
+    `<span class="modal-stack-item">${s}</span>`
+  ).join('');
+  if (data.link) {
+    modalLink.href = data.link;
+    modalLink.style.display = '';
+  } else {
+    modalLink.style.display = 'none';
+  }
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeProjectModal() {
+  if (!modal) return;
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+}
+projectCards.forEach(card => {
+  card.addEventListener('click', () => {
+    try {
+      const data = JSON.parse(card.dataset.project || '{}');
+      openProjectModal(data);
+    } catch (err) { /* malformed dataset */ }
+  });
+});
+if (modalClose) modalClose.addEventListener('click', closeProjectModal);
+if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeProjectModal(); });
 
-/* ── Active nav link highlight ─────────────────────────── */
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-links a');
-
-const sectionObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        navLinks.forEach(link => {
-          link.style.color = '';
-          if (link.getAttribute('href') === `#${entry.target.id}`) {
-            link.style.color = 'var(--accent)';
-          }
-        });
-      }
-    });
-  },
-  { threshold: 0.4 }
-);
-
-sections.forEach(section => sectionObserver.observe(section));
-
-/* ── Photo lightbox ────────────────────────────────────── */
-const lightbox = document.getElementById('lightbox');
-const lightboxImg = document.getElementById('lightbox-img');
-const lightboxCaption = document.getElementById('lightbox-caption');
-const lightboxClose = document.getElementById('lightbox-close');
+/* ─── Photo lightbox ──────────────────────────────────── */
+const lightbox       = document.getElementById('lightbox');
+const lightboxImg    = document.getElementById('lightbox-img');
+const lightboxCap    = document.getElementById('lightbox-caption');
+const lightboxClose  = document.getElementById('lightbox-close');
 
 document.querySelectorAll('.photo-item').forEach(item => {
   item.addEventListener('click', () => {
     const img = item.querySelector('img');
-    const caption = item.querySelector('.photo-overlay span');
+    const cap = item.querySelector('.photo-overlay span');
+    if (!img) return;
     lightboxImg.src = img.src;
     lightboxImg.alt = img.alt;
-    lightboxCaption.textContent = caption ? caption.textContent : '';
+    lightboxCap.textContent = cap ? cap.textContent : '';
     lightbox.classList.add('open');
     document.body.style.overflow = 'hidden';
   });
 });
-
 function closeLightbox() {
   lightbox.classList.remove('open');
   document.body.style.overflow = '';
   lightboxImg.src = '';
 }
+if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+if (lightbox) lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 
-lightboxClose.addEventListener('click', closeLightbox);
-lightbox.addEventListener('click', (e) => {
-  if (e.target === lightbox) closeLightbox();
-});
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'Escape') {
+    closeLightbox();
+    closeProjectModal();
+  }
 });
 
-/* ── Contact form (mailto fallback) ───────────────────── */
+/* ─── Contact form (mailto fallback) ──────────────────── */
 const contactForm = document.getElementById('contact-form');
-contactForm.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name    = contactForm.name.value.trim();
-  const email   = contactForm.email.value.trim();
-  const message = contactForm.message.value.trim();
+if (contactForm) {
+  contactForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name    = contactForm.name.value.trim();
+    const email   = contactForm.email.value.trim();
+    const message = contactForm.message.value.trim();
+    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
+    const body    = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+    window.location.href = `mailto:swnssoe@gmail.com?subject=${subject}&body=${body}`;
+  });
+}
 
-  const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-  const body    = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-  window.location.href = `mailto:swnssoe@gmail.com?subject=${subject}&body=${body}`;
-});
-
-/* ── Smooth scroll for all anchor links ────────────────── */
+/* ─── Smooth scroll for anchor links ──────────────────── */
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   anchor.addEventListener('click', (e) => {
-    const target = document.querySelector(anchor.getAttribute('href'));
+    const href = anchor.getAttribute('href');
+    if (href === '#' || href.length < 2) return;
+    const target = document.querySelector(href);
     if (target) {
       e.preventDefault();
       target.scrollIntoView({ behavior: 'smooth', block: 'start' });
