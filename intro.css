@@ -215,98 +215,105 @@ html.intro-seen #intro { display: none !important; }
   pointer-events: none;
 }
 
-/* Scene 3: Atmospheric background haze */
+/* Atmospheric background haze */
 .i-img-bg {
   position: absolute; inset: 0;
   background: url('images/Japan/IMG_0393.JPG') center/cover no-repeat;
-  filter: blur(32px) saturate(0.6);
-  transform: scale(1.08);
+  filter: blur(36px) saturate(0.5);
+  transform: scale(1.1);
   opacity: 0;
   animation: i-bg-in 2.0s ease-out 4.0s both;
 }
-@keyframes i-bg-in { to { opacity: 0.18; } }
+@keyframes i-bg-in { to { opacity: 0.15; } }
 
-/* Scene 3: Main hero image — center, large, wipes left→right, zoom-out */
-.i-img-main {
+/* Shared portrait frame base */
+.i-img-main, .i-img-l, .i-img-r {
   position: absolute;
-  left: 28%; top: 8%;
-  width: min(44vw, 520px);
+  background-size: cover;
+  background-position: center top;
+}
+
+/* Main — tall portrait, center stage, wipes upward, rack focus last */
+.i-img-main {
+  left: 50%; top: 6%;
+  width: min(24vw, 260px);
   height: 82%;
-  background: url('images/Japan/IMG_0393.JPG') center/cover no-repeat;
-  clip-path: inset(0 100% 0 0);
-  filter: blur(6px);
-  transform: scale(1.05) translateX(12px);
+  transform: translateX(-50%) scale(1.05);
+  background-image: url('images/Japan/IMG_0393.JPG');
+  clip-path: inset(100% 0 0 0);
+  filter: blur(18px) saturate(0.7);
   z-index: 2;
   animation:
-    i-main-reveal 1.4s cubic-bezier(0.22,1,0.36,1) 4.3s both,
-    i-main-focus  0.9s ease-out 4.8s both;
+    i-main-reveal 1.3s cubic-bezier(0.22,1,0.36,1) 4.2s both,
+    i-main-focus  1.4s cubic-bezier(0.22,1,0.36,1) 5.0s both;
 }
 @keyframes i-main-reveal {
-  from { clip-path: inset(0 100% 0 0); transform: scale(1.05) translateX(12px); opacity: 0.8; }
-  to   { clip-path: inset(0 0% 0 0);   transform: scale(1.00) translateX(0);    opacity: 1;   }
+  from { clip-path: inset(100% 0 0 0); transform: translateX(-50%) scale(1.05); opacity: 0.7; }
+  to   { clip-path: inset(0 0 0 0);    transform: translateX(-50%) scale(1.00); opacity: 1;   }
 }
 @keyframes i-main-focus {
-  to { filter: blur(0); }
+  from { filter: blur(18px) saturate(0.7); }
+  to   { filter: blur(0)    saturate(1.0); }
 }
 
-/* Scene 3: Left image — slides from off-left, wipes top→bottom, sits behind */
+/* Left — portrait strip, wipes upward slightly later, sits behind, focuses after main */
 .i-img-l {
-  position: absolute;
-  left: 4%; top: 18%;
-  width: min(22vw, 240px);
-  height: 62%;
-  background: url('images/Japan/IMG_8970.JPG') center/cover no-repeat;
+  left: 10%; top: 14%;
+  width: min(19vw, 200px);
+  height: 70%;
+  transform: translateX(-20px) scale(1.04);
+  background-image: url('images/Japan/IMG_1282.JPG');
   clip-path: inset(100% 0 0 0);
-  filter: blur(4px);
-  transform: translateX(-28px) scale(1.03);
+  filter: blur(18px) saturate(0.7);
   z-index: 1;
   opacity: 0;
   animation:
-    i-left-reveal 1.2s cubic-bezier(0.22,1,0.36,1) 4.8s both,
-    i-left-focus  0.8s ease-out 5.4s both;
+    i-left-reveal 1.2s cubic-bezier(0.22,1,0.36,1) 4.7s both,
+    i-left-focus  1.3s cubic-bezier(0.22,1,0.36,1) 5.6s both;
 }
 @keyframes i-left-reveal {
-  from { clip-path: inset(100% 0 0 0); transform: translateX(-28px) scale(1.03); opacity: 0; }
-  to   { clip-path: inset(0 0 0 0);    transform: translateX(0) scale(1.0);      opacity: 0.9; }
+  from { clip-path: inset(100% 0 0 0); transform: translateX(-20px) scale(1.04); opacity: 0; }
+  to   { clip-path: inset(0 0 0 0);    transform: translateX(0)     scale(1.00); opacity: 0.88; }
 }
 @keyframes i-left-focus {
-  to { filter: blur(0); }
+  from { filter: blur(18px) saturate(0.7); }
+  to   { filter: blur(0)    saturate(1.0); }
 }
 
-/* Scene 3: Right image — slides from off-right, wipes right→left, sits in front */
+/* Right — portrait strip, wipes upward last, sits in front, focuses last */
 .i-img-r {
-  position: absolute;
-  right: 3%; top: 22%;
-  width: min(26vw, 300px);
-  height: 56%;
-  background: url("images/Japan/IMG_6229%202.JPG") center/cover no-repeat;
-  clip-path: inset(0 0 0 100%);
-  filter: blur(6px);
-  transform: translateX(32px) scale(1.04);
+  right: 10%; top: 18%;
+  width: min(19vw, 200px);
+  height: 68%;
+  transform: translateX(20px) scale(1.04);
+  background-image: url('images/Japan/IMG_5936.JPG');
+  clip-path: inset(100% 0 0 0);
+  filter: blur(18px) saturate(0.7);
   z-index: 3;
   opacity: 0;
   animation:
-    i-right-reveal 1.2s cubic-bezier(0.22,1,0.36,1) 5.2s both,
-    i-right-focus  0.8s ease-out 5.8s both;
+    i-right-reveal 1.2s cubic-bezier(0.22,1,0.36,1) 5.1s both,
+    i-right-focus  1.3s cubic-bezier(0.22,1,0.36,1) 6.1s both;
 }
 @keyframes i-right-reveal {
-  from { clip-path: inset(0 0 0 100%); transform: translateX(32px) scale(1.04); opacity: 0; }
-  to   { clip-path: inset(0 0 0 0);    transform: translateX(0) scale(1.0);     opacity: 0.9; }
+  from { clip-path: inset(100% 0 0 0); transform: translateX(20px) scale(1.04); opacity: 0; }
+  to   { clip-path: inset(0 0 0 0);    transform: translateX(0)    scale(1.00); opacity: 0.88; }
 }
 @keyframes i-right-focus {
-  to { filter: blur(0); }
+  from { filter: blur(18px) saturate(0.7); }
+  to   { filter: blur(0)    saturate(1.0); }
 }
 
-/* Rack focus overlay — blurs everything, then clears as images "snap" into focus */
+/* Global rack-focus overlay — drops first, then each image sharpens individually */
 .i-rack-focus {
   position: absolute; inset: 0;
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   opacity: 1; pointer-events: none;
   z-index: 10;
-  animation: i-rack 1.8s ease-out 4.2s both;
+  animation: i-rack 1.2s ease-out 4.0s both;
 }
 @keyframes i-rack {
-  0%   { opacity: 1; backdrop-filter: blur(8px); }
+  0%   { opacity: 1; backdrop-filter: blur(10px); }
   100% { opacity: 0; backdrop-filter: blur(0); }
 }
 
@@ -507,10 +514,11 @@ html.intro-seen #intro { display: none !important; }
 
 /* ─── Mobile ────────────────────────────────────────────────────────── */
 @media (max-width: 700px) {
-  .i-img-main { left: 15%; width: 70vw; top: 12%; height: 72%; }
-  .i-img-l    { display: none; }
-  .i-img-r    { width: 38vw; right: 1%; top: 28%; height: 44%; }
-  .i-tag      { left: 5%; bottom: 12%; }
+  /* Mobile: show main portrait centred, flanking strips visible but smaller */
+  .i-img-main { left: 50%; width: 52vw; top: 8%; height: 78%; transform: translateX(-50%) scale(1.05); }
+  .i-img-l    { left: 2%; width: 30vw; top: 16%; height: 62%; }
+  .i-img-r    { right: 2%; width: 30vw; top: 20%; height: 58%; }
+  .i-tag      { left: 5%; bottom: 10%; }
   .i-name     { font-size: 22px; letter-spacing: 0.14em; }
   .i-skip     { bottom: 16px; right: 16px; padding: 8px 14px; }
 }
