@@ -8,7 +8,15 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const isMobile = window.matchMedia('(max-width: 768px)').matches;
 
-  if (reducedMotion || isMobile) return;
+  // Respect reduced-motion preference. Mobile gets lighter settings instead of skipping.
+  if (reducedMotion) return;
+
+  // Per-device perf budget
+  const COLS = isMobile ? 44 : 80;
+  const ROWS = isMobile ? 44 : 80;
+  const SPACING = isMobile ? 0.7 : 0.5;
+  const PIXEL_RATIO_CAP = isMobile ? 1.5 : 2;
+  const ANTIALIAS = !isMobile;
 
   function init() {
     const el = document.getElementById(MOUNT_ID);
@@ -23,18 +31,17 @@
     camera.position.set(0, 8, 18);
     camera.lookAt(0, 0, 0);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = new THREE.WebGLRenderer({ antialias: ANTIALIAS, alpha: true });
     renderer.setSize(w, h);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, PIXEL_RATIO_CAP));
     renderer.setClearColor(0x000000, 0);
     el.appendChild(renderer.domElement);
 
     const threeColor = new THREE.Color(ACCENT);
 
-    // Build terrain grid 80×80
-    const cols = 80;
-    const rows = 80;
-    const spacing = 0.5;
+    const cols = COLS;
+    const rows = ROWS;
+    const spacing = SPACING;
     const geo = new THREE.BufferGeometry();
     const vertices = [];
     const indices = [];
