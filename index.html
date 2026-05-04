@@ -6,9 +6,11 @@
 
   <!-- ── Primary SEO ────────────────────────────────────────── -->
   <title>Alston Shi — Travel &amp; Editorial Photographer | Singapore</title>
-  <meta name="description" content="Travel and editorial photography by Alston Shi, a Singapore-based photographer documenting ordinary places at extraordinary moments across Asia — Japan, China, Taiwan, and beyond. Est. 2020." />
-  <meta name="keywords" content="Alston Shi, photographer Singapore, Singapore photography, travel photography, editorial photography, Japan photography, China photography, Taiwan photography, street photography, Asian travel photography, photographer portfolio" />
+  <meta name="description" content="Alston Shi is a Singapore-based travel and editorial photographer documenting people and places across Asia since 2020. Browse the archive of work from Japan, China, Taiwan, and beyond." />
+  <meta name="keywords" content="Alston Shi, alstonshi, alstonsjpeg, photographer Singapore, Singapore photography, travel photography, editorial photography, Japan photography, China photography, Taiwan photography, street photography, Asian travel photography, photographer portfolio" />
   <meta name="author" content="Alston Shi" />
+  <meta name="application-name" content="Alston Shi" />
+  <meta name="apple-mobile-web-app-title" content="Alston Shi" />
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
   <meta name="theme-color" content="#0E0D0B" />
   <link rel="canonical" href="https://alstonshi.com/" />
@@ -21,9 +23,9 @@
 
   <!-- ── Open Graph ─────────────────────────────────────────── -->
   <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="Alston Shi Photography" />
+  <meta property="og:site_name" content="Alston Shi" />
   <meta property="og:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
-  <meta property="og:description" content="Travel and editorial photography across Asia — ordinary places at extraordinary moments. Singapore-based, documenting Japan, China, Taiwan and beyond since 2020." />
+  <meta property="og:description" content="Singapore-based travel and editorial photographer documenting people and places across Asia since 2020. Browse work from Japan, China, Taiwan, and beyond." />
   <meta property="og:url" content="https://alstonshi.com/" />
   <meta property="og:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
   <meta property="og:image:width" content="1920" />
@@ -33,8 +35,10 @@
 
   <!-- ── Twitter / X ────────────────────────────────────────── -->
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="@alstonsjpeg" />
+  <meta name="twitter:creator" content="@alstonsjpeg" />
   <meta name="twitter:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
-  <meta name="twitter:description" content="Travel and editorial photography across Asia — ordinary places at extraordinary moments. Singapore-based, est. 2020." />
+  <meta name="twitter:description" content="Singapore-based travel and editorial photographer documenting Asia since 2020." />
   <meta name="twitter:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
 
   <!-- ── Structured data: Person + ProfessionalService ──────── -->
@@ -46,6 +50,10 @@
         "@type": "Person",
         "@id": "https://alstonshi.com/#alston",
         "name": "Alston Shi",
+        "givenName": "Alston",
+        "familyName": "Shi",
+        "alternateName": ["alstonshi", "alstonsjpeg"],
+        "description": "Singapore-based travel and editorial photographer documenting people and places across Asia since 2020.",
         "jobTitle": "Photographer",
         "url": "https://alstonshi.com/",
         "image": "https://alstonshi.com/images/alston%20shi/IMG_7403.jpg",
@@ -56,7 +64,11 @@
         },
         "nationality": "SG",
         "knowsAbout": ["Travel Photography", "Editorial Photography", "Street Photography", "Documentary Photography"],
-        "sameAs": ["https://alstonshi.com/personal/"]
+        "sameAs": [
+          "https://alstonshi.com/personal/",
+          "https://www.instagram.com/alstonsjpeg/",
+          "https://github.com/Chilitoes"
+        ]
       },
       {
         "@type": "ProfessionalService",
@@ -74,10 +86,16 @@
         "@type": "WebSite",
         "@id": "https://alstonshi.com/#website",
         "url": "https://alstonshi.com/",
-        "name": "Alston Shi — Photography",
+        "name": "Alston Shi",
+        "alternateName": ["Alston Shi Photography", "alstonshi"],
         "description": "Travel and editorial photography portfolio by Alston Shi.",
         "inLanguage": "en-SG",
-        "publisher": { "@id": "https://alstonshi.com/#alston" }
+        "publisher": { "@id": "https://alstonshi.com/#alston" },
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": "https://alstonshi.com/#/archive?q={search_term_string}",
+          "query-input": "required name=search_term_string"
+        }
       }
     ]
   }
