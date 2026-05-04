@@ -22,6 +22,9 @@ function Nav({ route, go, theme, onToggleTheme }) {
             {l.label}
           </a>
         ))}
+        <a href="/personal/" className="nav-link nav-link-ext" data-cursor="hover" title="Digital portfolio">
+          Code <span className="ext-arrow" aria-hidden="true">↗</span>
+        </a>
       </div>
     </nav>
   );
@@ -48,6 +51,7 @@ function Footer({ go }) {
         <a href="#/archive" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("archive"); }}>Archive</a>
         <a href="#/about" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("about"); }}>About</a>
         <a href="#/contact" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("contact"); }}>Contact</a>
+        <a href="/personal/" data-cursor="hover" className="nav-link-ext" title="Digital portfolio">Code <span aria-hidden="true">↗</span></a>
       </nav>
       <div className="footer-copy dim">© 2026 Alston Shi. All rights reserved.</div>
     </footer>

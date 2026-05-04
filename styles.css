@@ -35,6 +35,25 @@ body.theme-light {
   --line: rgba(42, 37, 32, 0.14);
 }
 
+/* External cross-portfolio link (Code ↗) */
+.nav-link-ext {
+  color: var(--fg-dim);
+  transition: color 0.25s ease;
+}
+.nav-link-ext:hover { color: var(--ochre); }
+.nav-link-ext .ext-arrow,
+.nav-link-ext > [aria-hidden] {
+  display: inline-block;
+  margin-left: 3px;
+  font-size: 0.85em;
+  transform: translateY(-1px);
+  transition: transform 0.25s ease;
+}
+.nav-link-ext:hover .ext-arrow,
+.nav-link-ext:hover > [aria-hidden] {
+  transform: translate(2px, -3px);
+}
+
 /* ===== Swirl gallery ===== */
 .swirl {
   position: relative;

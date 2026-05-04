@@ -51,7 +51,7 @@ function hideLoader() {
 // ---- Theme toggle ----
 function useTheme() {
   const [theme, setTheme] = React.useState(() =>
-    localStorage.getItem("as-theme") || "dark"
+    localStorage.getItem("as-theme") || "light"
   );
   React.useEffect(() => {
     document.body.classList.toggle("theme-dark", theme === "dark");

@@ -184,6 +184,21 @@ button { font-family: inherit; }
 .nav-links a.active {
   color: var(--ink);
 }
+.nav-links .nav-link-ext {
+  color: var(--muted);
+}
+.nav-links .nav-link-ext:hover { color: var(--primary); filter: brightness(1.1); }
+.nav-link-ext > [aria-hidden] {
+  display: inline-block;
+  margin-left: 3px;
+  font-size: 0.85em;
+  transform: translateY(-1px);
+  transition: transform 0.25s ease;
+}
+.nav-link-ext:hover > [aria-hidden] {
+  transform: translate(2px, -3px);
+}
+.mobile-link-ext { color: var(--primary) !important; filter: brightness(1.1); }
 .nav-cta {
   font-size: 14px;
   font-weight: 500;
