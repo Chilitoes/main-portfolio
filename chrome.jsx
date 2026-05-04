@@ -33,6 +33,11 @@ function Nav({ route, go, theme, onToggleTheme }) {
         data-cursor="hover">
         <span></span><span></span><span></span>
       </button>
+      <div
+        className="nav-backdrop"
+        aria-hidden="true"
+        onClick={() => setMenuOpen(false)}
+      />
       <div className={"nav-links" + (menuOpen ? " open" : "")}>
         {links.map((l) => (
           <a key={l.id}
