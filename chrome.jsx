@@ -1,29 +1,50 @@
 // ============ Chrome: Nav, SideMeta, Footer, Lightbox ============
 
 function Nav({ route, go, theme, onToggleTheme }) {
+  const [menuOpen, setMenuOpen] = React.useState(false);
   const links = [
     { id: "home", label: "Home" },
     { id: "archive", label: "Archive" },
     { id: "about", label: "About" },
     { id: "contact", label: "Contact" },
   ];
+
+  // Close mobile menu on route change
+  React.useEffect(() => { setMenuOpen(false); }, [route]);
+
+  // Lock body scroll while mobile menu is open
+  React.useEffect(() => {
+    if (menuOpen) document.body.classList.add("nav-menu-open");
+    else document.body.classList.remove("nav-menu-open");
+    return () => document.body.classList.remove("nav-menu-open");
+  }, [menuOpen]);
+
   return (
-    <nav className="nav">
-      <a className="nav-brand" href="#/home" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("home"); }}>
+    <nav className={"nav" + (menuOpen ? " nav-open" : "")}>
+      <a className="nav-brand" href="#/home" data-cursor="hover"
+         onClick={(e) => { e.preventDefault(); go("home"); setMenuOpen(false); }}>
         Alston <span className="italic">Shi</span>
       </a>
-      <div className="nav-links">
+      <button
+        className={"nav-hamburger" + (menuOpen ? " open" : "")}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
+        aria-expanded={menuOpen}
+        onClick={() => setMenuOpen(!menuOpen)}
+        data-cursor="hover">
+        <span></span><span></span><span></span>
+      </button>
+      <div className={"nav-links" + (menuOpen ? " open" : "")}>
         {links.map((l) => (
           <a key={l.id}
              href={"#/" + l.id}
              className={"nav-link" + (route === l.id ? " active" : "")}
              data-cursor="hover"
-             onClick={(e) => { e.preventDefault(); go(l.id); }}>
+             onClick={(e) => { e.preventDefault(); go(l.id); setMenuOpen(false); }}>
             {l.label}
           </a>
         ))}
         <a href="/personal/" className="nav-link nav-link-ext" data-cursor="hover" title="Digital portfolio">
-          Code <span className="ext-arrow" aria-hidden="true">↗</span>
+          Digital Portfolio <span className="ext-arrow" aria-hidden="true">↗</span>
         </a>
       </div>
     </nav>
@@ -51,7 +72,7 @@ function Footer({ go }) {
         <a href="#/archive" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("archive"); }}>Archive</a>
         <a href="#/about" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("about"); }}>About</a>
         <a href="#/contact" data-cursor="hover" onClick={(e) => { e.preventDefault(); go("contact"); }}>Contact</a>
-        <a href="/personal/" data-cursor="hover" className="nav-link-ext" title="Digital portfolio">Code <span aria-hidden="true">↗</span></a>
+        <a href="/personal/" data-cursor="hover" className="nav-link-ext" title="Digital portfolio">Digital Portfolio <span aria-hidden="true">↗</span></a>
       </nav>
       <div className="footer-copy dim">© 2026 Alston Shi. All rights reserved.</div>
     </footer>

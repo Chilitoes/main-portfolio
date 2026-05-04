@@ -1,0 +1,21 @@
+# https://alstonshi.com — robots.txt
+User-agent: *
+Allow: /
+
+# Common crawler hints
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+Sitemap: https://alstonshi.com/sitemap.xml

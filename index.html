@@ -3,7 +3,85 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Alston Shi — Photography</title>
+
+  <!-- ── Primary SEO ────────────────────────────────────────── -->
+  <title>Alston Shi — Travel &amp; Editorial Photographer | Singapore</title>
+  <meta name="description" content="Travel and editorial photography by Alston Shi, a Singapore-based photographer documenting ordinary places at extraordinary moments across Asia — Japan, China, Taiwan, and beyond. Est. 2020." />
+  <meta name="keywords" content="Alston Shi, photographer Singapore, Singapore photography, travel photography, editorial photography, Japan photography, China photography, Taiwan photography, street photography, Asian travel photography, photographer portfolio" />
+  <meta name="author" content="Alston Shi" />
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <meta name="theme-color" content="#0E0D0B" />
+  <link rel="canonical" href="https://alstonshi.com/" />
+
+  <!-- ── Geo targeting (Singapore) ──────────────────────────── -->
+  <meta name="geo.region" content="SG" />
+  <meta name="geo.placename" content="Singapore" />
+  <meta name="geo.position" content="1.3521;103.8198" />
+  <meta name="ICBM" content="1.3521, 103.8198" />
+
+  <!-- ── Open Graph ─────────────────────────────────────────── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Alston Shi Photography" />
+  <meta property="og:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
+  <meta property="og:description" content="Travel and editorial photography across Asia — ordinary places at extraordinary moments. Singapore-based, documenting Japan, China, Taiwan and beyond since 2020." />
+  <meta property="og:url" content="https://alstonshi.com/" />
+  <meta property="og:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
+  <meta property="og:image:width" content="1920" />
+  <meta property="og:image:height" content="1280" />
+  <meta property="og:image:alt" content="Editorial travel photograph by Alston Shi" />
+  <meta property="og:locale" content="en_SG" />
+
+  <!-- ── Twitter / X ────────────────────────────────────────── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
+  <meta name="twitter:description" content="Travel and editorial photography across Asia — ordinary places at extraordinary moments. Singapore-based, est. 2020." />
+  <meta name="twitter:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
+
+  <!-- ── Structured data: Person + ProfessionalService ──────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://alstonshi.com/#alston",
+        "name": "Alston Shi",
+        "jobTitle": "Photographer",
+        "url": "https://alstonshi.com/",
+        "image": "https://alstonshi.com/images/alston%20shi/IMG_7403.jpg",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Singapore",
+          "addressCountry": "SG"
+        },
+        "nationality": "SG",
+        "knowsAbout": ["Travel Photography", "Editorial Photography", "Street Photography", "Documentary Photography"],
+        "sameAs": ["https://alstonshi.com/personal/"]
+      },
+      {
+        "@type": "ProfessionalService",
+        "name": "Alston Shi Photography",
+        "url": "https://alstonshi.com/",
+        "image": "https://alstonshi.com/images/Japan/IMG_2564.JPG",
+        "founder": { "@id": "https://alstonshi.com/#alston" },
+        "areaServed": { "@type": "Country", "name": "Singapore" },
+        "address": { "@type": "PostalAddress", "addressLocality": "Singapore", "addressCountry": "SG" },
+        "geo": { "@type": "GeoCoordinates", "latitude": 1.3521, "longitude": 103.8198 },
+        "foundingDate": "2020",
+        "description": "Singapore-based travel and editorial photography practice — documenting ordinary places at extraordinary moments across Asia."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://alstonshi.com/#website",
+        "url": "https://alstonshi.com/",
+        "name": "Alston Shi — Photography",
+        "description": "Travel and editorial photography portfolio by Alston Shi.",
+        "inLanguage": "en-SG",
+        "publisher": { "@id": "https://alstonshi.com/#alston" }
+      }
+    ]
+  }
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +95,7 @@
   <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
 </head>
-<body class="theme-light">
+<body class="theme-dark">
   <!-- Grain overlay: SVG turbulence filter, fixed to viewport -->
   <div class="grain" aria-hidden="true"></div>
 
