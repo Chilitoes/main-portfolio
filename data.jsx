@@ -163,5 +163,9 @@ window.COUNTRIES = ["All", "Japan", "China", "Taiwan", "Korea", "Indonesia", "Ma
 // Gear (current setup)
 window.GEAR = [
   "Canon EOS R6 Mark III",
+  "Fujifilm X100V",
+  "Fujifilm X-T30",
+  "iPhone 17 Pro Max",
   "Tamron 24-70mm f/2.8 G2",
+  "Canon EF 70-300mm f/4-5.6L IS USM",
 ];
