@@ -160,15 +160,8 @@ window.PORTRAIT_IMG_SECONDARY = IMG("alston shi/IMG_1014.jpg");
 // Filter labels (match the live portfolio's category set)
 window.COUNTRIES = ["All", "Japan", "China", "Taiwan", "Korea", "Indonesia", "Malaysia", "Singapore", "Brunei"];
 
-// Gear (from the live About page)
+// Gear (current setup)
 window.GEAR = [
-  "Fujifilm X-T Series",
-  "Fuji X100V",
-  "Canon EOS R",
-  "DJI Pocket 3",
-  "iPhone 17 PM",
-  "Fujinon 23mm f/2",
-  "Fujinon 35mm f/1.4",
-  "Canon RF 50mm f/1.8",
-  "Lightroom",
+  "Canon EOS R6 Mark III",
+  "Tamron 24-70mm f/2.8 G2",
 ];
