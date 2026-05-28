@@ -142,4 +142,97 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
   );
 }
 
-Object.assign(window, { Nav, SideMeta, Footer, Lightbox });
+// ---- Custom animated cursor ----
+// Small ring that follows the mouse, expands on interactive elements,
+// reads data-cursor attributes scattered through the rest of the app.
+function CustomCursor() {
+  const dotRef = React.useRef(null);
+  const ringRef = React.useRef(null);
+  const stateRef = React.useRef({
+    mx: -100, my: -100, dx: -100, dy: -100, rx: -100, ry: -100,
+    mode: "default", label: "", visible: false,
+  });
+
+  React.useEffect(() => {
+    // Skip on touch / coarse pointer devices entirely
+    const coarse = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    if (coarse) return;
+
+    const dot = dotRef.current;
+    const ring = ringRef.current;
+    if (!dot || !ring) return;
+
+    const s = stateRef.current;
+
+    const onMove = (e) => {
+      s.mx = e.clientX;
+      s.my = e.clientY;
+      if (!s.visible) {
+        s.visible = true;
+        dot.style.opacity = 1;
+        ring.style.opacity = 1;
+      }
+
+      // Detect cursor mode from element under pointer
+      const el = e.target instanceof Element ? e.target.closest("[data-cursor]") : null;
+      const mode = el ? (el.getAttribute("data-cursor") || "default") : "default";
+      const label = el ? (el.getAttribute("data-cursor-label") || "") : "";
+      if (mode !== s.mode || label !== s.label) {
+        s.mode = mode;
+        s.label = label;
+        ring.setAttribute("data-mode", mode);
+        ring.querySelector(".cursor-label").textContent = label;
+      }
+    };
+
+    const onLeave = () => {
+      s.visible = false;
+      dot.style.opacity = 0;
+      ring.style.opacity = 0;
+    };
+
+    const onDown = () => ring.classList.add("is-down");
+    const onUp   = () => ring.classList.remove("is-down");
+
+    window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mouseleave", onLeave);
+    window.addEventListener("mousedown", onDown);
+    window.addEventListener("mouseup", onUp);
+
+    let raf;
+    const tick = () => {
+      // Dot follows mouse 1:1
+      s.dx += (s.mx - s.dx) * 0.6;
+      s.dy += (s.my - s.dy) * 0.6;
+      // Ring lerps with slight trail
+      s.rx += (s.mx - s.rx) * 0.18;
+      s.ry += (s.my - s.ry) * 0.18;
+      dot.style.transform  = `translate3d(${s.dx}px, ${s.dy}px, 0) translate(-50%,-50%)`;
+      ring.style.transform = `translate3d(${s.rx}px, ${s.ry}px, 0) translate(-50%,-50%)`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    document.documentElement.classList.add("has-custom-cursor");
+
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseleave", onLeave);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
+      document.documentElement.classList.remove("has-custom-cursor");
+    };
+  }, []);
+
+  return (
+    <React.Fragment>
+      <div ref={dotRef} className="cursor-dot" aria-hidden="true" />
+      <div ref={ringRef} className="cursor-ring" data-mode="default" aria-hidden="true">
+        <span className="cursor-label"></span>
+      </div>
+    </React.Fragment>
+  );
+}
+
+Object.assign(window, { Nav, SideMeta, Footer, Lightbox, CustomCursor });

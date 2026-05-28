@@ -44,6 +44,7 @@ function App() {
 
   return (
     <React.Fragment>
+      <window.CustomCursor />
       <window.Nav route={route} go={go} theme={theme} onToggleTheme={onToggleTheme} />
 
       <div className={leaving ? "route-leaving" : "route-entering"} style={{ opacity: leaving ? 0 : 1, transition: "opacity 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
