@@ -19,6 +19,15 @@ function App() {
   // Lightbox state (shared across pages)
   const [lbIndex, setLbIndex] = React.useState(null);
 
+  // Page-transition curtain — slides up over the screen, content swaps
+  // mid-animation under the cover, then it slides up and out.
+  const [curtainKey, setCurtainKey] = React.useState(0);
+  const firstRouteRender = React.useRef(true);
+  React.useEffect(() => {
+    if (firstRouteRender.current) { firstRouteRender.current = false; return; }
+    setCurtainKey((k) => k + 1); // new key restarts the CSS animation
+  }, [route]);
+
   // Re-run reveal observer whenever route changes
   window.useReveal([route, leaving]);
 
@@ -50,6 +59,13 @@ function App() {
       <div className={leaving ? "route-leaving" : "route-entering"} style={{ opacity: leaving ? 0 : 1, transition: "opacity 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
         <Page go={go} onOpenLightbox={onOpenLightbox} />
       </div>
+
+      {curtainKey > 0 && (
+        <div key={curtainKey} className="route-curtain" aria-hidden="true">
+          <div className="rc-fill" />
+          <div className="rc-glow" />
+        </div>
+      )}
 
       <window.Lightbox
         items={window.PORTFOLIO}

@@ -1897,3 +1897,48 @@ html.has-custom-cursor [data-cursor] { cursor: none !important; }
   .sd-numeral { font-size: 13px; }
   .sd-label { font-size: 9px; letter-spacing: 0.18em; }
 }
+
+/* ─── Page-transition curtain ───────────────────────────────────────────
+   Slides up across the viewport, content swaps mid-animation, then it
+   continues up and off. Two layers: a deep bg fill + a thin ochre seam
+   glow that traces the leading edge for a cinematic wipe. */
+.route-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: none;
+  transform: translateY(100%);
+  animation: rcSwoop 0.95s cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+.rc-fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg,
+    var(--bg-elev) 0%,
+    var(--bg) 100%);
+  border-top: 1px solid rgba(200, 162, 101, 0.4);
+}
+.rc-glow {
+  position: absolute;
+  left: 0; right: 0;
+  top: -2px;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(200, 162, 101, 0.9) 40%,
+    rgba(243, 236, 222, 1) 50%,
+    rgba(200, 162, 101, 0.9) 60%,
+    transparent 100%);
+  box-shadow:
+    0 0 12px rgba(200, 162, 101, 0.6),
+    0 0 28px rgba(200, 162, 101, 0.3);
+}
+@keyframes rcSwoop {
+  0%   { transform: translateY(100%); }
+  46%  { transform: translateY(0%);   }
+  54%  { transform: translateY(0%);   }
+  100% { transform: translateY(-100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-curtain { display: none !important; }
+}
