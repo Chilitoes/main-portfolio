@@ -1,4 +1,14 @@
 // ============ Contact page ============
+//
+// Real form delivery via Formspree (free tier: 50 submissions/month).
+// SETUP — replace the endpoint below with your form ID after:
+//   1. https://formspree.io  →  Sign up (use swnssoe@gmail.com)
+//   2. New form  →  copy the unique 8-char ID (e.g. xqkrabcd)
+//   3. Paste below in place of YOUR_FORM_ID
+// Until then the form will fall back to a mailto: link so users can
+// still reach you.
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+const CONTACT_EMAIL = "swnssoe@gmail.com";
 
 function Field({ label, type = "text", name, placeholder, as = "input" }) {
   const [focused, setFocused] = React.useState(false);
@@ -36,7 +46,51 @@ function MagneticButton({ children, onClick }) {
 }
 
 function Contact({ go }) {
-  const [sent, setSent] = React.useState(false);
+  const [status, setStatus] = React.useState("idle"); // idle | sending | sent | error
+  const formRef = React.useRef(null);
+
+  const sent = status === "sent";
+  const sending = status === "sending";
+  const errored = status === "error";
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (sending || sent) return;
+
+    const form = formRef.current;
+    const data = new FormData(form);
+
+    // If endpoint isn't configured, gracefully fall back to mailto:
+    if (FORMSPREE_ENDPOINT.includes("YOUR_FORM_ID")) {
+      const subject = encodeURIComponent(`Inquiry — ${data.get("project") || "Photography"}`);
+      const body = encodeURIComponent(
+        `From: ${data.get("name") || ""} <${data.get("email") || ""}>\n` +
+        `Project: ${data.get("project") || ""}\n\n` +
+        `${data.get("message") || ""}`
+      );
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+      setStatus("sent");
+      return;
+    }
+
+    setStatus("sending");
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) {
+        setStatus("sent");
+        form.reset();
+      } else {
+        setStatus("error");
+      }
+    } catch (err) {
+      setStatus("error");
+    }
+  };
+
   return (
     <div className="page contact">
       <div className="contact-head">
@@ -48,16 +102,24 @@ function Contact({ go }) {
       </div>
 
       <div className="contact-grid">
-        <form className="contact-form" onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+        <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
           <Field label="Name" name="name" placeholder="Your name" />
           <Field label="Email" name="email" type="email" placeholder="your@email.com" />
           <Field label="Project type" name="project" placeholder="Editorial · travel · personal · print · other" />
           <Field label="Message" name="message" placeholder="Tell me about your project — timeline, location, vision..." as="textarea" />
+          {/* Honeypot field — bots fill it, humans don't see it */}
+          <input type="text" name="_gotcha" tabIndex="-1" autoComplete="off" style={{ position: "absolute", left: "-9999px", opacity: 0 }} />
           <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-            <MagneticButton onClick={(e) => { e.preventDefault(); setSent(true); }}>
-              {sent ? "Sent — thank you" : "Send message"}
+            <MagneticButton onClick={handleSubmit}>
+              {sending ? "Sending…" : sent ? "Sent — thank you" : errored ? "Try again" : "Send message"}
             </MagneticButton>
-            <div className="label dim">Replies within 48 hours.</div>
+            <div className="label dim">
+              {errored
+                ? <span style={{ color: "#d97757" }}>Send failed. Email {CONTACT_EMAIL} directly.</span>
+                : sent
+                  ? "I'll reply within 48 hours."
+                  : "Replies within 48 hours."}
+            </div>
           </div>
         </form>
 

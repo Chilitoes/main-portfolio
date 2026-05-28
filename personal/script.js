@@ -268,17 +268,77 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-/* ─── Contact form (mailto fallback) ──────────────────── */
+/* ─── Contact form (Formspree backend + mailto fallback) ──
+   SETUP: replace YOUR_FORM_ID after registering at formspree.io. Until
+   then it falls back gracefully to mailto: so it still works. ────────── */
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+const CONTACT_EMAIL = 'swnssoe@gmail.com';
+
 const contactForm = document.getElementById('contact-form');
 if (contactForm) {
-  contactForm.addEventListener('submit', (e) => {
+  const btn = contactForm.querySelector('button[type="submit"]');
+  const originalLabel = btn ? btn.textContent : '';
+  let status = 'idle'; // idle | sending | sent | error
+
+  // Honeypot: invisible field bots will fill in
+  if (!contactForm.querySelector('input[name="_gotcha"]')) {
+    const hp = document.createElement('input');
+    hp.type = 'text';
+    hp.name = '_gotcha';
+    hp.tabIndex = -1;
+    hp.autocomplete = 'off';
+    hp.style.cssText = 'position:absolute;left:-9999px;opacity:0';
+    contactForm.appendChild(hp);
+  }
+
+  const setLabel = (text, color) => {
+    if (!btn) return;
+    btn.textContent = text;
+    if (color) btn.style.background = color;
+  };
+
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+    if (status === 'sending' || status === 'sent') return;
     const name    = contactForm.name.value.trim();
     const email   = contactForm.email.value.trim();
     const message = contactForm.message.value.trim();
-    const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
-    const body    = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
-    window.location.href = `mailto:swnssoe@gmail.com?subject=${subject}&body=${body}`;
+
+    // Fallback: if endpoint not configured, use mailto
+    if (FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) {
+      const subject = encodeURIComponent(`Portfolio Contact from ${name}`);
+      const body    = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+      window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
+      status = 'sent';
+      setLabel('Sent — thank you');
+      return;
+    }
+
+    status = 'sending';
+    setLabel('Sending…');
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: 'POST',
+        body: new FormData(contactForm),
+        headers: { Accept: 'application/json' },
+      });
+      if (res.ok) {
+        status = 'sent';
+        setLabel('Sent — thank you');
+        contactForm.reset();
+      } else {
+        status = 'error';
+        setLabel('Try again');
+      }
+    } catch (err) {
+      status = 'error';
+      setLabel('Try again');
+    }
+
+    // Reset button label after a delay if not sent successfully
+    if (status === 'error') {
+      setTimeout(() => { if (status !== 'sending') setLabel(originalLabel); }, 4000);
+    }
   });
 }
 
