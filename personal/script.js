@@ -294,3 +294,65 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     }
   });
 });
+
+/* ─── 3D card tilt on project cards ───────────────────────────────── */
+(function tiltProjectCards() {
+  // Skip on touch / coarse-pointer devices
+  if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const MAX_TILT = 8;     // max rotation in degrees
+  const LIFT = 8;         // upward translate in px
+  const SCALE = 1.015;
+
+  document.querySelectorAll('.project-card').forEach((card) => {
+    let rafId = null;
+    let tx = 0, ty = 0;     // target rotations
+    let cx = 0, cy = 0;     // current (lerped)
+    let active = false;
+
+    const tick = () => {
+      cx += (tx - cx) * 0.18;
+      cy += (ty - cy) * 0.18;
+      const lift = active ? LIFT : 0;
+      const scale = active ? SCALE : 1;
+      card.style.transform = `perspective(900px) rotateX(${cy.toFixed(2)}deg) rotateY(${cx.toFixed(2)}deg) translateY(${-lift}px) scale(${scale})`;
+      // Shift the image a little within the frame for parallax
+      const img = card.querySelector('.proj-image img');
+      if (img) {
+        img.style.transform = `translate(${(-cx * 0.4).toFixed(2)}px, ${(cy * 0.4).toFixed(2)}px) scale(${active ? 1.06 : 1})`;
+      }
+      // Animated highlight glare following cursor
+      card.style.setProperty('--glare-x', `${50 + cx * 4}%`);
+      card.style.setProperty('--glare-y', `${50 + cy * 4}%`);
+
+      if (active || Math.abs(tx - cx) > 0.05 || Math.abs(ty - cy) > 0.05) {
+        rafId = requestAnimationFrame(tick);
+      } else {
+        rafId = null;
+        card.style.transform = '';
+        if (img) img.style.transform = '';
+      }
+    };
+
+    card.addEventListener('mouseenter', () => {
+      active = true;
+      card.classList.add('is-tilting');
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+    card.addEventListener('mousemove', (e) => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - 0.5;
+      const py = (e.clientY - r.top) / r.height - 0.5;
+      tx = px * MAX_TILT * 2;     // rotateY
+      ty = -py * MAX_TILT * 2;    // rotateX (inverted)
+    });
+    card.addEventListener('mouseleave', () => {
+      active = false;
+      tx = 0;
+      ty = 0;
+      card.classList.remove('is-tilting');
+      if (!rafId) rafId = requestAnimationFrame(tick);
+    });
+  });
+})();

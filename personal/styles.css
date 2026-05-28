@@ -1239,3 +1239,37 @@ button { font-family: inherit; }
   .terminal-body { padding: 16px; min-height: 200px; }
   .term-line { font-size: 12px; }
 }
+
+/* ─── 3D card tilt — pairs with tiltProjectCards() in script.js ─── */
+.project-card {
+  transform-style: preserve-3d;
+  position: relative;
+}
+.project-card.is-tilting {
+  transition: none;
+}
+.project-card.is-tilting .proj-image img {
+  transition: none;
+}
+.project-card.is-tilting:hover {
+  /* Override the CSS hover translate; JS handles position now */
+  transform: none;
+}
+/* Cursor-following glare highlight */
+.project-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 240px at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255, 255, 255, 0.08),
+    rgba(204, 120, 92, 0.04) 35%,
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+.project-card.is-tilting::after { opacity: 1; }
