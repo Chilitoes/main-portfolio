@@ -165,8 +165,12 @@ function Home({ go, onOpenLightbox }) {
       </section>
       </div>{/* end hero-scroll-zone */}
 
+      <window.SectionDivider numeral="I" label="Selected Work" />
+
       {/* 3D carousel ring (replaces the swirl gallery) */}
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
+
+      <window.SectionDivider numeral="II" label="Philosophy" />
 
       {/* Pull quote — same single line as the live site's philosophy block */}
       <section className="pull-quote" ref={quoteRef}>
@@ -210,6 +214,8 @@ function Home({ go, onOpenLightbox }) {
         </div>
       </section>
       </div>{/* end split-scroll-zone */}
+
+      <window.SectionDivider numeral="III" label="The Archive" />
 
       {/* Archive CTA with Country Browse */}
       <section style={{ padding: "120px 40px 80px" }}>

@@ -260,4 +260,33 @@ function CustomCursor() {
   );
 }
 
-Object.assign(window, { Nav, SideMeta, Footer, Lightbox, CustomCursor });
+// ---- Animated section divider — hairlines draw in on scroll ----
+function SectionDivider({ mark = "◆", numeral, label }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        el.classList.add("in");
+        io.disconnect();
+      }
+    }, { threshold: 0.3 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={ref} className="section-divider" aria-hidden="true">
+      <span className="sd-line sd-line-left" />
+      <span className="sd-center">
+        {numeral && <span className="sd-numeral">{numeral}</span>}
+        <span className="sd-mark">{mark}</span>
+        {label && <span className="sd-label">{label}</span>}
+      </span>
+      <span className="sd-line sd-line-right" />
+    </div>
+  );
+}
+
+Object.assign(window, { Nav, SideMeta, Footer, Lightbox, CustomCursor, SectionDivider });

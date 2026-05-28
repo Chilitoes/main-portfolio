@@ -1834,3 +1834,66 @@ html.has-custom-cursor [data-cursor] { cursor: none !important; }
   z-index: 1;
   box-shadow: 0 0 8px rgba(200, 162, 101, 0.5);
 }
+
+/* ─── Animated section dividers ─────────────────────────────────────── */
+.section-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  max-width: 720px;
+  margin: 80px auto;
+  padding: 0 40px;
+}
+.sd-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--fg-mute) 30%,
+    var(--fg-mute) 70%,
+    transparent 100%);
+  transform: scaleX(0);
+  transition: transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.sd-line-left  { transform-origin: right center; }
+.sd-line-right { transform-origin: left center; }
+.section-divider.in .sd-line { transform: scaleX(1); }
+
+.sd-center {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.6s ease 0.7s, transform 0.6s var(--ease-soft) 0.7s;
+}
+.section-divider.in .sd-center { opacity: 1; transform: translateY(0); }
+
+.sd-numeral {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--ochre);
+  letter-spacing: 0.05em;
+}
+.sd-mark {
+  font-size: 7px;
+  color: var(--ochre);
+  letter-spacing: 0.2em;
+  transform: translateY(-1px);
+}
+.sd-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+}
+
+@media (max-width: 700px) {
+  .section-divider { margin: 60px auto; gap: 16px; padding: 0 22px; }
+  .sd-numeral { font-size: 13px; }
+  .sd-label { font-size: 9px; letter-spacing: 0.18em; }
+}
