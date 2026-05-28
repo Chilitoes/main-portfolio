@@ -2,6 +2,7 @@
 
 function Nav({ route, go, theme, onToggleTheme }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const progressRef = React.useRef(null);
   const links = [
     { id: "home", label: "Home" },
     { id: "archive", label: "Archive" },
@@ -19,8 +20,32 @@ function Nav({ route, go, theme, onToggleTheme }) {
     return () => document.body.classList.remove("nav-menu-open");
   }, [menuOpen]);
 
+  // Scroll progress bar — width grows as user scrolls the page
+  React.useEffect(() => {
+    const bar = progressRef.current;
+    if (!bar) return;
+    let raf;
+    const update = () => {
+      const h = document.documentElement;
+      const scrollable = (h.scrollHeight - h.clientHeight) || 1;
+      const pct = Math.max(0, Math.min(1, h.scrollTop / scrollable));
+      bar.style.transform = `scaleX(${pct})`;
+      raf = null;
+    };
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, [route]);
+
   return (
     <nav className={"nav" + (menuOpen ? " nav-open" : "")}>
+      <div ref={progressRef} className="nav-progress" aria-hidden="true" />
       <a className="nav-brand" href="#/home" data-cursor="hover"
          onClick={(e) => { e.preventDefault(); go("home"); setMenuOpen(false); }}>
         Alston <span className="italic">Shi</span>

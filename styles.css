@@ -1818,3 +1818,19 @@ html.has-custom-cursor [data-cursor] { cursor: none !important; }
   html.has-custom-cursor [data-cursor] { cursor: auto !important; }
   .cursor-dot, .cursor-ring { display: none !important; }
 }
+
+/* ─── Scroll progress bar inside the nav ────────────────────────────── */
+.nav-progress {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    var(--ochre) 0%,
+    rgba(243, 236, 222, 0.9) 100%);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.12s linear;
+  pointer-events: none;
+  z-index: 1;
+  box-shadow: 0 0 8px rgba(200, 162, 101, 0.5);
+}
