@@ -7,7 +7,7 @@
 //   3. Paste below in place of YOUR_FORM_ID
 // Until then the form will fall back to a mailto: link so users can
 // still reach you.
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mzdwokqp";
 const CONTACT_EMAIL = "swnssoe@gmail.com";
 
 function Field({ label, type = "text", name, placeholder, as = "input" }) {

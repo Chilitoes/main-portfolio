@@ -271,7 +271,7 @@ document.addEventListener('keydown', (e) => {
 /* ─── Contact form (Formspree backend + mailto fallback) ──
    SETUP: replace YOUR_FORM_ID after registering at formspree.io. Until
    then it falls back gracefully to mailto: so it still works. ────────── */
-const FORMSPREE_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mzdwokqp';
 const CONTACT_EMAIL = 'swnssoe@gmail.com';
 
 const contactForm = document.getElementById('contact-form');
