@@ -18,7 +18,10 @@ const path = require('path');
 const sharp = require('sharp');
 
 const ROOT = path.resolve(__dirname, '..');
-const IMAGES_DIR = path.join(ROOT, 'images');
+const SCAN_DIRS = [
+  path.join(ROOT, 'images'),
+  path.join(ROOT, 'personal', 'images'),
+];
 const WIDTHS = [480, 960, 1920];
 const FORMATS = [
   { ext: 'avif', encode: (s) => s.avif({ quality: 60, effort: 4 }) },
@@ -73,7 +76,13 @@ async function processOne(srcPath) {
 }
 
 async function main() {
-  const sources = await walk(IMAGES_DIR);
+  const sources = [];
+  for (const dir of SCAN_DIRS) {
+    try { await walk(dir, sources); } catch (e) {
+      if (e.code === 'ENOENT') continue; // optional dir missing — fine
+      throw e;
+    }
+  }
   console.log(`Found ${sources.length} source image(s).`);
 
   const start = Date.now();

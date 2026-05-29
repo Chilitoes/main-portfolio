@@ -1273,3 +1273,8 @@ button { font-family: inherit; }
   mix-blend-mode: overlay;
 }
 .project-card.is-tilting::after { opacity: 1; }
+
+/* Make <picture> wrappers transparent to layout so all existing
+   `.photo-item img`, `.proj-image img`, etc. rules continue to work
+   exactly as if the picture element weren't there. */
+picture { display: contents; }

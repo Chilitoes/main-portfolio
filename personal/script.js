@@ -2,6 +2,48 @@
    Alston Shi — Digital Portfolio v2 · script
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Upgrade every lazy <img src="…jpg"> into a <picture> with AVIF + WebP
+   sources pointing at the precompiled -480/-960/-1920 variants. Runs
+   synchronously at script load (script.js is at end of body) so it
+   intercepts the IntersectionObserver-driven lazy fetch before any
+   image is actually requested. */
+(function upgradeImagesToPicture() {
+  const widths = [480, 960, 1920];
+  const set = (base, ext) => widths.map(w => `${base}-${w}.${ext} ${w}w`).join(', ');
+  // Pick a reasonable sizes string from the slot we find the image in
+  const sizesFor = (img) => {
+    if (img.closest('.photo-gallery .wide')) return '(max-width: 700px) 100vw, 50vw';
+    if (img.closest('.photo-gallery'))       return '(max-width: 700px) 50vw, 25vw';
+    if (img.closest('.proj-image'))          return '(max-width: 700px) 100vw, 50vw';
+    if (img.closest('.about-photo'))         return '(max-width: 1024px) 90vw, 320px';
+    return '100vw';
+  };
+
+  document.querySelectorAll('img[src]').forEach((img) => {
+    if (img.parentElement && img.parentElement.tagName === 'PICTURE') return;
+    const src = img.getAttribute('src') || '';
+    const m = /^(.+)\.(jpe?g|png)$/i.exec(src);
+    if (!m) return;
+    const base = m[1];
+    const sizes = sizesFor(img);
+
+    const picture = document.createElement('picture');
+    const avif = document.createElement('source');
+    avif.type = 'image/avif';
+    avif.srcset = set(base, 'avif');
+    avif.sizes = sizes;
+    const webp = document.createElement('source');
+    webp.type = 'image/webp';
+    webp.srcset = set(base, 'webp');
+    webp.sizes = sizes;
+    picture.appendChild(avif);
+    picture.appendChild(webp);
+    img.parentNode.insertBefore(picture, img);
+    picture.appendChild(img);
+    if (!img.hasAttribute('decoding')) img.setAttribute('decoding', 'async');
+  });
+})();
+
 /* ─── Mobile hamburger ──────────────────────────────────── */
 const hamburger = document.getElementById('hamburger');
 const navMobile = document.getElementById('nav-mobile');
