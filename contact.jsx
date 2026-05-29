@@ -10,13 +10,19 @@
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mzdwokqp";
 const CONTACT_EMAIL = "swnssoe@gmail.com";
 
-function Field({ label, type = "text", name, placeholder, as = "input" }) {
+function Field({ label, type = "text", name, placeholder, as = "input", required = false, error = "" }) {
   const [focused, setFocused] = React.useState(false);
   const [val, setVal] = React.useState("");
   const Tag = as;
+  const cls = "field"
+    + (focused || val ? " focused" : "")
+    + (error ? " has-error" : "");
   return (
-    <div className={"field" + (focused || val ? " focused" : "")}>
-      <label>{label}</label>
+    <div className={cls}>
+      <label>
+        {label}
+        {required && <span className="field-req" aria-hidden="true">*</span>}
+      </label>
       <Tag
         type={type}
         name={name}
@@ -25,9 +31,12 @@ function Field({ label, type = "text", name, placeholder, as = "input" }) {
         onChange={(e) => setVal(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
+        aria-invalid={error ? "true" : "false"}
+        aria-describedby={error ? `${name}-err` : undefined}
         data-cursor="hover"
       />
       <span className="underline"></span>
+      {error && <span id={`${name}-err`} className="field-error" role="alert">{error}</span>}
     </div>
   );
 }
@@ -45,14 +54,47 @@ function MagneticButton({ children, onClick }) {
   );
 }
 
+// Reasonable email pattern — text@text.text, no spaces. Catches typos
+// without rejecting valid but uncommon addresses (e.g. + aliases, .photo).
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function validateContactForm(data) {
+  const errs = {};
+  const name = (data.get("name") || "").trim();
+  const email = (data.get("email") || "").trim();
+  const message = (data.get("message") || "").trim();
+
+  if (!name) errs.name = "Please enter your name.";
+  else if (name.length < 2) errs.name = "Name looks a bit short.";
+
+  if (!email) errs.email = "Please enter your email.";
+  else if (!EMAIL_RE.test(email)) errs.email = "That email doesn't look right.";
+
+  if (!message) errs.message = "Tell me a bit about your project.";
+  else if (message.length < 10) errs.message = "A few more words would help.";
+
+  return errs;
+}
+
 function Contact({ go }) {
   const [status, setStatus] = React.useState("idle"); // idle | sending | sent | error
   const [errorDetail, setErrorDetail] = React.useState("");
+  const [errors, setErrors] = React.useState({});
+  const [attempted, setAttempted] = React.useState(false);
   const formRef = React.useRef(null);
 
   const sent = status === "sent";
   const sending = status === "sending";
   const errored = status === "error";
+
+  // Re-validate on input changes once user has attempted to submit —
+  // gives live feedback as they fix each error.
+  const revalidate = () => {
+    if (!attempted) return;
+    const form = formRef.current;
+    if (!form) return;
+    setErrors(validateContactForm(new FormData(form)));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,6 +102,18 @@ function Contact({ go }) {
 
     const form = formRef.current;
     const data = new FormData(form);
+
+    // Block submission until inputs are valid
+    const errs = validateContactForm(data);
+    setErrors(errs);
+    setAttempted(true);
+    if (Object.keys(errs).length > 0) {
+      // Focus the first field with an error
+      const firstBad = Object.keys(errs)[0];
+      const el = form.querySelector(`[name="${firstBad}"]`);
+      if (el) el.focus();
+      return;
+    }
 
     // If endpoint isn't configured, gracefully fall back to mailto:
     if (FORMSPREE_ENDPOINT.includes("YOUR_FORM_ID")) {
@@ -110,11 +164,11 @@ function Contact({ go }) {
       </div>
 
       <div className="contact-grid">
-        <form ref={formRef} className="contact-form" onSubmit={handleSubmit}>
-          <Field label="Name" name="name" placeholder="Your name" />
-          <Field label="Email" name="email" type="email" placeholder="your@email.com" />
+        <form ref={formRef} className="contact-form" onSubmit={handleSubmit} onChange={revalidate} noValidate>
+          <Field label="Name" name="name" placeholder="Your name" required error={errors.name} />
+          <Field label="Email" name="email" type="email" placeholder="your@email.com" required error={errors.email} />
           <Field label="Project type" name="project" placeholder="Editorial · travel · personal · print · other" />
-          <Field label="Message" name="message" placeholder="Tell me about your project — timeline, location, vision..." as="textarea" />
+          <Field label="Message" name="message" placeholder="Tell me about your project — timeline, location, vision..." as="textarea" required error={errors.message} />
           {/* Honeypot field — bots fill it, humans don't see it */}
           <input type="text" name="_gotcha" tabIndex="-1" autoComplete="off" style={{ position: "absolute", left: "-9999px", opacity: 0 }} />
           <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
