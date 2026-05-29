@@ -129,7 +129,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
       onClick={onClose}
     >
       <div className="c3d-expand-card" onClick={(e) => e.stopPropagation()}>
-        <div className="c3d-expand-img" style={{ backgroundImage: `url(${items[expanded].src})` }} />
+        <div className="c3d-expand-img" style={{ backgroundImage: window.bgImage(items[expanded].src, 1920) }} />
         <div className="c3d-expand-info">
           <div className="label ochre">{items[expanded].country} · {items[expanded].city}</div>
           <h3 className="c3d-expand-title serif">{items[expanded].title}</h3>
@@ -190,7 +190,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
                   data-cursor="view"
                   data-cursor-label="Expand"
                 >
-                  <div className="c3d-card-img" style={{ backgroundImage: `url(${item.src})` }} />
+                  <div className="c3d-card-img" style={{ backgroundImage: window.bgImage(item.src, 480) }} />
                   <div className="c3d-card-glass" />
                   <div className="c3d-card-border" />
                   <div className="c3d-card-meta">

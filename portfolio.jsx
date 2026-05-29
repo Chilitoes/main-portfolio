@@ -128,7 +128,7 @@ function PortfolioGrid({ items, filter, onOpenLightbox }) {
             onClick={() => !hidden && onOpenLightbox(i)}
             style={{ display: hidden ? "none" : "" }}
           >
-            <div className="tile-img" style={{ backgroundImage: `url(${item.src})` }} />
+            <div className="tile-img" style={{ backgroundImage: window.bgImage(item.src, 960) }} />
             <div className="tile-idx label">{String(i + 1).padStart(3, "0")}</div>
             <div className="tile-cap">
               <div className="label tile-cap-label">{item.country} · {item.city}</div>

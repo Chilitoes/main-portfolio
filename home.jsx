@@ -139,7 +139,7 @@ function Home({ go, onOpenLightbox }) {
           <div
             ref={heroBgRef}
             className="hero-bg"
-            style={{ backgroundImage: `url(${window.HERO_IMG})` }}
+            style={{ backgroundImage: window.bgImage(window.HERO_IMG, 1920) }}
           />
         </div>
         <div className="hero-content">
@@ -192,7 +192,7 @@ function Home({ go, onOpenLightbox }) {
       <section className="split">
         <div className="split-img reveal-img" ref={splitImgRef}>
           <div ref={splitZoomRef} className="split-img-zoom">
-            <div className="split-img-inner" style={{ backgroundImage: `url(${window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG})` }} />
+            <div className="split-img-inner" style={{ backgroundImage: window.bgImage(window.PORTRAIT_IMG_HOME || window.PORTRAIT_IMG, 960) }} />
           </div>
         </div>
         <div className="split-text" ref={splitTextRef}>
@@ -272,7 +272,7 @@ function Home({ go, onOpenLightbox }) {
                   style={{
                     position: "relative",
                     aspectRatio: "2/1",
-                    backgroundImage: `url(${firstPhoto.src})`,
+                    backgroundImage: window.bgImage(firstPhoto.src, 480),
                     backgroundSize: "cover",
                     backgroundPosition: "center",
                     borderRadius: "8px",

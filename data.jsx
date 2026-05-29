@@ -6,6 +6,30 @@
 // Encode each path segment so spaces/parens in filenames work everywhere.
 const IMG = (path) => "images/" + path.split("/").map(encodeURIComponent).join("/");
 
+// Build a responsive `image-set()` for CSS background-image. Browser picks
+// AVIF if it can decode it, else WebP, else the original JPEG fallback.
+// `width` is the variant size (480 / 960 / 1920) appropriate for the slot.
+// Paths that don't look like one of our optimized sources fall through to
+// a plain url() (e.g. svg, gif, data URIs).
+window.bgImageSet = function bgImageSet(src, width = 960) {
+  const m = typeof src === "string" && /^(.+)\.(jpe?g|png)$/i.exec(src);
+  if (!m) return `url("${src}")`;
+  const base = m[1];
+  return [
+    `url("${base}-${width}.avif") type("image/avif")`,
+    `url("${base}-${width}.webp") type("image/webp")`,
+    `url("${src}") type("image/jpeg")`,
+  ].join(", ");
+};
+// Wrap as image-set(...) — kept separate so callers can also build src-set
+// strings if needed in the future.
+window.bgImage = function bgImage(src, width = 960) {
+  if (!src) return "none";
+  const list = window.bgImageSet(src, width);
+  if (list.startsWith("url(")) return list; // unchanged (no variants available)
+  return `image-set(${list})`;
+};
+
 // Capitalize country slug from data-category ("japan" -> "Japan")
 const CAP = (s) => s[0].toUpperCase() + s.slice(1);
 

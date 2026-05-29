@@ -21,7 +21,7 @@ function About({ go, onOpenLightbox }) {
     <div className="page">
       <section className="about-hero">
         <div className="about-portrait">
-          <div className="about-portrait-img" style={{ backgroundImage: `url(${window.PORTRAIT_IMG})` }} />
+          <div className="about-portrait-img" style={{ backgroundImage: window.bgImage(window.PORTRAIT_IMG, 960) }} />
           <div className="about-portrait-grain"></div>
         </div>
         <div className="about-body">
@@ -67,7 +67,7 @@ function About({ go, onOpenLightbox }) {
                data-cursor="view"
                data-cursor-label="Open"
                onClick={() => onOpenLightbox && onOpenLightbox(fullIdx)}
-               style={{ backgroundImage: `url(${item.src})` }}
+               style={{ backgroundImage: window.bgImage(item.src, 480) }}
                aria-label={item.title}
             />
           );
