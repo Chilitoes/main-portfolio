@@ -80,13 +80,18 @@ function Contact({ go }) {
         body: data,
         headers: { Accept: "application/json" },
       });
+      let bodyJson = null;
+      try { bodyJson = await res.json(); } catch (_) {}
       if (res.ok) {
         setStatus("sent");
         form.reset();
       } else {
+        // Surface the real failure in the console for diagnosis
+        console.error("[contact-form] Formspree", res.status, bodyJson);
         setStatus("error");
       }
     } catch (err) {
+      console.error("[contact-form] network", err);
       setStatus("error");
     }
   };

@@ -322,15 +322,19 @@ if (contactForm) {
         body: new FormData(contactForm),
         headers: { Accept: 'application/json' },
       });
+      let bodyJson = null;
+      try { bodyJson = await res.json(); } catch (_) {}
       if (res.ok) {
         status = 'sent';
         setLabel('Sent — thank you');
         contactForm.reset();
       } else {
+        console.error('[contact-form] Formspree', res.status, bodyJson);
         status = 'error';
         setLabel('Try again');
       }
     } catch (err) {
+      console.error('[contact-form] network', err);
       status = 'error';
       setLabel('Try again');
     }
