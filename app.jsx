@@ -21,12 +21,14 @@ function App() {
 
   // Page-transition curtain — slides up over the screen, content swaps
   // mid-animation under the cover, then it slides up and out.
+  // Triggered the instant 'leaving' goes true (i.e. on click) so the
+  // curtain is rising BEFORE the route swap, not after it.
   const [curtainKey, setCurtainKey] = React.useState(0);
-  const firstRouteRender = React.useRef(true);
+  const firstLeavingRender = React.useRef(true);
   React.useEffect(() => {
-    if (firstRouteRender.current) { firstRouteRender.current = false; return; }
-    setCurtainKey((k) => k + 1); // new key restarts the CSS animation
-  }, [route]);
+    if (firstLeavingRender.current) { firstLeavingRender.current = false; return; }
+    if (leaving) setCurtainKey((k) => k + 1); // new key restarts the CSS animation
+  }, [leaving]);
 
   // Re-run reveal observer whenever route changes
   window.useReveal([route, leaving]);
