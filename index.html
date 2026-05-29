@@ -101,12 +101,15 @@
   }
   </script>
 
-  <!-- ── Analytics (Plausible — privacy-friendly, no cookies, GDPR safe) ──
-       Setup: sign up at plausible.io with 'alstonshi.com' as the site,
-       and stats will start flowing automatically. No further code change.
-       Swap to Umami / Cloudflare Web Analytics / GA4 by replacing this
-       one tag. ────────────────────────────────────────────────────────── -->
-  <script defer data-domain="alstonshi.com" src="https://plausible.io/js/script.outbound-links.js"></script>
+  <!-- ── Analytics (Cloudflare Web Analytics — free, no cookies, GDPR safe) ──
+       SETUP — replace YOUR_BEACON_TOKEN below after:
+         1. dash.cloudflare.com  →  Sign up (free)
+         2. Web Analytics  →  Add a site  →  paste 'alstonshi.com'
+         3. Copy the token from the snippet they show you
+         4. Paste it below in place of YOUR_BEACON_TOKEN
+       The token is the only required field. No DNS / proxy change needed. ── -->
+  <script defer src='https://static.cloudflareinsights.com/beacon.min.js'
+          data-cf-beacon='{"token": "YOUR_BEACON_TOKEN"}'></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
