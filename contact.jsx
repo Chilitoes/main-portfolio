@@ -47,6 +47,7 @@ function MagneticButton({ children, onClick }) {
 
 function Contact({ go }) {
   const [status, setStatus] = React.useState("idle"); // idle | sending | sent | error
+  const [errorDetail, setErrorDetail] = React.useState("");
   const formRef = React.useRef(null);
 
   const sent = status === "sent";
@@ -74,6 +75,7 @@ function Contact({ go }) {
     }
 
     setStatus("sending");
+    setErrorDetail("");
     try {
       const res = await fetch(FORMSPREE_ENDPOINT, {
         method: "POST",
@@ -86,12 +88,13 @@ function Contact({ go }) {
         setStatus("sent");
         form.reset();
       } else {
-        // Surface the real failure in the console for diagnosis
         console.error("[contact-form] Formspree", res.status, bodyJson);
+        setErrorDetail(`HTTP ${res.status}${bodyJson && bodyJson.error ? " · " + bodyJson.error : ""}`);
         setStatus("error");
       }
     } catch (err) {
       console.error("[contact-form] network", err);
+      setErrorDetail("Network error — request blocked or offline.");
       setStatus("error");
     }
   };
@@ -120,7 +123,9 @@ function Contact({ go }) {
             </MagneticButton>
             <div className="label dim">
               {errored
-                ? <span style={{ color: "#d97757" }}>Send failed. Email {CONTACT_EMAIL} directly.</span>
+                ? <span style={{ color: "#d97757" }}>
+                    Send failed{errorDetail ? ` (${errorDetail})` : ""}. Email {CONTACT_EMAIL} directly.
+                  </span>
                 : sent
                   ? "I'll reply within 48 hours."
                   : "Replies within 48 hours."}
