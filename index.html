@@ -119,9 +119,11 @@
   <link rel="stylesheet" href="carousel.css" />
   <link rel="stylesheet" href="intro.css" />
 
-  <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"></script>
+  <!-- React production builds (smaller, faster, no dev warnings).
+       Babel-standalone removed; JSX is precompiled to /dist by `npm run build`
+       and shipped as plain JS. ──────────────────────────────────────────────── -->
+  <script defer crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+  <script defer crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
 </head>
 <body class="theme-dark">
   <!-- Grain overlay: SVG turbulence filter, fixed to viewport -->
@@ -211,15 +213,18 @@
       "headlineTracking": -0.03
     }/*EDITMODE-END*/;
   </script>
-  <script type="text/babel" data-presets="env,react" src="tweaks-panel.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="data.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="core.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="chrome.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="carousel.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="home.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="portfolio.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="about.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="contact.jsx"></script>
-  <script type="text/babel" data-presets="env,react" src="app.jsx"></script>
+  <!-- Compiled bundles from `npm run build` (CI runs this before SFTP deploy).
+       Order matters: each later script reads window.X exports from earlier
+       ones. `defer` keeps load non-blocking but preserves execution order. -->
+  <script defer src="dist/tweaks-panel.js"></script>
+  <script defer src="dist/data.js"></script>
+  <script defer src="dist/core.js"></script>
+  <script defer src="dist/chrome.js"></script>
+  <script defer src="dist/carousel.js"></script>
+  <script defer src="dist/home.js"></script>
+  <script defer src="dist/portfolio.js"></script>
+  <script defer src="dist/about.js"></script>
+  <script defer src="dist/contact.js"></script>
+  <script defer src="dist/app.js"></script>
 </body>
 </html>
