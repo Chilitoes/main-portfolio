@@ -30,13 +30,18 @@
       --ease: cubic-bezier(0.22, 1, 0.36, 1);
     }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%;
+    html {
       background: var(--bg);
       color: var(--fg);
       font-family: var(--sans);
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
+    }
+    body {
+      min-height: 100vh;
+      min-height: 100dvh;       /* mobile-safe — accounts for iOS toolbar */
+      background: var(--bg);
+      color: var(--fg);
+      overflow-x: hidden;
     }
     a { color: inherit; text-decoration: none; }
 
@@ -63,12 +68,14 @@
       position: relative;
       z-index: 3;
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 1fr;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-items: center;
-      padding: 60px 24px;
+      justify-content: center;
+      padding: 96px 24px 96px;
       text-align: center;
+      gap: 0;
     }
 
     /* Film-strip artwork */
@@ -233,10 +240,8 @@
 
     /* Bottom meta line */
     .meta {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
+      position: relative;
+      margin-top: 64px;
       font-family: var(--mono);
       font-size: 10px;
       letter-spacing: 0.32em;
@@ -245,9 +250,19 @@
     }
 
     @media (max-width: 640px) {
-      .film { margin-bottom: 44px; }
-      .actions { flex-direction: column; gap: 12px; }
-      .btn { padding: 12px 24px; }
+      main { padding: 64px 20px 48px; }
+      .film { width: min(420px, 80vw); margin-bottom: 36px; }
+      .film-frame { padding: 10px 14px; }
+      .cells { gap: 6px; padding: 14px 0; }
+      .reel-label { font-size: 8px; left: -22px; }
+      .reel-label.right { right: -22px; left: auto; }
+      .actions { flex-direction: column; gap: 12px; width: 100%; max-width: 280px; }
+      .btn { padding: 14px 24px; justify-content: center; width: 100%; }
+      .meta { margin-top: 40px; font-size: 9px; }
+    }
+    @media (max-width: 380px) {
+      .film { width: min(320px, 76vw); }
+      .reel-label { display: none; }
     }
   </style>
 </head>
@@ -276,8 +291,8 @@
       <a class="btn primary" href="/">← Back to the archive</a>
       <a class="btn" href="/#/contact">Report a broken link</a>
     </div>
-  </main>
 
-  <div class="meta">ALSTON SHI · MMXXVI · 404</div>
+    <div class="meta">ALSTON SHI · MMXXVI · 404</div>
+  </main>
 </body>
 </html>

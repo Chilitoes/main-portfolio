@@ -198,7 +198,7 @@ function FeaturedStories({ onOpenLightbox }) {
   const PICKS = [
     { file: "Japan/IMG_0393.JPG", kicker: "I · The Mountain Gate",       lede: "Hakone, off-season — the torii standing in the rain like a held breath." },
     { file: "China/IMG_9089.JPG", kicker: "II · Temple Incense",          lede: "Smoke and afternoon light. The kind of room where you remember to be quiet." },
-    { file: "Japan/IMG_5936.JPG", kicker: "III · Neon Alley",             lede: "Past midnight, somewhere in Shinjuku. The city writing in red." },
+    { file: "Japan/IMG_5936.JPG", kicker: "III · Neon Alley",             lede: "Past midnight in Tsuruhashi. The alley writing itself in red, one shop sign at a time." },
   ];
   const items = PICKS
     .map((p) => ({ ...p, item: window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[p.file] }))
@@ -220,12 +220,13 @@ function FeaturedStories({ onOpenLightbox }) {
             </div>
             <button
               className="fs-photo"
-              style={{ backgroundImage: window.bgImage(s.item.src, 1920) }}
               onClick={() => onOpenLightbox && onOpenLightbox(idx)}
               data-cursor="view"
               data-cursor-label="Open"
               aria-label={`Open ${s.item.title}`}
-            />
+            >
+              <PhotoImg src={s.item.src} alt={s.item.title} sizes="(max-width: 900px) 92vw, 60vw" loading="lazy" />
+            </button>
           </div>
         );
       })}

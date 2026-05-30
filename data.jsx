@@ -67,7 +67,7 @@ const ITEMS = [
   ["japan",     "Rickshaw, Kyoto",           "Japan/IMG_5305 2.JPG"],
   ["japan",     "Kanoko Train",              "Japan/IMG_5768 3.JPG"],
   ["japan",     "Tsutenkaku, Osaka",         "Japan/IMG_5931.JPG"],
-  ["japan",     "Neon Alley",                "Japan/IMG_5936.JPG"],
+  ["japan",     "Neon Alley, Tsuruhashi",    "Japan/IMG_5936.JPG"],
   ["japan",     "Sakura After Dark",         "Japan/IMG_6090.JPG"],
   ["japan",     "Night Traffic",             "Japan/IMG_6143.JPG"],
   ["japan",     "Shibuya Crossing",          "Japan/IMG_6229 2.JPG"],
