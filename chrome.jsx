@@ -189,6 +189,50 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
   );
 }
 
+// ---- Featured stories — sticky editorial captions over tall photo cells ----
+// Three picks from PORTFOLIO render as single-column 100vh frames. The caption
+// `position: sticky; top: <nav-h>` so as the user scrolls the story, the title
+// stays pinned to the top of the viewport for the duration of that photo's
+// scroll range, then yields when the next story begins.
+function FeaturedStories({ onOpenLightbox }) {
+  const PICKS = [
+    { file: "Japan/IMG_0393.JPG", kicker: "I · The Mountain Gate",       lede: "Hakone, off-season — the torii standing in the rain like a held breath." },
+    { file: "China/IMG_9089.JPG", kicker: "II · Temple Incense",          lede: "Smoke and afternoon light. The kind of room where you remember to be quiet." },
+    { file: "Japan/IMG_5936.JPG", kicker: "III · Neon Alley",             lede: "Past midnight, somewhere in Shinjuku. The city writing in red." },
+  ];
+  const items = PICKS
+    .map((p) => ({ ...p, item: window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[p.file] }))
+    .filter((p) => p.item);
+
+  if (!items.length) return null;
+
+  return (
+    <section className="featured-stories" aria-label="Featured stories">
+      {items.map((s, i) => {
+        const idx = window.PORTFOLIO.findIndex((p) => p === s.item);
+        return (
+          <div key={i} className="fs-story">
+            <div className="fs-meta">
+              <div className="fs-kicker">{s.kicker}</div>
+              <h2 className="fs-title">{s.item.title}</h2>
+              <p className="fs-lede">{s.lede}</p>
+              <div className="fs-loc">{s.item.country} · {s.item.city}</div>
+            </div>
+            <button
+              className="fs-photo"
+              style={{ backgroundImage: window.bgImage(s.item.src, 1920) }}
+              onClick={() => onOpenLightbox && onOpenLightbox(idx)}
+              data-cursor="view"
+              data-cursor-label="Open"
+              aria-label={`Open ${s.item.title}`}
+            />
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
 // ---- Animated section divider — hairlines draw in on scroll ----
 function SectionDivider({ mark = "◆", numeral, label }) {
   const ref = React.useRef(null);
@@ -218,4 +262,4 @@ function SectionDivider({ mark = "◆", numeral, label }) {
   );
 }
 
-Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg });
+Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg, FeaturedStories });

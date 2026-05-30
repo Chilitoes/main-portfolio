@@ -170,6 +170,9 @@ function Home({ go, onOpenLightbox }) {
       {/* 3D carousel ring (replaces the swirl gallery) */}
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
 
+      {/* Featured stories — sticky editorial captions */}
+      <window.FeaturedStories onOpenLightbox={onOpenLightbox} />
+
       <window.SectionDivider numeral="II" label="Philosophy" />
 
       {/* Pull quote — same single line as the live site's philosophy block */}
