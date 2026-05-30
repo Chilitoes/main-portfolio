@@ -170,9 +170,6 @@ function Home({ go, onOpenLightbox }) {
       {/* 3D carousel ring (replaces the swirl gallery) */}
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
 
-      {/* Horizontal scroll-driven contact sheet */}
-      <window.CinemaStrip onOpenLightbox={onOpenLightbox} />
-
       {/* Featured stories — sticky editorial captions */}
       <window.FeaturedStories onOpenLightbox={onOpenLightbox} />
 

@@ -189,97 +189,6 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
   );
 }
 
-// ---- Cinema strip — horizontal contact sheet driven by vertical scroll ----
-// Vertical scroll inside the section translates a horizontal photo track left.
-// Falls back to native overflow-x scroll-snap on touch / narrow viewports.
-function CinemaStrip({ onOpenLightbox }) {
-  const sectionRef = React.useRef(null);
-  const trackRef = React.useRef(null);
-  // Eight portrait-leaning shots, contact-sheet order
-  const PICKS = [
-    "Japan/IMG_2564.JPG",
-    "China/IMG_7694.JPG",
-    "Japan/IMG_8970.JPG",
-    "Taiwan/IMG_4112.jpeg",
-    "Japan/IMG_5305 2.JPG",
-    "China/DSCF8511.JPG",
-    "Japan/IMG_5936.JPG",
-    "Brunei/IMG_7968.jpeg",
-  ];
-  const items = PICKS
-    .map((f) => window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[f])
-    .filter(Boolean);
-
-  React.useEffect(() => {
-    const sec = sectionRef.current;
-    const track = trackRef.current;
-    if (!sec || !track) return;
-    if (window.matchMedia("(hover: none) and (pointer: coarse)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    let raf = null;
-    const update = () => {
-      const r = sec.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const range = sec.offsetHeight - vh;
-      if (range <= 0) return;
-      const p = Math.max(0, Math.min(1, -r.top / range));
-      const overflow = Math.max(0, track.scrollWidth - window.innerWidth);
-      track.style.transform = `translate3d(${-(p * overflow).toFixed(1)}px, 0, 0)`;
-      raf = null;
-    };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, [items.length]);
-
-  if (!items.length) return null;
-
-  return (
-    <section ref={sectionRef} className="cinema-strip" aria-label="Contact sheet">
-      <div className="cs-sticky">
-        <div className="cs-rail">
-          <div className="cs-head">
-            <span className="cs-kicker">The Contact Sheet</span>
-            <span className="cs-hint">scroll →</span>
-          </div>
-          <div ref={trackRef} className="cs-track">
-            {items.map((item, i) => {
-              const idx = window.PORTFOLIO.findIndex((p) => p === item);
-              return (
-                <button
-                  key={i}
-                  className="cs-frame"
-                  onClick={() => onOpenLightbox && onOpenLightbox(idx)}
-                  data-cursor="view"
-                  data-cursor-label="Open"
-                  aria-label={`Open ${item.title}`}
-                >
-                  <span
-                    className="cs-img"
-                    style={{ backgroundImage: window.bgImage(item.src, 960) }}
-                  />
-                  <span className="cs-stamp">{String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</span>
-                  <span className="cs-cap">
-                    <span className="cs-cap-title">{item.title}</span>
-                    <span className="cs-cap-meta">{item.country} · {item.city}</span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ---- Featured stories — sticky editorial captions over tall photo cells ----
 // Three picks from PORTFOLIO render as single-column 100vh frames. The caption
 // `position: sticky; top: <nav-h>` so as the user scrolls the story, the title
@@ -353,4 +262,4 @@ function SectionDivider({ mark = "◆", numeral, label }) {
   );
 }
 
-Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg, FeaturedStories, CinemaStrip });
+Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg, FeaturedStories });
