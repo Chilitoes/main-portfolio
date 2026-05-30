@@ -1278,3 +1278,65 @@ button { font-family: inherit; }
    `.photo-item img`, `.proj-image img`, etc. rules continue to work
    exactly as if the picture element weren't there. */
 picture { display: contents; }
+
+/* ─── Animated skill bars ──────────────────────────────────── */
+.skill-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+.skill-row {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr auto;
+  align-items: center;
+  gap: 14px;
+}
+.skill-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--body-strong);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.skill-track {
+  position: relative;
+  height: 4px;
+  background: var(--surface-card-elevated);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.skill-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 0;
+  background: linear-gradient(90deg,
+    rgba(204, 120, 92, 0.6) 0%,
+    var(--primary) 60%,
+    rgba(255, 240, 220, 0.95) 100%);
+  border-radius: 999px;
+  box-shadow: 0 0 10px rgba(204, 120, 92, 0.45);
+  transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.skill-row.is-filled .skill-fill {
+  /* width set via inline style by JS once visible */
+}
+.skill-pct {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  min-width: 32px;
+  text-align: right;
+  opacity: 0;
+  transition: opacity 0.6s ease 0.6s;
+}
+.skill-row.is-filled .skill-pct { opacity: 1; }
+
+@media (max-width: 480px) {
+  .skill-row { grid-template-columns: 1fr 1fr auto; gap: 10px; }
+  .skill-name { font-size: 11px; }
+  .skill-pct { font-size: 9px; min-width: 26px; }
+}

@@ -168,6 +168,28 @@ if (termBody && terminal) {
   obs.observe(terminal);
 }
 
+/* ─── Animated skill bars (fill on scroll) ─────────────── */
+const skillRows = document.querySelectorAll('.skill-row[data-level]');
+if (skillRows.length) {
+  const skillObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      const row = entry.target;
+      skillObs.unobserve(row);
+      const lvl = Math.max(0, Math.min(100, parseFloat(row.dataset.level) || 0));
+      const fill = row.querySelector('.skill-fill');
+      // Stagger per-row inside the same card so they cascade
+      const card = row.closest('.skill-card');
+      const idx = card ? Array.from(card.querySelectorAll('.skill-row')).indexOf(row) : 0;
+      setTimeout(() => {
+        if (fill) fill.style.width = lvl + '%';
+        row.classList.add('is-filled');
+      }, idx * 90);
+    });
+  }, { threshold: 0.4 });
+  skillRows.forEach((r) => skillObs.observe(r));
+}
+
 /* ─── Animated stat counters ───────────────────────────── */
 const stats = document.querySelectorAll('.stat');
 const statObs = new IntersectionObserver((entries) => {
