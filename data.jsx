@@ -26,7 +26,10 @@ window.bgImageSet = function bgImageSet(src, width = 960) {
 window.bgImage = function bgImage(src, width = 960) {
   if (!src) return "none";
   const list = window.bgImageSet(src, width);
-  if (list.startsWith("url(")) return list; // unchanged (no variants available)
+  // Fallback shape from bgImageSet is a single `url("...")` with no type();
+  // anything richer should be wrapped in image-set(). Detect via the presence
+  // of `type(` which only the multi-entry variant emits.
+  if (!list.includes("type(")) return list;
   return `image-set(${list})`;
 };
 
