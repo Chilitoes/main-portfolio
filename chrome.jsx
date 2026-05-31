@@ -133,6 +133,9 @@ function PhotoImg({ src, alt, className, style, sizes = "100vw", loading = "lazy
 
 // ---- Lightbox ----
 function Lightbox({ items, index, onClose, onPrev, onNext }) {
+  const drag = React.useRef({ active: false, startX: 0, startY: 0, dx: 0 });
+  const wrapRef = React.useRef(null);
+
   React.useEffect(() => {
     if (index == null) return;
     const onKey = (e) => {
@@ -148,10 +151,73 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
     };
   }, [index, onClose, onPrev, onNext]);
 
+  const onLbPointerDown = (e) => {
+    if (e.target.closest("button")) return;
+    drag.current = { active: true, startX: e.clientX, startY: e.clientY, dx: 0 };
+  };
+
+  const onLbPointerMove = (e) => {
+    if (!drag.current.active) return;
+    const dx = e.clientX - drag.current.startX;
+    const dy = e.clientY - drag.current.startY;
+    drag.current.dx = dx;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 8) {
+      const wrap = wrapRef.current;
+      if (wrap) {
+        const t = Math.min(1, Math.abs(dx) / 160);
+        wrap.style.transition = "none";
+        wrap.style.transform = `scale(${1 - t * 0.03}) translateX(${dx * 0.08}px)`;
+        wrap.style.filter = `blur(${t * 2.5}px)`;
+      }
+    }
+  };
+
+  const onLbPointerUp = (e) => {
+    if (!drag.current.active) return;
+    const { dx, startY } = drag.current;
+    const dy = e.clientY - startY;
+    drag.current.active = false;
+
+    const wrap = wrapRef.current;
+    const swiped = Math.abs(dx) >= 50 && Math.abs(dx) > Math.abs(dy);
+
+    if (wrap) {
+      if (swiped) {
+        wrap.style.transition = "";
+        wrap.style.transform = "";
+        wrap.style.filter = "";
+      } else {
+        // Restore transition then clear so the snap-back animates
+        requestAnimationFrame(() => {
+          if (wrap) wrap.style.transition = "";
+          requestAnimationFrame(() => {
+            if (wrap) { wrap.style.transform = ""; wrap.style.filter = ""; }
+          });
+        });
+      }
+    }
+
+    if (swiped) { if (dx < 0) onNext(); else onPrev(); }
+  };
+
+  const onLbClick = (e) => {
+    // Suppress close if the pointer moved — it was a drag, not a tap
+    if (Math.abs(drag.current.dx) > 10) { drag.current.dx = 0; return; }
+    onClose();
+  };
+
   const item = index != null ? items[index] : null;
 
   return (
-    <div className={"lightbox" + (index != null ? " open" : "")} onClick={onClose} data-cursor="hover">
+    <div
+      className={"lightbox" + (index != null ? " open" : "")}
+      onClick={onLbClick}
+      onPointerDown={onLbPointerDown}
+      onPointerMove={onLbPointerMove}
+      onPointerUp={onLbPointerUp}
+      onPointerCancel={onLbPointerUp}
+      data-cursor="hover"
+    >
       {item && (
         <React.Fragment>
           <div className="lightbox-counter">
@@ -169,7 +235,7 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M9 5l8 7-8 7"/></svg>
           </button>
 
-          <div className="lightbox-img-wrap" onClick={(e) => e.stopPropagation()}>
+          <div className="lightbox-img-wrap" ref={wrapRef} onClick={(e) => e.stopPropagation()}>
             <PhotoImg className="lightbox-img" src={item.src} alt={item.title} sizes="80vw" loading="eager" />
           </div>
 

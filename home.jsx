@@ -136,11 +136,13 @@ function Home({ go, onOpenLightbox }) {
       <div className="hero-scroll-zone" ref={heroScrollRef}>
       <section className="hero">
         <div ref={heroZoomRef} className="hero-bg-zoom">
-          <div
-            ref={heroBgRef}
-            className="hero-bg"
-            style={{ backgroundImage: window.bgImage(window.HERO_IMG, 1920) }}
-          />
+          <div className="hero-bg-kb">
+            <div
+              ref={heroBgRef}
+              className="hero-bg"
+              style={{ backgroundImage: window.bgImage(window.HERO_IMG, 1920) }}
+            />
+          </div>
         </div>
         <div className="hero-content">
           <div className="stagger">
