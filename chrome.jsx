@@ -270,9 +270,9 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
 // scroll range, then yields when the next story begins.
 function FeaturedStories({ onOpenLightbox }) {
   const PICKS = [
-    { file: "Japan/IMG_0393.JPG", kicker: "I · The Mountain Gate",       lede: "Hakone, off-season — the torii standing in the rain like a held breath." },
+    { file: "Japan/IMG_0544.JPG", kicker: "I · Canal in Spring",          lede: "Kyoto in April — the boat moving slowly enough to count the petals on the water." },
     { file: "China/IMG_9089.JPG", kicker: "II · Temple Incense",          lede: "Smoke and afternoon light. The kind of room where you remember to be quiet." },
-    { file: "Japan/IMG_5936.JPG", kicker: "III · Neon Alley",             lede: "Afternoon in Tsuruhashi. The alley writing itself in red, one shop sign at a time." },
+    { file: "Japan/IMG_5583.JPG", kicker: "III · Dotonbori After Dark",   lede: "Reflections breaking apart in the canal — every shop sign trying to outshout the next." },
   ];
   const items = PICKS
     .map((p) => ({ ...p, item: window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[p.file] }))
