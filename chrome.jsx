@@ -300,6 +300,85 @@ function FeaturedStories({ onOpenLightbox }) {
   );
 }
 
+// ---- PhotoStack — three "prints" stacked at offset rotations.
+// Hover fans them out; clicking "Next" flips the top print off-screen and
+// the next one rises to take its place. Click the top card to open the lightbox.
+function PhotoStack({ onOpenLightbox }) {
+  const PICKS = [
+    { file: "Japan/IMG_0393.JPG", kicker: "I · The Mountain Gate", lede: "Hakone, off-season — the torii standing in the rain like a held breath." },
+    { file: "China/IMG_9089.JPG", kicker: "II · Temple Incense",    lede: "Smoke and afternoon light. The kind of room where you remember to be quiet." },
+    { file: "Japan/IMG_5936.JPG", kicker: "III · Neon Alley",       lede: "Past midnight in Tsuruhashi. The alley writing itself in red, one shop sign at a time." },
+  ];
+  const items = PICKS
+    .map((p) => ({ ...p, item: window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[p.file] }))
+    .filter((p) => p.item);
+
+  const [active, setActive] = React.useState(0);
+  const [flipping, setFlipping] = React.useState(false);
+
+  if (!items.length) return null;
+
+  const next = () => {
+    if (flipping) return;
+    setFlipping(true);
+    setTimeout(() => {
+      setActive((a) => (a + 1) % items.length);
+      setFlipping(false);
+    }, 650);
+  };
+
+  const openCurrent = () => {
+    if (flipping) return;
+    const item = items[active].item;
+    const idx = window.PORTFOLIO.findIndex((p) => p === item);
+    if (idx >= 0 && onOpenLightbox) onOpenLightbox(idx);
+  };
+
+  const current = items[active];
+
+  return (
+    <section className="photo-stack-section" aria-label="Featured prints">
+      <div className="ps-meta">
+        <div className="ps-kicker">{current.kicker}</div>
+        <h2 className="ps-title">{current.item.title}</h2>
+        <p className="ps-lede">{current.lede}</p>
+        <div className="ps-loc">{current.item.country} · {current.item.city}</div>
+        <div className="ps-controls">
+          <div className="ps-counter">
+            {String(active + 1).padStart(2, "0")} <span className="dim">/ {String(items.length).padStart(2, "0")}</span>
+          </div>
+          <button className="ps-next" onClick={next} data-cursor="hover" aria-label="Next print">
+            <span>Next print</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+      </div>
+      <div
+        className={"photo-stack" + (flipping ? " is-flipping" : "")}
+        onClick={openCurrent}
+        data-cursor="view"
+        data-cursor-label="Open"
+        role="button"
+        aria-label={`Open ${current.item.title}`}
+      >
+        {items.map((s, i) => {
+          const pos = (i - active + items.length) % items.length;
+          return (
+            <div
+              key={i}
+              className={"ps-card ps-pos-" + pos + (pos === 0 && flipping ? " flipping" : "")}
+              style={{ zIndex: items.length - pos }}
+              aria-hidden={pos !== 0}
+            >
+              <PhotoImg src={s.item.src} alt={s.item.title} sizes="(max-width: 900px) 80vw, 480px" />
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 // ---- Animated section divider — hairlines draw in on scroll ----
 function SectionDivider({ mark = "◆", numeral, label }) {
   const ref = React.useRef(null);
@@ -329,4 +408,4 @@ function SectionDivider({ mark = "◆", numeral, label }) {
   );
 }
 
-Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg, FeaturedStories });
+Object.assign(window, { Nav, SideMeta, Footer, Lightbox, SectionDivider, PhotoImg, FeaturedStories, PhotoStack });

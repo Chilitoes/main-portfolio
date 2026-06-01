@@ -172,6 +172,9 @@ function Home({ go, onOpenLightbox }) {
       {/* 3D carousel ring (replaces the swirl gallery) */}
       <window.Cinematic3DCarousel onOpenLightbox={onOpenLightbox} />
 
+      {/* Stacked-prints prototype — fans on hover, flip-to-next */}
+      <window.PhotoStack onOpenLightbox={onOpenLightbox} />
+
       {/* Featured stories — sticky editorial captions */}
       <window.FeaturedStories onOpenLightbox={onOpenLightbox} />
 
