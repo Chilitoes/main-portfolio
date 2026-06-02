@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Viewfinder Prototype · Alston Shi</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0E0D0B;
+      --fg: #E8E0D0;
+      --fg-dim: #8A8073;
+      --ochre: #C8A265;
+      --lock: #7FE0A0;          /* AF-lock green */
+      --serif: "Cormorant Garamond", Georgia, serif;
+      --sans: "Inter", -apple-system, sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--bg); }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img { display: block; }
+
+    /* ───────────────────────── Boot / intro overlay ───────────────────── */
+    #boot {
+      position: fixed; inset: 0; z-index: 100;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #boot.gone { opacity: 0; visibility: hidden; transition: opacity 0.8s var(--ease), visibility 0s 0.8s; }
+    /* AS logo that splits open */
+    .boot-logo {
+      position: relative;
+      font-family: var(--serif);
+      font-weight: 300;
+      font-size: clamp(90px, 22vw, 280px);
+      line-height: 1;
+      letter-spacing: -0.04em;
+      display: flex;
+      color: var(--fg);
+    }
+    .boot-logo .a, .boot-logo .s { display: inline-block; will-change: transform; }
+    .boot-logo.split .a { animation: splitA 1.4s var(--ease) forwards; }
+    .boot-logo.split .s { animation: splitS 1.4s var(--ease) forwards; }
+    @keyframes splitA {
+      to { transform: translateX(-72vw) scale(1.3); filter: blur(3px); opacity: 0; }
+    }
+    @keyframes splitS {
+      to { transform: translateX(72vw) scale(1.3); filter: blur(3px); opacity: 0; }
+    }
+    /* The "power on" sweep that becomes the viewfinder */
+    .boot-scan {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      opacity: 0;
+    }
+    .boot-scan.on { animation: scanWipe 0.9s var(--ease) forwards; }
+    @keyframes scanWipe {
+      0%   { opacity: 0; clip-path: inset(50% 0 50% 0); }
+      60%  { opacity: 1; }
+      100% { opacity: 0; clip-path: inset(0 0 0 0); }
+    }
+    .boot-scan::before {
+      content: ""; position: absolute; left: 0; right: 0; top: 50%;
+      height: 2px; background: var(--ochre);
+      box-shadow: 0 0 24px 4px rgba(200,162,101,0.6);
+    }
+
+    /* ───────────────────────── Pinned viewfinder stage ─────────────────── */
+    .scene {
+      position: relative;
+      height: 320vh;              /* scroll runway for the pinned sequence */
+    }
+    .scene-sticky {
+      position: sticky; top: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: #000;
+    }
+    /* The zooming frame — everything photo-side scales together */
+    .vf-frame {
+      position: absolute; inset: 0;
+      transform-origin: 50% 42%;   /* punch-in target (the subject) */
+      will-change: transform;
+    }
+    .vf-photo {
+      position: absolute; inset: -2%;
+      background-image: url("images/Japan/IMG_2564-1920.webp");
+      background-size: cover;
+      background-position: center 42%;
+    }
+    .vf-photo::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        linear-gradient(180deg, rgba(14,13,11,0.35) 0%, rgba(14,13,11,0.05) 38%, rgba(14,13,11,0.7) 100%),
+        radial-gradient(ellipse at center, transparent 52%, rgba(0,0,0,0.55) 100%);
+    }
+
+    /* ───────────────────────── HUD overlay ─────────────────────────────── */
+    .hud {
+      position: absolute; inset: 0;
+      pointer-events: none;
+      z-index: 5;
+      will-change: opacity, transform;
+    }
+    .hud .pad { position: absolute; }
+
+    /* Corner brackets */
+    .vf-corner {
+      position: absolute; width: 46px; height: 46px;
+      border: 2px solid rgba(232,224,208,0.85);
+    }
+    .vf-corner.tl { top: 38px; left: 38px; border-right: 0; border-bottom: 0; }
+    .vf-corner.tr { top: 38px; right: 38px; border-left: 0; border-bottom: 0; }
+    .vf-corner.bl { bottom: 38px; left: 38px; border-right: 0; border-top: 0; }
+    .vf-corner.br { bottom: 38px; right: 38px; border-left: 0; border-top: 0; }
+
+    /* Rule-of-thirds grid — fades out on AF lock */
+    .vf-grid {
+      position: absolute; inset: 38px;
+      opacity: 0;
+      transition: opacity 0.5s var(--ease);
+    }
+    .vf-grid.show { opacity: 0.28; }
+    .vf-grid span { position: absolute; background: rgba(232,224,208,0.5); }
+    .vf-grid .v { top: 0; bottom: 0; width: 1px; }
+    .vf-grid .v1 { left: 33.33%; } .vf-grid .v2 { left: 66.66%; }
+    .vf-grid .h { left: 0; right: 0; height: 1px; }
+    .vf-grid .h1 { top: 33.33%; } .vf-grid .h2 { top: 66.66%; }
+
+    /* Center AF bracket */
+    .vf-af {
+      position: absolute; top: 42%; left: 50%;
+      width: 120px; height: 120px;
+      transform: translate(-50%, -50%);
+      will-change: transform, opacity;
+    }
+    .vf-af .b {
+      position: absolute; width: 22px; height: 22px;
+      border: 2px solid rgba(232,224,208,0.9);
+      transition: border-color 0.25s ease;
+    }
+    .vf-af .b.tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+    .vf-af .b.tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+    .vf-af .b.bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+    .vf-af .b.br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+    /* hunting = soft, doubled, jittering */
+    .vf-af.hunting { animation: afHunt 0.9s steps(1) infinite; filter: blur(0.4px); }
+    @keyframes afHunt {
+      0%   { transform: translate(-50%, -50%) scale(1.18); }
+      50%  { transform: translate(-50%, -50%) scale(0.92); }
+      100% { transform: translate(-50%, -50%) scale(1.18); }
+    }
+    .vf-af.locked .b { border-color: var(--lock); }
+    .vf-af.locked { animation: afLock 0.4s var(--ease); }
+    @keyframes afLock {
+      0% { transform: translate(-50%, -50%) scale(1.12); }
+      60% { transform: translate(-50%, -50%) scale(0.96); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+    .vf-af .dot {
+      position: absolute; top: 50%; left: 50%;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(232,224,208,0.6);
+      transform: translate(-50%, -50%);
+    }
+    .vf-af.locked .dot { background: var(--lock); box-shadow: 0 0 8px var(--lock); }
+
+    /* Top-left REC + frame counter */
+    .vf-rec {
+      top: 100px; left: 44px;
+      display: flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 12px; letter-spacing: 0.22em;
+      color: var(--fg);
+    }
+    .vf-rec .rdot {
+      width: 9px; height: 9px; border-radius: 50%;
+      background: #E0594F; box-shadow: 0 0 10px #E0594F;
+      animation: recBlink 1.4s steps(1) infinite;
+    }
+    @keyframes recBlink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0.25; } }
+    .vf-count { color: var(--fg-dim); }
+
+    /* Bottom exposure readout */
+    .vf-readout {
+      bottom: 96px; left: 0; right: 0;
+      display: flex; justify-content: center; gap: 26px;
+      font-family: var(--mono); font-size: 13px; letter-spacing: 0.14em;
+      color: var(--fg);
+    }
+    .vf-readout b { color: var(--ochre); font-weight: 500; }
+    .vf-readout .sep { color: var(--fg-dim); }
+
+    /* Mode strip top-right */
+    .vf-mode {
+      top: 100px; right: 44px;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.28em;
+      color: var(--fg-dim); text-align: right;
+    }
+    .vf-mode b { color: var(--fg); }
+
+    /* Hero text (lower third) */
+    .vf-hero {
+      position: absolute; left: 0; right: 0; bottom: 16vh;
+      text-align: center; z-index: 6;
+      will-change: opacity, transform;
+    }
+    .vf-hero .k {
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.34em;
+      text-transform: uppercase; color: var(--ochre); margin-bottom: 16px;
+    }
+    .vf-hero h1 {
+      font-family: var(--serif); font-weight: 300;
+      font-size: clamp(56px, 10vw, 150px); line-height: 0.95; letter-spacing: -0.03em;
+    }
+    .vf-hero h1 .it { font-style: italic; color: var(--ochre); }
+
+    /* Scroll hint */
+    .vf-scroll {
+      position: absolute; left: 50%; bottom: 38px; transform: translateX(-50%);
+      z-index: 7; text-align: center;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.3em;
+      text-transform: uppercase; color: var(--fg-dim);
+      opacity: 0; transition: opacity 0.6s var(--ease);
+    }
+    .vf-scroll.show { opacity: 1; }
+    .vf-scroll .line {
+      width: 1px; height: 34px; margin: 10px auto 0;
+      background: linear-gradient(180deg, var(--ochre), transparent);
+      animation: scrollPulse 1.8s var(--ease) infinite;
+    }
+    @keyframes scrollPulse { 0%,100% { opacity: 0.3; transform: scaleY(0.6); transform-origin: top; } 50% { opacity: 1; transform: scaleY(1); } }
+
+    /* ───────────────────────── Carousel (resolves inside the zoom) ─────── */
+    .vf-carousel {
+      position: absolute; inset: 0; z-index: 8;
+      display: flex; align-items: center; justify-content: center;
+      gap: 26px;
+      opacity: 0; transform: scale(1.25);
+      will-change: opacity, transform;
+      pointer-events: none;
+      padding: 0 6vw;
+    }
+    .vf-carousel .label {
+      position: absolute; top: 12vh; left: 0; right: 0; text-align: center;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.34em;
+      text-transform: uppercase; color: var(--ochre);
+    }
+    .vf-card {
+      position: relative;
+      width: clamp(180px, 22vw, 300px);
+      aspect-ratio: 3/4;
+      border-radius: 4px; overflow: hidden;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.55), inset 0 0 0 1px rgba(232,224,208,0.08);
+      flex: 0 0 auto;
+    }
+    .vf-card img { width: 100%; height: 100%; object-fit: cover; }
+    .vf-card .cap {
+      position: absolute; left: 14px; bottom: 12px;
+      font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em;
+      color: var(--fg); text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+    }
+    .vf-card.center { width: clamp(220px, 26vw, 360px); }
+
+    /* Persistent readout thread after the zoom (sticks to corner) */
+    .thread {
+      position: fixed; left: 24px; bottom: 20px; z-index: 50;
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em;
+      color: var(--fg-dim); opacity: 0;
+      transition: opacity 0.6s var(--ease);
+      pointer-events: none;
+    }
+    .thread.show { opacity: 0.7; }
+    .thread b { color: var(--ochre); }
+
+    /* ───────────────────────── After-scene filler ─────────────────────── */
+    .after {
+      position: relative; z-index: 10;
+      background: var(--bg);
+      padding: 140px 6vw 200px;
+      text-align: center;
+    }
+    .after h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(34px,5vw,64px); margin-bottom: 18px; }
+    .after p { color: var(--fg-dim); max-width: 520px; margin: 0 auto; font-size: 15px; line-height: 1.6; }
+
+    /* Prototype watermark */
+    .proto-tag {
+      position: fixed; top: 12px; left: 50%; transform: translateX(-50%);
+      z-index: 999; font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+      color: rgba(232,224,208,0.4); background: rgba(0,0,0,0.4);
+      padding: 5px 12px; border-radius: 999px; border: 1px solid rgba(232,224,208,0.12);
+      pointer-events: none;
+    }
+
+    @media (max-width: 760px) {
+      .vf-corner { width: 30px; height: 30px; top: 22px; left: 22px; }
+      .vf-corner.tr { right: 22px; } .vf-corner.bl { bottom: 22px; } .vf-corner.br { bottom: 22px; right: 22px; }
+      .vf-rec { top: 70px; left: 24px; font-size: 10px; }
+      .vf-mode { top: 70px; right: 24px; font-size: 9px; }
+      .vf-readout { bottom: 70px; gap: 14px; font-size: 10px; }
+      .vf-af { width: 86px; height: 86px; }
+      .scene { height: 240vh; }
+      .vf-carousel { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="proto-tag">PROTOTYPE · not wired into live site</div>
+
+  <!-- Boot: AS splits → viewfinder powers on -->
+  <div id="boot">
+    <div class="boot-logo" id="bootLogo"><span class="a">A</span><span class="s">S</span></div>
+    <div class="boot-scan" id="bootScan"></div>
+  </div>
+
+  <!-- Pinned viewfinder scene -->
+  <div class="scene" id="scene">
+    <div class="scene-sticky">
+
+      <div class="vf-frame" id="vfFrame">
+        <div class="vf-photo"></div>
+      </div>
+
+      <!-- HUD -->
+      <div class="hud" id="hud">
+        <div class="vf-corner tl"></div>
+        <div class="vf-corner tr"></div>
+        <div class="vf-corner bl"></div>
+        <div class="vf-corner br"></div>
+
+        <div class="vf-grid" id="vfGrid">
+          <span class="v v1"></span><span class="v v2"></span>
+          <span class="h h1"></span><span class="h h2"></span>
+        </div>
+
+        <div class="vf-af hunting" id="vfAf">
+          <span class="b tl"></span><span class="b tr"></span>
+          <span class="b bl"></span><span class="b br"></span>
+          <span class="dot"></span>
+        </div>
+
+        <div class="pad vf-rec">
+          <span class="rdot"></span><span>REC</span>
+          <span class="vf-count">[ <span id="frameNo">04</span> / 114 ]</span>
+        </div>
+
+        <div class="pad vf-mode">
+          <b>AV</b> · MANUAL FOCUS<br />WB 5200K · RAW
+        </div>
+
+        <div class="pad vf-readout" id="vfReadout">
+          <span><b id="shutter">1/250</b></span>
+          <span class="sep">·</span>
+          <span><b>ƒ2.8</b></span>
+          <span class="sep">·</span>
+          <span>ISO <b id="iso">400</b></span>
+          <span class="sep">·</span>
+          <span><b>+0.3</b>EV</span>
+        </div>
+      </div>
+
+      <!-- Hero text -->
+      <div class="vf-hero" id="vfHero">
+        <div class="k">Singapore · Est. 2020</div>
+        <h1>Alston <span class="it">Shi</span></h1>
+      </div>
+
+      <!-- Carousel resolves inside the punch-in -->
+      <div class="vf-carousel" id="vfCarousel">
+        <div class="label">Selected Work</div>
+        <div class="vf-card">
+          <img src="images/Japan/IMG_0496-960.webp" alt="" />
+          <span class="cap">SKYTREE · TOKYO</span>
+        </div>
+        <div class="vf-card center">
+          <img src="images/Japan/IMG_0393-960.webp" alt="" />
+          <span class="cap">TORII · HAKONE</span>
+        </div>
+        <div class="vf-card">
+          <img src="images/China/IMG_7694-960.webp" alt="" />
+          <span class="cap">NIGHT · SHANGHAI</span>
+        </div>
+      </div>
+
+      <!-- Scroll hint -->
+      <div class="vf-scroll" id="vfScroll">
+        Scroll to focus
+        <div class="line"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Persistent exposure thread -->
+  <div class="thread" id="thread"><b>1/250 ƒ2.8</b> · ISO 400 · still rolling</div>
+
+  <!-- After the pinned scene -->
+  <div class="after">
+    <h2>…and the rest of the site continues here.</h2>
+    <p>This is just the opening sequence. In the real build, the carousel becomes interactive and the page flows into Featured Stories, the pull quote, and the archive — exactly as it does now.</p>
+  </div>
+
+  <script>
+    // ── Boot sequence: AS splits → scan wipe → reveal viewfinder ──────────
+    const boot = document.getElementById('boot');
+    const bootLogo = document.getElementById('bootLogo');
+    const bootScan = document.getElementById('bootScan');
+    const vfAf = document.getElementById('vfAf');
+    const vfGrid = document.getElementById('vfGrid');
+    const vfScroll = document.getElementById('vfScroll');
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function bootSequence() {
+      if (reduce) { boot.classList.add('gone'); afLock(); vfScroll.classList.add('show'); return; }
+      // 1. hold AS briefly, then split
+      setTimeout(() => bootLogo.classList.add('split'), 650);
+      // 2. scan wipe as the logo clears
+      setTimeout(() => bootScan.classList.add('on'), 1500);
+      // 3. dismiss boot → viewfinder visible, AF hunting + grid on
+      setTimeout(() => { boot.classList.add('gone'); vfGrid.classList.add('show'); }, 2050);
+      // 4. AF locks
+      setTimeout(afLock, 3100);
+      // 5. scroll hint
+      setTimeout(() => vfScroll.classList.add('show'), 3500);
+    }
+    function afLock() {
+      vfAf.classList.remove('hunting');
+      vfAf.classList.add('locked');
+      vfGrid.classList.remove('show');
+    }
+
+    // ── Live readout ticking (subtle) ────────────────────────────────────
+    const shutterEl = document.getElementById('shutter');
+    const isoEl = document.getElementById('iso');
+    const frameEl = document.getElementById('frameNo');
+    const shutters = ['1/200','1/250','1/320','1/250'];
+    const isos = ['400','400','500','400','320'];
+    let tick = 0;
+    setInterval(() => {
+      if (reduce) return;
+      tick++;
+      shutterEl.textContent = shutters[tick % shutters.length];
+      isoEl.textContent = isos[tick % isos.length];
+    }, 2200);
+
+    // ── Pinned scroll-jack: scrub the punch-in ───────────────────────────
+    const scene = document.getElementById('scene');
+    const vfFrame = document.getElementById('vfFrame');
+    const hud = document.getElementById('hud');
+    const vfHero = document.getElementById('vfHero');
+    const vfCarousel = document.getElementById('vfCarousel');
+    const thread = document.getElementById('thread');
+
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+    const easeInOut = (t) => t < 0.5 ? 2*t*t : 1 - Math.pow(-2*t+2, 2)/2;
+
+    function onScroll() {
+      const rect = scene.getBoundingClientRect();
+      const runway = scene.offsetHeight - window.innerHeight;
+      const p = clamp(-rect.top / runway, 0, 1);   // 0 → 1 across the pinned zone
+
+      // Phase split: 0–0.30 settle, 0.30–0.85 punch-in, 0.85–1 carousel live
+      // HUD + hero fade out as the punch-in begins
+      const hudFade = clamp((p - 0.28) / 0.22, 0, 1);
+      hud.style.opacity = 1 - hudFade;
+      vfHero.style.opacity = 1 - clamp((p - 0.22) / 0.18, 0, 1);
+      vfHero.style.transform = `translateY(${ -hudFade * 40 }px)`;
+      vfScroll.style.opacity = 1 - clamp(p / 0.1, 0, 1);
+
+      // Punch-in: scale the frame into the AF target
+      const zp = easeInOut(clamp((p - 0.30) / 0.55, 0, 1));
+      const scale = 1 + zp * 9;             // up to 10×
+      vfFrame.style.transform = `scale(${scale})`;
+      vfFrame.style.filter = `blur(${zp * 3}px)`;
+
+      // Carousel resolves in the back half of the punch-in
+      const cp = clamp((p - 0.62) / 0.38, 0, 1);
+      vfCarousel.style.opacity = cp;
+      vfCarousel.style.transform = `scale(${1.25 - cp * 0.25})`;
+      vfCarousel.style.pointerEvents = cp > 0.9 ? 'auto' : 'none';
+
+      // Persistent readout thread appears once carousel is in
+      thread.classList.toggle('show', cp > 0.85);
+    }
+
+    bootSequence();
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+  </script>
+</body>
+</html>
