@@ -150,18 +150,26 @@
       font-weight: 500;
     }
     .sidebar h4:first-child { margin-top: 0; }
-    .sidebar .quick { display: flex; flex-direction: column; gap: 2px; }
+    .sidebar .quick { display: flex; flex-direction: column; gap: 4px; }
     .sidebar .qb {
       display: flex; align-items: center; gap: 10px;
-      padding: 6px 8px; border-radius: 4px;
-      color: var(--fg-dim); font-size: 12.5px;
-      transition: background 0.15s ease, color 0.15s ease;
+      padding: 9px 10px; border-radius: 4px;
+      color: var(--fg); font-size: 13px;
+      transition: background 0.15s ease, transform 0.15s ease;
       text-align: left; width: 100%;
+      border: 1px solid transparent;
     }
-    .sidebar .qb:hover { background: rgba(200,162,101,0.08); color: var(--fg); }
-    .sidebar .qb .key { color: var(--ochre); width: 14px; text-align: center; }
-    .sidebar .qb .cmd { color: inherit; }
-    .sidebar .qb .desc { color: var(--fg-mute); font-size: 11px; margin-left: auto; }
+    .sidebar .qb:hover, .sidebar .qb:focus-visible {
+      background: rgba(200,162,101,0.1);
+      border-color: rgba(200,162,101,0.25);
+      outline: none;
+    }
+    .sidebar .qb .lbl  { color: var(--fg); font-weight: 500; }
+    .sidebar .qb .hint { color: var(--fg-mute); font-size: 10.5px; margin-left: auto; font-family: var(--mono); }
+    .sidebar .qb::before {
+      content: "›"; color: var(--ochre); font-weight: 600;
+      width: 8px; margin-right: 2px;
+    }
     .sidebar .legend {
       font-size: 11px; color: var(--fg-mute); margin-top: 16px; line-height: 1.7;
     }
@@ -171,13 +179,17 @@
       color: var(--fg-dim); font-size: 10.5px; margin: 0 2px;
     }
     .sidebar-toggle {
-      position: absolute; top: 64px; left: 10px; z-index: 30;
-      width: 22px; height: 22px; border-radius: 4px;
-      background: var(--bg-deep); border: 1px solid var(--line-h);
-      color: var(--fg-dim);
-      display: none; align-items: center; justify-content: center;
-      font-size: 12px;
+      position: fixed; top: 48px; right: 12px; z-index: 30;
+      padding: 6px 12px; border-radius: 999px;
+      background: rgba(200,162,101,0.12);
+      border: 1px solid rgba(200,162,101,0.3);
+      color: var(--ochre);
+      display: none; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500;
+      letter-spacing: 0.06em;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
     }
+    .sidebar-toggle .ic { font-size: 14px; }
 
     /* Content area */
     .content {
@@ -281,6 +293,53 @@
       font-size: 9px; color: var(--fg);
       text-shadow: 0 1px 4px rgba(0,0,0,0.9);
       letter-spacing: 0.06em;
+    }
+
+    /* Welcome toolbar — big tappable buttons inside the output */
+    .welcome {
+      margin: 14px 0 18px;
+      padding: 16px 18px 18px;
+      border: 1px solid var(--line-h);
+      border-left: 3px solid var(--ochre);
+      border-radius: 0 6px 6px 0;
+      background: linear-gradient(180deg, rgba(200,162,101,0.04), transparent);
+    }
+    .welcome .wh {
+      font-size: 13.5px; color: var(--fg);
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .welcome .ws { color: var(--fg-dim); font-size: 12.5px; margin-bottom: 14px; }
+    .welcome .ws code {
+      background: rgba(200,162,101,0.1); color: var(--ochre);
+      padding: 1px 6px; border-radius: 3px; font-size: 11.5px;
+    }
+    .welcome .wgrid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .welcome .wb {
+      padding: 14px 10px;
+      background: var(--bg-elev);
+      border: 1px solid var(--line-h);
+      border-radius: 5px;
+      color: var(--fg); font-size: 12.5px;
+      text-align: center;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+      cursor: pointer;
+      display: flex; flex-direction: column; gap: 4px;
+      align-items: center;
+    }
+    .welcome .wb:hover, .welcome .wb:focus-visible {
+      border-color: var(--ochre);
+      background: rgba(200,162,101,0.08);
+      transform: translateY(-1px);
+      outline: none;
+    }
+    .welcome .wb .ico { font-size: 16px; color: var(--ochre); }
+    .welcome .wb .h { font-weight: 500; }
+    .welcome .wb .s { font-size: 10.5px; color: var(--fg-mute); }
+    @media (max-width: 760px) {
+      .welcome .wgrid { grid-template-columns: repeat(2, 1fr); }
     }
 
     /* Mail / contact form (inline) */
@@ -402,31 +461,32 @@
       <span class="clock" id="clock">--:--:-- SGT</span>
     </div>
 
-    <button class="sidebar-toggle" id="sideToggle" aria-label="Menu">☰</button>
+    <button class="sidebar-toggle" id="sideToggle" aria-label="Menu"><span class="ic">☰</span> <span>Menu</span></button>
 
     <div class="body-row" id="bodyRow">
       <aside class="sidebar" id="sidebar">
-        <h4>Quick commands</h4>
+        <h4>Explore — just click</h4>
         <div class="quick">
-          <button class="qb" data-cmd="whoami"><span class="key">$</span><span class="cmd">whoami</span><span class="desc">about</span></button>
-          <button class="qb" data-cmd="ls projects/"><span class="key">$</span><span class="cmd">ls projects/</span><span class="desc">work</span></button>
-          <button class="qb" data-cmd="tree skills/"><span class="key">$</span><span class="cmd">tree skills/</span><span class="desc">stack</span></button>
-          <button class="qb" data-cmd="git log --oneline"><span class="key">$</span><span class="cmd">git log</span><span class="desc">exp</span></button>
-          <button class="qb" data-cmd="ls images/"><span class="key">$</span><span class="cmd">ls images/</span><span class="desc">photos</span></button>
-          <button class="qb" data-cmd='mail -s "hello" alston'><span class="key">$</span><span class="cmd">mail</span><span class="desc">contact</span></button>
-          <button class="qb" data-cmd="open resume.pdf"><span class="key">$</span><span class="cmd">open resume.pdf</span><span class="desc">cv</span></button>
+          <button class="qb" data-cmd="whoami">           <span class="lbl">About me</span>          <span class="hint">whoami</span></button>
+          <button class="qb" data-cmd="ls projects/">     <span class="lbl">My projects</span>       <span class="hint">ls projects/</span></button>
+          <button class="qb" data-cmd="tree skills/">     <span class="lbl">Skills &amp; tools</span>   <span class="hint">tree skills/</span></button>
+          <button class="qb" data-cmd="git log --oneline"><span class="lbl">Experience</span>        <span class="hint">git log</span></button>
+          <button class="qb" data-cmd="ls images/">       <span class="lbl">Photography</span>       <span class="hint">ls images/</span></button>
+          <button class="qb" data-cmd='mail -s "hello" alston'><span class="lbl">Contact me</span>   <span class="hint">mail</span></button>
+          <button class="qb" data-cmd="open resume.pdf">  <span class="lbl">Download CV</span>       <span class="hint">open resume.pdf</span></button>
         </div>
-        <h4>Utilities</h4>
+        <h4>Settings</h4>
         <div class="quick">
-          <button class="qb" data-cmd="help"><span class="key">?</span><span class="cmd">help</span><span class="desc">all commands</span></button>
-          <button class="qb" data-cmd="theme toggle"><span class="key">~</span><span class="cmd">theme toggle</span><span class="desc">light/dark</span></button>
-          <button class="qb" data-cmd="clear"><span class="key">␘</span><span class="cmd">clear</span><span class="desc">^L</span></button>
+          <button class="qb" data-cmd="help">             <span class="lbl">All commands</span>      <span class="hint">help</span></button>
+          <button class="qb" data-cmd="theme toggle">     <span class="lbl">Toggle light / dark</span><span class="hint">theme</span></button>
+          <button class="qb" data-cmd="clear">            <span class="lbl">Clear screen</span>      <span class="hint">clear</span></button>
         </div>
         <div class="legend">
+          <div class="dim" style="margin-bottom:8px">Power users:</div>
           <div><kbd>Tab</kbd> autocomplete</div>
           <div><kbd>↑</kbd> <kbd>↓</kbd> history</div>
           <div><kbd>Ctrl</kbd>+<kbd>L</kbd> clear</div>
-          <div><kbd>g</kbd> then a letter: jump</div>
+          <div><kbd>g</kbd> then <kbd>a</kbd>/<kbd>p</kbd>/<kbd>s</kbd>/<kbd>e</kbd>/<kbd>c</kbd> to jump</div>
         </div>
       </aside>
 
@@ -494,8 +554,7 @@ const bootLog = [
   { d: 0,    t: "Welcome to alstonOS 4.7.2 LTS (warm-dark)", c: "hl" },
   { d: 60,   t: "Last login: just now from a curious browser", c: "dim" },
   { d: 60,   t: "", c: "dim" },
-  { d: 80,   t: "Tip: type 'help' for available commands, or click anything on the left →", c: "accent" },
-  { d: 60,   t: "      try `whoami`, `ls`, or `cat about.md` to start.", c: "dim" },
+  { d: 80,   t: "Tip: no typing required — just click the buttons. (Power users can type too.)", c: "accent" },
 ];
 
 const bootEl = $("#bootLines");
@@ -567,9 +626,41 @@ function echoPrompt(cmd) {
 
 function escapeHtml(s) { return String(s).replace(/[&<>"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
 
+// "ls -l" style date column. Argument is days-ago; 0 = today.
+function fmtDate(daysAgo) {
+  const d = new Date();
+  d.setDate(d.getDate() - (daysAgo || 0));
+  return d.toISOString().slice(0, 10);   // YYYY-MM-DD
+}
+
+// "Did you mean…?" — simple Levenshtein for friendly typo recovery
+function lev(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  const dp = Array.from({ length: m + 1 }, (_, i) => [i]);
+  for (let j = 1; j <= n; j++) dp[0][j] = j;
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] = a[i-1] === b[j-1]
+        ? dp[i-1][j-1]
+        : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    }
+  }
+  return dp[m][n];
+}
+function suggestCommand(name) {
+  let best = null, bestD = Infinity;
+  Object.keys(COMMANDS).forEach(c => {
+    if (COMMANDS[c].aliasOf) return;
+    const d = lev(name.toLowerCase(), c);
+    if (d < bestD) { bestD = d; best = c; }
+  });
+  return bestD <= 3 ? best : null;
+}
+
 /* ──────── Filesystem mock (used by ls / cat / tree) ──────── */
 const FS = {
-  about: {
+  "about.md": {
     title: "about.md",
     body: () => `<h1>Alston Shi — software engineer · ux · cybersecurity</h1>
 <p>I'm a <span class="hl">Diploma in Infocomm &amp; Security</span> graduate from Nanyang Polytechnic. I build at the intersection of <span class="em">security</span> and <span class="em">design</span> — products that are functional, resilient, and quiet.</p>
@@ -706,7 +797,10 @@ defcmd("cat", (args) => {
   const file = args[0] || "";
   if (!file) return err("cat: missing file operand. try `cat about.md`");
   const key = file.replace(/^\.\//,"").replace(/\/$/,"");
-  if (FS[key]) { printRaw(FS[key].body()); return; }
+  // try several normalised forms so "about", "about.md", "./about.md" all work
+  const candidates = [key, key + ".md", key.replace(/\.md$/,""), key.toLowerCase(), key.toLowerCase() + ".md"];
+  const hit = candidates.find(c => FS[c]);
+  if (hit) { printRaw(FS[hit].body()); return; }
   // project file
   if (key.startsWith("projects/")) {
     const slug = key.slice("projects/".length).replace(/\.md$/,"");
@@ -999,10 +1093,17 @@ input.addEventListener("keydown", (e) => {
   }
 });
 
+let emptyEnterHinted = false;
 form.addEventListener("submit", (e) => {
   e.preventDefault();
   const raw = input.value.trim();
-  if (!raw) return;
+  if (!raw) {
+    if (!emptyEnterHinted) {
+      emptyEnterHinted = true;
+      printRaw(`<span class="dim">Tip: nothing to run — try clicking a button on the left, or type</span> <a class="run-cmd" data-cmd="help">help</a><span class="dim">.</span>`);
+    }
+    return;
+  }
   echoPrompt(raw);
   State.history.push(raw);
   State.histIdx = -1;
@@ -1015,7 +1116,15 @@ function runCommand(raw) {
   const name = tokens[0];
   const args = tokens.slice(1);
   const cmd = COMMANDS[name];
-  if (!cmd) { err(`${name}: command not found. try 'help'`); return; }
+  if (!cmd) {
+    const guess = suggestCommand(name);
+    if (guess) {
+      printRaw(`<span class="err">${escapeHtml(name)}: command not found.</span> <span class="dim">Did you mean</span> <a class="run-cmd" data-cmd="${guess}">${guess}</a><span class="dim">? — or click any button on the left, or type</span> <a class="run-cmd" data-cmd="help">help</a><span class="dim">.</span>`);
+    } else {
+      printRaw(`<span class="err">${escapeHtml(name)}: command not found.</span> <span class="dim">Try</span> <a class="run-cmd" data-cmd="help">help</a> <span class="dim">— or just click a button on the left.</span>`);
+    }
+    return;
+  }
   try { cmd.fn(args); }
   catch (e) { err(`error: ${e.message || e}`); }
 }
@@ -1070,10 +1179,24 @@ window.addEventListener("keydown", (e) => {
 function startSession({ silent } = {}) {
   if (!silent) {
     println(`Welcome to alstonOS 4.7.2 LTS — last login from a curious browser.`, "dim");
-    println(`Type <span class="accent">help</span> for available commands, or click anything on the left. Try <a class="run-cmd" data-cmd="whoami">whoami</a> · <a class="run-cmd" data-cmd="ls">ls</a> · <a class="run-cmd" data-cmd="cat now.md">cat now.md</a>.`, "");
-    blank();
+    renderWelcome();
   }
   setTimeout(() => input.focus(), 50);
+}
+
+function renderWelcome() {
+  printRaw(`<div class="welcome">
+    <div class="wh">👋 Hi — this is an interactive portfolio. No typing required.</div>
+    <div class="ws">Click any button below to explore. If you'd rather type, try <code>help</code>, <code>whoami</code>, or <code>ls</code>.</div>
+    <div class="wgrid">
+      <button class="wb run-cmd" data-cmd="whoami">              <span class="ico">◆</span><span class="h">About me</span><span class="s">who I am</span></button>
+      <button class="wb run-cmd" data-cmd="ls projects/">        <span class="ico">▣</span><span class="h">Projects</span><span class="s">things I've built</span></button>
+      <button class="wb run-cmd" data-cmd="tree skills/">        <span class="ico">▤</span><span class="h">Skills</span><span class="s">stack &amp; tools</span></button>
+      <button class="wb run-cmd" data-cmd="git log --oneline">   <span class="ico">◇</span><span class="h">Experience</span><span class="s">where I've worked</span></button>
+      <button class="wb run-cmd" data-cmd="ls images/">          <span class="ico">▦</span><span class="h">Photos</span><span class="s">my photography</span></button>
+      <button class="wb run-cmd" data-cmd='mail -s "hello" alston'><span class="ico">✉</span><span class="h">Contact</span><span class="s">say hi</span></button>
+    </div>
+  </div>`);
 }
 </script>
 </body>
