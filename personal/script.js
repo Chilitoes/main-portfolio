@@ -484,3 +484,166 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Motion pass — anime.js-driven animations.
+   Everything in here is additive: if anime.js fails to load or the user
+   prefers reduced motion, no element is ever left hidden because initial
+   "hidden" states are only applied right before each animation runs.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function motionPass() {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof anime === 'undefined' || reduced) return;
+  const isTouch = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  /* ─── 1. Hero headline: letter-stagger entrance ───────────────────── */
+  const heroH1 = document.querySelector('.hero-h1');
+  const heroText = document.querySelector('.hero-text');
+  if (heroH1 && heroText) {
+    // Parent .reveal would fade the whole block over the letter animation —
+    // make it visible instantly and let the children drive the entrance.
+    heroText.style.transitionDuration = '0s';
+    heroText.classList.add('visible');
+
+    // Split into words → chars (words stay unbreakable for wrapping)
+    const words = heroH1.textContent.trim().split(/\s+/);
+    heroH1.textContent = '';
+    words.forEach((word, wi) => {
+      const w = document.createElement('span');
+      w.className = 'hh-w';
+      for (const ch of word) {
+        const c = document.createElement('span');
+        c.className = 'hh-c';
+        c.textContent = ch;
+        w.appendChild(c);
+      }
+      heroH1.appendChild(w);
+      if (wi < words.length - 1) heroH1.appendChild(document.createTextNode(' '));
+    });
+
+    const badge = heroText.querySelector('.hero-badge');
+    const sub   = heroText.querySelector('.hero-sub');
+    const ctas  = heroText.querySelectorAll('.hero-ctas .btn');
+
+    anime.set('.hero-h1 .hh-c', { translateY: '1.1em', opacity: 0 });
+    if (badge) anime.set(badge, { translateY: 14, opacity: 0 });
+    if (sub)   anime.set(sub,   { translateY: 14, opacity: 0 });
+    if (ctas.length) anime.set(ctas, { translateY: 14, opacity: 0 });
+
+    anime.timeline({ easing: 'easeOutExpo' })
+      .add({ targets: badge, translateY: 0, opacity: 1, duration: 600 }, 100)
+      .add({
+        targets: '.hero-h1 .hh-c',
+        translateY: 0,
+        opacity: 1,
+        duration: 900,
+        delay: anime.stagger(34),
+      }, 250)
+      .add({ targets: sub, translateY: 0, opacity: 1, duration: 650 }, 700)
+      .add({
+        targets: ctas,
+        translateY: 0, opacity: 1,
+        duration: 600,
+        delay: anime.stagger(90),
+      }, 850);
+  }
+
+  /* ─── 2. Section headings: word-mask slide-up on scroll ───────────── */
+  const headings = document.querySelectorAll('.band-h2');
+  headings.forEach((h2) => {
+    const words = h2.textContent.trim().split(/\s+/);
+    h2.textContent = '';
+    words.forEach((word, wi) => {
+      const mask = document.createElement('span');
+      mask.className = 'wm';
+      const w = document.createElement('span');
+      w.className = 'w';
+      w.textContent = word;
+      mask.appendChild(w);
+      h2.appendChild(mask);
+      if (wi < words.length - 1) h2.appendChild(document.createTextNode(' '));
+    });
+    anime.set(h2.querySelectorAll('.w'), { translateY: '110%' });
+  });
+  const h2Obs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      h2Obs.unobserve(entry.target);
+      anime({
+        targets: entry.target.querySelectorAll('.w'),
+        translateY: 0,
+        duration: 800,
+        easing: 'easeOutExpo',
+        delay: anime.stagger(55),
+      });
+    });
+  }, { threshold: 0.5 });
+  headings.forEach(h => h2Obs.observe(h));
+
+  /* ─── 3. Experience timeline: rail draws, dots pop ────────────────── */
+  const tlItems = document.querySelectorAll('.timeline-item');
+  tlItems.forEach((item) => {
+    const line = item.querySelector('.timeline-line');
+    const dot  = item.querySelector('.timeline-dot');
+    if (line) { line.style.transformOrigin = 'top center'; anime.set(line, { scaleY: 0 }); }
+    if (dot)  anime.set(dot, { scale: 0 });
+  });
+  const tlObs = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      tlObs.unobserve(entry.target);
+      const line = entry.target.querySelector('.timeline-line');
+      const dot  = entry.target.querySelector('.timeline-dot');
+      anime.timeline()
+        .add({ targets: dot, scale: 1, duration: 700, easing: 'easeOutElastic(1, .55)' }, 0)
+        .add({ targets: line, scaleY: 1, duration: 700, easing: 'easeOutCubic' }, 150);
+    });
+  }, { threshold: 0.4 });
+  tlItems.forEach(i => tlObs.observe(i));
+
+  /* ─── 4. Magnetic CTAs (desktop pointers only) ────────────────────── */
+  if (!isTouch) {
+    const magnets = document.querySelectorAll('.hero-ctas .btn, .nav-cta');
+    magnets.forEach((el) => {
+      el.classList.add('is-magnetic');
+      const strength = el.classList.contains('nav-cta') ? 0.25 : 0.35;
+      el.addEventListener('mousemove', (e) => {
+        anime.remove(el);
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left - r.width / 2) * strength;
+        const y = (e.clientY - r.top - r.height / 2) * strength;
+        el.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
+      });
+      el.addEventListener('mouseleave', () => {
+        anime.remove(el);
+        anime({
+          targets: el,
+          translateX: 0, translateY: 0,
+          duration: 650,
+          easing: 'easeOutElastic(1, .45)',
+          complete: () => { el.style.transform = ''; },
+        });
+      });
+    });
+  }
+
+  /* ─── 5. Project filter: cards re-enter with stagger ──────────────── */
+  // Registered after the filter listeners above, so this runs once the
+  // .hidden classes have already been toggled for the new filter.
+  document.querySelectorAll('.filter-pill').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const visible = Array.from(document.querySelectorAll('.project-card:not(.hidden)'));
+      if (!visible.length) return;
+      anime.remove(visible);
+      anime({
+        targets: visible,
+        opacity: [0, 1],
+        translateY: [16, 0],
+        duration: 480,
+        easing: 'easeOutCubic',
+        delay: anime.stagger(65),
+        complete: () => visible.forEach((c) => { c.style.transform = ''; }),
+      });
+    });
+  });
+})();
