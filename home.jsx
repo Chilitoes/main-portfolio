@@ -192,6 +192,9 @@ function Home({ go, onOpenLightbox }) {
         </p>
       </section>
 
+      {/* Camera anatomy — pinned 3D scene */}
+      <window.CameraAnatomy />
+
       {/* About teaser */}
       <div className="split-scroll-zone" ref={splitScrollRef}>
       <section className="split">

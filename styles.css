@@ -2019,3 +2019,186 @@ picture { display: contents; }
   .fs-lede { margin-bottom: 18px; }
   /* Natural aspect; horizontals stay short, verticals stay tall — editorial */
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Camera anatomy — pinned 3D scroll scene
+   The four SVG layers each sit inside an absolutely-positioned wrapper
+   with its own translateZ, so when .cam-3d rotates, the lens visibly
+   parallaxes in front of the body (it's real 3D, not painted-on depth).
+   ═══════════════════════════════════════════════════════════════════════ */
+.cam-anatomy {
+  position: relative;
+  height: 380vh;             /* runway for the 4 phases */
+  background: linear-gradient(180deg, #0E0D0B 0%, #131110 50%, #0E0D0B 100%);
+}
+.cam-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+.cam-sticky::before {
+  /* Soft ochre wash so the section reads as its own chapter */
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 70% 50%, rgba(200,162,101,0.07), transparent 60%),
+    radial-gradient(ellipse 80% 60% at 20% 80%, rgba(200,162,101,0.04), transparent 70%);
+  pointer-events: none;
+}
+
+.cam-grid {
+  position: relative; z-index: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 6vw;
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* ─── Caption panel ─── */
+.cam-cap {
+  position: relative;
+  z-index: 2;
+  max-width: 460px;
+}
+.cam-cap-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--ochre);
+  margin-bottom: 22px;
+  transition: opacity 0.5s var(--ease-soft);
+}
+.cam-cap-title {
+  font-family: var(--mono);
+  font-weight: 500;
+  font-size: clamp(40px, 5vw, 64px);
+  line-height: 1.04;
+  letter-spacing: -0.01em;
+  color: var(--fg);
+  margin-bottom: 12px;
+  animation: capRise 0.7s var(--ease-soft);
+}
+.cam-cap-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ochre-dim);
+  margin-bottom: 24px;
+  animation: capRise 0.7s var(--ease-soft) 0.05s both;
+}
+.cam-cap-desc {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.5;
+  color: var(--fg-dim);
+  margin-bottom: 36px;
+  animation: capRise 0.7s var(--ease-soft) 0.1s both;
+}
+@keyframes capRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cam-cap-progress {
+  display: flex; gap: 10px; align-items: center;
+}
+.cap-dot {
+  width: 38px; height: 2px;
+  background: rgba(232,224,208,0.18);
+  border-radius: 2px;
+  transition: background 0.5s var(--ease-soft), transform 0.5s var(--ease-soft);
+}
+.cap-dot.past { background: rgba(200,162,101,0.5); }
+.cap-dot.on   { background: var(--ochre); transform: scaleX(1.4); transform-origin: left; }
+
+/* ─── 3D stage ─── */
+.cam-stage {
+  position: relative;
+  aspect-ratio: 1.6 / 1;
+  width: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+.cam-floor {
+  position: absolute;
+  left: 50%; bottom: 6%;
+  width: 70%; height: 6%;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.55), transparent 70%);
+  filter: blur(8px);
+  z-index: 0;
+}
+.cam-perspective {
+  width: 100%;
+  perspective: 1400px;
+  perspective-origin: 50% 45%;
+}
+.cam-3d {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1.6 / 1;
+  transform-style: preserve-3d;
+  transition: transform 0.05s linear;
+  will-change: transform;
+  --explode: 0;
+}
+
+/* Each SVG layer fills the stage; its translateZ is the depth */
+.cam-layer {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: filter 0.5s var(--ease-soft), opacity 0.5s var(--ease-soft);
+}
+.cam-layer svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* Resting depths + explode multiplier */
+.cam-l-body  { transform: translateZ(0px); }
+.cam-l-vf    { transform: translateZ(calc(8px  + var(--explode) * 26px)); }
+.cam-l-dials { transform: translateZ(calc(14px + var(--explode) * 34px)); }
+.cam-l-lens  { transform: translateZ(calc(38px + var(--explode) * 70px)); }
+
+/* Component highlight: when the section has data-active="lens", dim the
+   non-active layers so the focused part visually pops. Subtle — don't
+   want a sledgehammer feel. */
+.cam-anatomy[data-active="lens"]       .cam-layer:not(.cam-l-lens),
+.cam-anatomy[data-active="viewfinder"] .cam-layer:not(.cam-l-vf),
+.cam-anatomy[data-active="shutter"]    .cam-layer:not(.cam-l-dials) {
+  filter: brightness(0.62) saturate(0.6);
+}
+.cam-anatomy[data-active="lens"]       .cam-l-lens,
+.cam-anatomy[data-active="viewfinder"] .cam-l-vf,
+.cam-anatomy[data-active="shutter"]    .cam-l-dials {
+  filter: drop-shadow(0 0 18px rgba(200,162,101,0.35));
+}
+/* Final phase: everything bright, the camera fully exposed */
+.cam-anatomy[data-active="frame"] .cam-layer { filter: brightness(1.05); }
+
+@media (max-width: 900px) {
+  .cam-anatomy { height: 320vh; }
+  .cam-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+    padding: 0 22px;
+    text-align: left;
+  }
+  .cam-cap { order: 2; max-width: none; }
+  .cam-stage { order: 1; }
+  .cam-cap-title { font-size: clamp(30px, 8vw, 44px); }
+  .cap-dot { width: 28px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cam-anatomy { height: auto; }
+  .cam-sticky  { position: static; height: auto; padding: 80px 0; }
+  .cam-3d      { transform: none !important; }
+  .cam-layer   { transform: translateZ(0) !important; }
+}
