@@ -25,26 +25,10 @@ function CameraAnatomy() {
   const setLayer = (name) => (el) => { if (el) layersRef.current[name] = el; };
 
   const PHILOSOPHY = [
-    {
-      kicker: "I · The Practice",
-      title: "Slow looking.",
-      desc: "Photography is the only discipline I've found that asks me to stand still and pay attention. Most of the work is done before the shutter — finding the frame, waiting for the light, letting the moment come to me.",
-    },
-    {
-      kicker: "II · The Eye",
-      title: "Composition by instinct.",
-      desc: "I don't shoot from a checklist. I shoot from a habit — many thousand frames in, you stop counting rules and start trusting the angle your eye keeps returning to.",
-    },
-    {
-      kicker: "III · The Moment",
-      title: "Ordinary places, extraordinary moments.",
-      desc: "I'm not chasing extraordinary places. I'm interested in the half-second a tourist street becomes a private one — the corner where the light turns and the city is briefly alone.",
-    },
-    {
-      kicker: "IV · The Frame",
-      title: "And what stays.",
-      desc: "Of every thousand frames, one is kept. The rest are the practice. This — the frame, the print, the moment held — is what's left when the practice is done well.",
-    },
+    { kicker: "I",  title: "Slow looking." },
+    { kicker: "II", title: "Composition by instinct." },
+    { kicker: "III", title: "Ordinary places, extraordinary moments." },
+    { kicker: "IV", title: "And what stays." },
   ];
 
   // Per-layer choreography. baseZ = at rest, expZ = fully exploded.
@@ -56,27 +40,32 @@ function CameraAnatomy() {
   // reads as a visible staircase from front-up-back instead of an overlapping
   // stack. expY varies from 0 (front) to -120 (rear) so the rear elements
   // rise above the front ones.
+  // Layer choreography. Pushed magnitudes much harder so the explosion
+  // genuinely reads. Notable: sensor flies OUT IN FRONT of the body (z=110)
+  // and slightly down so it's unmistakably the camera's eye laid bare,
+  // not just a faint hint inside the cavity. Card slots + battery + DIGIC
+  // also fly forward instead of staying hidden behind the body face.
   const LAYERS = [
     // Deepest first — body internals
-    { name: 'body-back',   baseZ: -8,  expZ: -48 },
-    { name: 'internals',   baseZ:  0,  expZ: -30, baseOpacity: 0, expOpacity: 1, time: [0.60, 0.82] },
-    { name: 'sensor',      baseZ:  2,  expZ: -14, baseOpacity: 0, expOpacity: 1, time: [0.55, 0.78] },
+    { name: 'body-back',   baseZ: -8,  expZ: -64 },
+    { name: 'internals',   baseZ:  0,  expZ:  56, expY:  40, baseOpacity: 0, expOpacity: 1, time: [0.55, 0.80] },
+    { name: 'sensor',      baseZ:  2,  expZ: 110, expY:  30, baseOpacity: 0, expOpacity: 1, time: [0.50, 0.78] },
     // Body face & top
-    { name: 'body-front',  baseZ: 10,  expZ:  52, time: [0.52, 0.75] },
-    { name: 'top-plate',   baseZ: 15,  expZ:  38, expY: -120, time: [0.55, 0.78] },
-    { name: 'card-door',   baseZ: 12,  expZ:  28, expRotY: -88, time: [0.60, 0.78] },
-    // Lens mount + barrel
-    { name: 'lens-mount',  baseZ: 22,  expZ:  60, time: [0.52, 0.72] },
-    // Lens elements — fan forward AND upward so they read as a staircase
-    { name: 'lens-rear',   baseZ: 36,  expZ:  120, expY: -130, time: [0.15, 0.55] },
-    { name: 'lens-4',      baseZ: 40,  expZ:  155, expY: -100, time: [0.17, 0.55] },
-    { name: 'lens-3',      baseZ: 44,  expZ:  195, expY:  -68, time: [0.19, 0.55] },
-    { name: 'lens-2',      baseZ: 48,  expZ:  235, expY:  -34, time: [0.21, 0.55] },
-    { name: 'lens-1',      baseZ: 52,  expZ:  275, expY:    0, time: [0.23, 0.55] },
-    // Frontmost — the L-ring + brand text travels with the front element
-    { name: 'l-ring',      baseZ: 56,  expZ:  285, expY:    0, time: [0.23, 0.55] },
+    { name: 'body-front',  baseZ: 10,  expZ:  78, time: [0.48, 0.74] },
+    { name: 'top-plate',   baseZ: 15,  expZ:  52, expY: -170, time: [0.52, 0.78] },
+    { name: 'card-door',   baseZ: 12,  expZ:  42, expRotY: -100, time: [0.55, 0.78] },
+    // Lens mount drifts forward as the lens leaves
+    { name: 'lens-mount',  baseZ: 22,  expZ:  90, time: [0.48, 0.72] },
+    // Lens elements fan forward AND upward — wider staircase
+    { name: 'lens-rear',   baseZ: 36,  expZ: 160, expY: -190, time: [0.12, 0.55] },
+    { name: 'lens-4',      baseZ: 40,  expZ: 210, expY: -148, time: [0.15, 0.55] },
+    { name: 'lens-3',      baseZ: 44,  expZ: 260, expY: -104, time: [0.18, 0.55] },
+    { name: 'lens-2',      baseZ: 48,  expZ: 310, expY:  -56, time: [0.21, 0.55] },
+    { name: 'lens-1',      baseZ: 52,  expZ: 360, expY:  -10, time: [0.24, 0.55] },
+    // Frontmost — L-ring + brand engraving travels with the front element
+    { name: 'l-ring',      baseZ: 56,  expZ: 372, expY:  -10, time: [0.24, 0.55] },
   ];
-  LAYERS.forEach(l => { if (!l.time) l.time = [0.52, 0.75]; });
+  LAYERS.forEach(l => { if (!l.time) l.time = [0.48, 0.74]; });
 
   React.useEffect(() => {
     const sec = sectionRef.current;
@@ -114,12 +103,12 @@ function CameraAnatomy() {
       const mobileK = isMobile ? 0.55 : 1;
 
       // Continuous oscillating rotation throughout the entire scroll.
-      // Bigger peak Y (~38°) so the lens-element chain actually parallaxes
-      // visibly; X tilt deepens during the open phase so we look down on
-      // the optical axis a little.
-      const damping = 1 - smoothstep(rangep(p, 0.86, 1.0)) * 0.6;
-      const rotY = ((Math.sin(p * Math.PI) * 38) - 8 + Math.sin(p * Math.PI * 2.4) * 3) * damping * mobileK;
-      const rotX = (10 + Math.sin(p * Math.PI * 0.85) * 12 * (1 - reassemble)) * mobileK;
+      // Big peak Y (~55°) so we genuinely see around the camera and the
+      // optical-element chain parallaxes wide. X tilt up to ~28° during
+      // the open phase so we look down inside the body cavity.
+      const damping = 1 - smoothstep(rangep(p, 0.88, 1.0)) * 0.6;
+      const rotY = ((Math.sin(p * Math.PI) * 55) - 10 + Math.sin(p * Math.PI * 2.4) * 4) * damping * mobileK;
+      const rotX = (12 + Math.sin(p * Math.PI * 0.85) * 18 * (1 - reassemble)) * mobileK;
 
       if (cameraRef.current) {
         cameraRef.current.style.transform =
@@ -170,14 +159,10 @@ function CameraAnatomy() {
           <div className="cam-cap">
             <div className="cam-cap-kicker">{cur.kicker}</div>
             <h2 className="cam-cap-title" key={"t" + phase}>{cur.title}</h2>
-            <p className="cam-cap-desc" key={"d" + phase}>{cur.desc}</p>
             <div className="cam-cap-progress" aria-hidden="true">
               {PHILOSOPHY.map((_, i) => (
                 <span key={i} className={"cap-dot" + (i === phase ? " on" : (i < phase ? " past" : ""))} />
               ))}
-            </div>
-            <div className="cam-cap-foot">
-              <span className="dim">Canon EOS R6 Mark III · RF 24-70mm ƒ2.8 L IS USM</span>
             </div>
           </div>
 
