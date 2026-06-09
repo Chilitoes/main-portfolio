@@ -1409,3 +1409,29 @@ picture { display: contents; }
 @media (prefers-reduced-motion: reduce) {
   .marquee-track { animation: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3D scroll-reveal — perspective parents
+   The cards themselves keep their existing layouts; we just give each
+   container a 3D viewport so the entrance rotates have somewhere to live.
+   ═══════════════════════════════════════════════════════════════════════ */
+.projects-grid,
+.skills-grid,
+.timeline,
+.photo-gallery,
+.contact-info,
+.about-grid {
+  perspective: 1400px;
+  perspective-origin: 50% 35%;
+}
+
+.project-card,
+.skill-card,
+.timeline-item,
+.photo-item,
+.about-photo,
+.contact-item {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform-origin: center center;
+}

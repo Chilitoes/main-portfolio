@@ -647,3 +647,114 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════════════
+   3D scroll-reveal pass — perspective-based entrances per section.
+   Each animated element has .reveal removed before the existing reveal
+   observer can add .visible, so the existing CSS transition can't fight
+   the anime.js inline transforms.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function scroll3DReveal() {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (typeof anime === 'undefined' || reduced) return;
+
+  // Reveal a group on scroll-into-view, animating from `from` → `to`.
+  // Elements are detached from the .reveal CSS system so transitions
+  // don't double-fire on top of anime.js inline transforms.
+  function reveal3D(selector, opts) {
+    const els = Array.from(document.querySelectorAll(selector));
+    if (!els.length) return;
+
+    els.forEach((el) => {
+      el.classList.remove('reveal');
+      // Kill any CSS transition that might otherwise smear the entrance
+      el.style.transition = 'none';
+      anime.set(el, opts.from);
+    });
+
+    const obs = new IntersectionObserver((entries) => {
+      const visible = entries.filter((e) => e.isIntersecting).map((e) => e.target);
+      if (!visible.length) return;
+      visible.forEach((t) => obs.unobserve(t));
+      anime({
+        targets: visible,
+        ...opts.to,
+        easing: opts.easing || 'easeOutExpo',
+        duration: opts.duration || 850,
+        delay: anime.stagger(opts.stagger || 90),
+        complete: () => {
+          // Hand transform control back so card-tilt etc can write to it cleanly
+          visible.forEach((el) => { el.style.transition = ''; });
+        },
+      });
+    }, { threshold: opts.threshold || 0.18, rootMargin: '0px 0px -60px 0px' });
+
+    els.forEach((el) => obs.observe(el));
+  }
+
+  /* 1. About photo — 3D card flip in from the right */
+  reveal3D('.about-photo', {
+    from: { opacity: 0, rotateY: -22, translateZ: -100, scale: 0.94 },
+    to:   { opacity: 1, rotateY: 0,   translateZ: 0,    scale: 1 },
+    duration: 1000,
+    stagger: 0,
+    threshold: 0.25,
+  });
+
+  /* 2. Project cards — cascading tilt-in */
+  reveal3D('.projects-grid .project-card', {
+    from: { opacity: 0, translateY: 70, rotateX: -22, scale: 0.95 },
+    to:   { opacity: 1, translateY: 0,  rotateX: 0,   scale: 1 },
+    duration: 950,
+    stagger: 110,
+  });
+
+  /* 3. Skill cards — swing in on Y axis */
+  reveal3D('.skills-grid .skill-card', {
+    from: { opacity: 0, rotateY: 28, translateX: -30, translateZ: -50 },
+    to:   { opacity: 1, rotateY: 0,  translateX: 0,   translateZ: 0 },
+    duration: 900,
+    stagger: 120,
+  });
+
+  /* 4. Timeline items — swing in from the rail side */
+  reveal3D('.timeline .timeline-item', {
+    from: { opacity: 0, rotateY: -25, translateX: -40, translateZ: -30 },
+    to:   { opacity: 1, rotateY: 0,   translateX: 0,   translateZ: 0 },
+    duration: 850,
+    stagger: 130,
+  });
+
+  /* 5. Photo gallery — depth float; alternating rotation feels organic */
+  const photos = Array.from(document.querySelectorAll('.photo-gallery .photo-item'));
+  if (photos.length) {
+    photos.forEach((p, i) => {
+      p.classList.remove('reveal');
+      p.style.transition = 'none';
+      const dir = i % 2 === 0 ? -1 : 1;
+      anime.set(p, { opacity: 0, translateY: 40, rotateY: 12 * dir, translateZ: -60, scale: 0.95 });
+    });
+    const photoObs = new IntersectionObserver((entries) => {
+      const visible = entries.filter((e) => e.isIntersecting).map((e) => e.target);
+      if (!visible.length) return;
+      visible.forEach((t) => photoObs.unobserve(t));
+      anime({
+        targets: visible,
+        opacity: 1, translateY: 0, rotateY: 0, translateZ: 0, scale: 1,
+        duration: 900,
+        easing: 'easeOutExpo',
+        delay: anime.stagger(80),
+        complete: () => { visible.forEach((el) => { el.style.transition = ''; }); },
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+    photos.forEach((p) => photoObs.observe(p));
+  }
+
+  /* 6. Contact items — flip up from below */
+  reveal3D('.contact-info .contact-item', {
+    from: { opacity: 0, rotateX: -28, translateY: 30, translateZ: -40 },
+    to:   { opacity: 1, rotateX: 0,   translateY: 0,  translateZ: 0 },
+    duration: 800,
+    stagger: 110,
+  });
+})();
