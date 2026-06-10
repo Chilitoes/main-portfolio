@@ -50,45 +50,45 @@ function Camera3D() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.35;            // brighter overall curve
+    renderer.toneMappingExposure = 1.55;            // brighter overall curve
     container.appendChild(renderer.domElement);
 
     /* ── lighting ────────────────────────────────────────────────────── */
     // Warmer + brighter ambient so the body never sinks into black
-    scene.add(new THREE.AmbientLight(0x303034, 1.1));
+    scene.add(new THREE.AmbientLight(0x383840, 1.35));
 
     // Main key — brighter, gives the strong primary specular highlight
-    const keyLight = new THREE.DirectionalLight(0xfff4e4, 2.8);
+    const keyLight = new THREE.DirectionalLight(0xfff4e4, 3.3);
     keyLight.position.set(2.4, 3.2, 2.4);
     scene.add(keyLight);
 
     // Secondary key from the opposite side so chrome/metal parts catch
     // light from two angles — much more sparkle
-    const keyLight2 = new THREE.DirectionalLight(0xeaf0ff, 1.4);
+    const keyLight2 = new THREE.DirectionalLight(0xeaf0ff, 1.8);
     keyLight2.position.set(-2.6, 2.0, 2.0);
     scene.add(keyLight2);
 
     // Rim light from behind — the warm edge glow that defines the look
-    const rimLight = new THREE.DirectionalLight(0xE0B070, 3.6);
+    const rimLight = new THREE.DirectionalLight(0xE0B070, 4.0);
     rimLight.position.set(-1.6, 1.0, -2.0);
     scene.add(rimLight);
 
     // Second rim from upper-back for top-edge glow
-    const rimLight2 = new THREE.DirectionalLight(0xFFCC88, 2.0);
+    const rimLight2 = new THREE.DirectionalLight(0xFFCC88, 2.4);
     rimLight2.position.set(1.4, 1.6, -2.2);
     scene.add(rimLight2);
 
     // Cool fill from below for shape definition
-    const fillLight = new THREE.DirectionalLight(0x5a78b0, 0.8);
+    const fillLight = new THREE.DirectionalLight(0x5a78b0, 1.0);
     fillLight.position.set(-2.2, -1.0, 1.6);
     scene.add(fillLight);
 
     // Two warm point accents near the lens for bright glass speculars
-    const accentLight = new THREE.PointLight(0xFFD8A0, 2.4, 10, 1.5);
+    const accentLight = new THREE.PointLight(0xFFD8A0, 3.0, 10, 1.5);
     accentLight.position.set(0.8, 1.4, 1.8);
     scene.add(accentLight);
 
-    const accentLight2 = new THREE.PointLight(0xFFE0B0, 1.6, 8, 1.8);
+    const accentLight2 = new THREE.PointLight(0xFFE0B0, 2.0, 8, 1.8);
     accentLight2.position.set(-0.6, 0.6, 1.6);
     scene.add(accentLight2);
 
@@ -307,6 +307,51 @@ function buildModel(maxAnisotropy = 4) {
     return elGroup;
   };
 
+  // ── engraved-text labels ────────────────────────────────────────────
+  // Real cameras have printed branding all over them — adding it is what
+  // separates "a model of a camera" from "a stack of toy primitives".
+  // Each label is a transparent canvas with the text drawn on it, mapped
+  // to a thin plane that sits flush against a body/lens surface. The text
+  // is slightly emissive-bright so it reads as crisp printed lettering.
+  const labelCache = [];
+  const makeLabel = (text, opts) => {
+    const o = opts || {};
+    const color = o.color || '#d8d2c4';
+    const weight = o.weight || '700';
+    const planeW = o.w || 0.4;
+    // Canvas sized to the text; high-res for crisp lettering when zoomed
+    const fontPx = 80;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.font = `${weight} ${fontPx}px "Helvetica Neue", Arial, sans-serif`;
+    const metrics = ctx.measureText(text);
+    const padX = 28, padY = 22;
+    canvas.width = Math.ceil(metrics.width) + padX * 2;
+    canvas.height = fontPx + padY * 2;
+    // Redeclare font after resize (resizing clears context state)
+    ctx.font = `${weight} ${fontPx}px "Helvetica Neue", Arial, sans-serif`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+    if (o.letterSpacing) ctx.letterSpacing = o.letterSpacing;
+    ctx.fillStyle = color;
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const tex = new THREE.CanvasTexture(canvas);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = maxAnisotropy;
+    tex.minFilter = THREE.LinearMipmapLinearFilter;
+    labelCache.push(tex);
+
+    const mat = new THREE.MeshBasicMaterial({
+      map: tex, transparent: true, depthWrite: false,
+      side: THREE.DoubleSide, toneMapped: false,
+      opacity: o.opacity != null ? o.opacity : 0.92,
+    });
+    const aspect = canvas.height / canvas.width;
+    const plane = new THREE.PlaneGeometry(planeW, planeW * aspect);
+    return new THREE.Mesh(plane, mat);
+  };
+
   /* ════════════════════════════════════════════════════════════════════
      CAMERA BODY
      Coordinate system: lens points +Z (toward camera). Y up. X right.
@@ -351,6 +396,28 @@ function buildModel(maxAnisotropy = 4) {
   addPart(new THREE.Mesh(roundedBox(1.55, 0.08, 0.72, 0.05), matBody), {
     pos: [0, 0.54, -0.32],
     target: [0, 1.8, -0.7],
+  });
+
+  // ── branding / engraved labels ──────────────────────────────────────
+  // "Canon" across the top of the pentaprism hump (faces up — visible
+  // from the slightly elevated camera angle). Travels with the hump.
+  // (z values clear the rounded-box bevels which push real faces out.)
+  addPart(makeLabel('Canon', { color: '#f4efe6', weight: '700', w: 0.30 }), {
+    pos: [0, 0.80, -0.28],
+    rot: [-Math.PI / 2, 0, 0],
+    target: [0, 1.75, -0.22],     // matches EVF hump delta
+  });
+  // "EOS R6 Mark III" on the front body face, below the lens mount.
+  // Travels with the main chassis (delta [0,0,-0.7]). z=0.12 clears the
+  // bevelled front face (~0.09) so the print sits on the surface.
+  addPart(makeLabel('EOS R6  Mark III', { color: '#d8d2c4', weight: '600', w: 0.48, letterSpacing: '2px' }), {
+    pos: [0.16, -0.47, 0.12],
+    target: [0, 0, -0.7],
+  });
+  // Small "FULL FRAME" mark on the front, upper-right shoulder.
+  addPart(makeLabel('FULL FRAME', { color: '#C8A265', weight: '700', w: 0.20, letterSpacing: '3px', opacity: 0.9 }), {
+    pos: [0.52, 0.4, 0.12],
+    target: [0, 0, -0.7],
   });
 
   // Hot shoe
@@ -428,10 +495,10 @@ function buildModel(maxAnisotropy = 4) {
   // the camera at p≈0.73).
   {
     const texLoader = new THREE.TextureLoader();
-    // Dotonbori, Osaka — landscape neon canal scene, reads vividly on the
-    // small LCD. Max anisotropy keeps the photo sharp at glancing angles
-    // as the camera rotates.
-    const photoTex = texLoader.load('images/Japan/IMG_5583.JPG');
+    // Sakura After Dark — night cherry blossoms over a canal, glowing
+    // pink. An archive-only frame (not on the home page), reads vividly on
+    // the small LCD. Max anisotropy keeps it sharp at glancing angles.
+    const photoTex = texLoader.load('images/Japan/IMG_6090.JPG');
     photoTex.colorSpace = THREE.SRGBColorSpace;
     photoTex.anisotropy = maxAnisotropy;
     photoTex.colorSpace = THREE.SRGBColorSpace;
@@ -551,6 +618,14 @@ function buildModel(maxAnisotropy = 4) {
     rot: [Math.PI/2, 0, 0],
     target: [0, -1.2, 1.5],
     targetRot: [Math.PI/2 + 0.4, 0.3, 0],
+  });
+  // Lens spec engraving on top of the barrel (faces up, white). Travels
+  // with the barrel's explosion delta so the print stays on the lens.
+  addPart(makeLabel('RF 24-70mm  F2.8 L  IS USM', { color: '#eae4d6', weight: '600', w: 0.56, letterSpacing: '1px' }), {
+    pos: [0, 0.40, 0.5],
+    rot: [-Math.PI / 2, 0, 0],
+    target: [0, -1.2, 1.5],
+    targetRot: [0.4, 0.3, 0],
   });
 
   // Zoom ring (wide, with knurled texture — separate cylinder slightly larger)
