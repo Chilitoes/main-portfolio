@@ -29,12 +29,12 @@ function Camera3D() {
     /* ── scene ───────────────────────────────────────────────────────── */
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      28,
+      32,
       container.clientWidth / Math.max(1, container.clientHeight),
       0.1, 100
     );
-    camera.position.set(0, 0.3, 7.2);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, 0.25, 4.6);   // closer in → camera fills more of the frame
+    camera.lookAt(0, -0.05, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
@@ -242,6 +242,29 @@ function buildModel() {
   const box = (w, h, d, s) => { const g = new THREE.BoxGeometry(w, h, d, s||1, s||1, s||1); return g; };
   const cyl = (rt, rb, h, s, openEnded) => new THREE.CylinderGeometry(rt, rb, h, s || 32, 1, openEnded || false);
   const tor = (r, tube, rad, tub) => new THREE.TorusGeometry(r, tube, rad || 12, tub || 48);
+  // Rounded box: extrude a rounded rectangle shape along its depth so corners
+  // are properly chamfered instead of flat boxes. Returns geometry centred at
+  // origin in all axes.
+  const roundedBox = (w, h, d, r) => {
+    const radius = Math.min(r, w / 2, h / 2);
+    const shape = new THREE.Shape();
+    const x = -w / 2, y = -h / 2;
+    shape.moveTo(x + radius, y);
+    shape.lineTo(x + w - radius, y);
+    shape.quadraticCurveTo(x + w, y, x + w, y + radius);
+    shape.lineTo(x + w, y + h - radius);
+    shape.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    shape.lineTo(x + radius, y + h);
+    shape.quadraticCurveTo(x, y + h, x, y + h - radius);
+    shape.lineTo(x, y + radius);
+    shape.quadraticCurveTo(x, y, x + radius, y);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: d, bevelEnabled: true, bevelThickness: radius * 0.6,
+      bevelSize: radius * 0.5, bevelSegments: 4, steps: 1, curveSegments: 12,
+    });
+    geo.translate(0, 0, -d / 2);
+    return geo;
+  };
 
   // Helper to make a "lens element" — sphere flattened on Z axis.
   // Each element gets a thin metal rim around it (a slim torus) so the
@@ -262,14 +285,15 @@ function buildModel() {
      Coordinate system: lens points +Z (toward camera). Y up. X right.
      ════════════════════════════════════════════════════════════════════ */
 
-  // Main chassis
-  addPart(new THREE.Mesh(box(1.55, 1.05, 0.72), matBody), {
+  // Main chassis — proper rounded box for the body shell
+  addPart(new THREE.Mesh(roundedBox(1.55, 1.05, 0.72, 0.08), matBody), {
     pos: [0, 0, -0.32],
     target: [0, 0, -0.7],
   });
 
-  // Right-side grip (camera's right = image left). Made from a tall rounded box.
-  addPart(new THREE.Mesh(box(0.22, 1.0, 0.62, 4), matRubber), {
+  // Right-side grip (camera's right = image left). Rounded too for the
+  // ergonomic bulge.
+  addPart(new THREE.Mesh(roundedBox(0.28, 1.0, 0.62, 0.13), matRubber), {
     pos: [-0.82, -0.02, -0.28],
     target: [-2.8, 0.2, -0.6],
   });
@@ -297,7 +321,7 @@ function buildModel() {
   });
 
   // Top plate
-  addPart(new THREE.Mesh(box(1.55, 0.06, 0.72), matBody), {
+  addPart(new THREE.Mesh(roundedBox(1.55, 0.08, 0.72, 0.05), matBody), {
     pos: [0, 0.54, -0.32],
     target: [0, 1.8, -0.7],
   });
