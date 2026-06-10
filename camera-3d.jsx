@@ -11,14 +11,14 @@ function Camera3D() {
   const [phase, setPhase] = React.useState(0);
 
   const PHILOSOPHY = [
-    { kicker: "I",   title: "Slow looking.",
-      desc: "Travel & editorial photographer based in Singapore." },
-    { kicker: "II",  title: "Composition by instinct.",
-      desc: "Documenting people and places across Asia since 2020." },
+    { kicker: "I",   title: "How I see.",
+      desc: "Travel photographer based in Singapore, shooting across Asia since 2020." },
+    { kicker: "II",  title: "What I look for.",
+      desc: "Quiet streets, soft light, the in-between moments most people walk past." },
     { kicker: "III", title: "Ordinary places, extraordinary moments.",
-      desc: "Cinematic. Quiet. Editorial portraits, street, and travel." },
-    { kicker: "IV",  title: "And what stays.",
-      desc: "Available for editorial, travel, and brand work." },
+      desc: "Street, travel, and editorial photography." },
+    { kicker: "IV",  title: "The photo is what stays.",
+      desc: "Browse the archive, or get in touch for work." },
   ];
 
   React.useEffect(() => {
@@ -44,7 +44,9 @@ function Camera3D() {
     camera.lookAt(0, -0.05, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    // Full device pixel ratio (capped at 2.5) — the camera is the visual
+    // centrepiece of the page, sharpness matters more than a few mW here.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 2 : 2.5));
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -91,7 +93,7 @@ function Camera3D() {
     scene.add(accentLight2);
 
     /* ── model ───────────────────────────────────────────────────────── */
-    const built = buildModel();
+    const built = buildModel(renderer.capabilities.getMaxAnisotropy());
     scene.add(built.group);
     // Initial pose: slightly angled so we see the lens depth
     built.group.rotation.y = -0.55;
@@ -212,7 +214,7 @@ function Camera3D() {
    each { mesh, rest, target, weight } so the animation loop can lerp
    per-mesh between rest and target on every scroll frame.
    ────────────────────────────────────────────────────────────────────── */
-function buildModel() {
+function buildModel(maxAnisotropy = 4) {
   const group = new THREE.Group();
   const parts = [];
 
@@ -265,8 +267,8 @@ function buildModel() {
     return mesh;
   };
   const box = (w, h, d, s) => { const g = new THREE.BoxGeometry(w, h, d, s||1, s||1, s||1); return g; };
-  const cyl = (rt, rb, h, s, openEnded) => new THREE.CylinderGeometry(rt, rb, h, s || 32, 1, openEnded || false);
-  const tor = (r, tube, rad, tub) => new THREE.TorusGeometry(r, tube, rad || 12, tub || 48);
+  const cyl = (rt, rb, h, s, openEnded) => new THREE.CylinderGeometry(rt, rb, h, s || 48, 1, openEnded || false);
+  const tor = (r, tube, rad, tub) => new THREE.TorusGeometry(r, tube, rad || 16, tub || 72);
   // Rounded box: extrude a rounded rectangle shape along its depth so corners
   // are properly chamfered instead of flat boxes. Returns geometry centred at
   // origin in all axes.
@@ -296,7 +298,7 @@ function buildModel() {
   // chain reads as a series of discs with mounting hardware.
   const lensElement = (rGlass, rRim, depth, mat) => {
     const elGroup = new THREE.Group();
-    const sphereGeo = new THREE.SphereGeometry(rGlass, 32, 24);
+    const sphereGeo = new THREE.SphereGeometry(rGlass, 48, 32);
     const glass = new THREE.Mesh(sphereGeo, mat);
     glass.scale.set(1, 1, depth);
     elGroup.add(glass);
@@ -426,8 +428,12 @@ function buildModel() {
   // the camera at p≈0.73).
   {
     const texLoader = new THREE.TextureLoader();
-    const photoTex = texLoader.load('images/Japan/IMG_2564.JPG');
+    // Dotonbori, Osaka — landscape neon canal scene, reads vividly on the
+    // small LCD. Max anisotropy keeps the photo sharp at glancing angles
+    // as the camera rotates.
+    const photoTex = texLoader.load('images/Japan/IMG_5583.JPG');
     photoTex.colorSpace = THREE.SRGBColorSpace;
+    photoTex.anisotropy = maxAnisotropy;
     photoTex.colorSpace = THREE.SRGBColorSpace;
 
     // MeshBasicMaterial bypasses lighting entirely — the photo appears
