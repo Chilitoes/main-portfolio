@@ -11,10 +11,14 @@ function Camera3D() {
   const [phase, setPhase] = React.useState(0);
 
   const PHILOSOPHY = [
-    { kicker: "I",   title: "Slow looking." },
-    { kicker: "II",  title: "Composition by instinct." },
-    { kicker: "III", title: "Ordinary places, extraordinary moments." },
-    { kicker: "IV",  title: "And what stays." },
+    { kicker: "I",   title: "Slow looking.",
+      desc: "Travel & editorial photographer based in Singapore." },
+    { kicker: "II",  title: "Composition by instinct.",
+      desc: "Documenting people and places across Asia since 2020." },
+    { kicker: "III", title: "Ordinary places, extraordinary moments.",
+      desc: "Cinematic. Quiet. Editorial portraits, street, and travel." },
+    { kicker: "IV",  title: "And what stays.",
+      desc: "Available for editorial, travel, and brand work." },
   ];
 
   React.useEffect(() => {
@@ -191,6 +195,7 @@ function Camera3D() {
         <div className="cam3d-cap">
           <div className="cam3d-kicker">{cur.kicker}</div>
           <h2 className="cam3d-title" key={"t" + phase}>{cur.title}</h2>
+          <p className="cam3d-desc" key={"d" + phase}>{cur.desc}</p>
           <div className="cam3d-progress" aria-hidden="true">
             {PHILOSOPHY.map((_, i) => (
               <span key={i} className={"c3d-dot" + (i === phase ? " on" : (i < phase ? " past" : ""))} />
@@ -412,15 +417,49 @@ function buildModel() {
     target: [-2.2, 2.4, 0.1],
   });
 
-  // Back LCD screen
-  addPart(new THREE.Mesh(box(0.86, 0.6, 0.03), matBodyDark), {
-    pos: [0, -0.02, -0.68],
-    target: [0, -2.0, -2.5],
-  });
-  addPart(new THREE.Mesh(box(0.82, 0.56, 0.012), matMetal), {
-    pos: [0, -0.02, -0.69],
-    target: [0, -2.0, -2.55],
-  });
+  // Vari-angle back LCD — flat photo plane mounted just outside the body
+  // back, with a thin bezel frame around it. Displays one of Alston's
+  // photos as a texture so the LCD is showing a real frame, like a camera
+  // mid-review. Moves with the body chassis during the explosion so the
+  // photo stays attached to the camera and is always clearly outside the
+  // body's silhouette (visible when the assembly rotates around to face
+  // the camera at p≈0.73).
+  {
+    const texLoader = new THREE.TextureLoader();
+    const photoTex = texLoader.load('images/Japan/IMG_2564.JPG');
+    photoTex.colorSpace = THREE.SRGBColorSpace;
+    photoTex.colorSpace = THREE.SRGBColorSpace;
+
+    // MeshBasicMaterial bypasses lighting entirely — the photo appears
+    // at its full texture brightness regardless of scene illumination,
+    // which is what we want for the LCD (it's emitting its own light,
+    // not being lit by the scene). DoubleSide so the photo renders
+    // whichever side of the plane faces the camera through the rotation.
+    const matScreen = new THREE.MeshBasicMaterial({
+      map: photoTex,
+      side: THREE.DoubleSide,
+      toneMapped: false,
+    });
+
+    // Bezel — sits at z=-0.78 (0.10 outside body back face at z=-0.68)
+    const bezel = new THREE.Mesh(roundedBox(0.96, 0.66, 0.06, 0.03), matBodyDark);
+    addPart(bezel, {
+      pos: [0, 0, -0.78],
+      target: [0, 0, -0.7],   // same delta as body chassis
+    });
+
+    // LCD photo plane — ~3:2 aspect. Pushed further outside the bezel
+    // so there's no z-fighting (the bezel is 0.06 deep; plane needs to
+    // sit clearly beyond bezel's outer face).
+    const lcd = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.92, 0.62),
+      matScreen
+    );
+    addPart(lcd, {
+      pos: [0, 0, -0.86],
+      target: [0, 0, -0.7],
+    });
+  }
 
   // Multi-controller (joystick, back)
   addPart(new THREE.Mesh(cyl(0.05, 0.05, 0.06, 24), matMetal), {

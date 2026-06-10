@@ -2216,8 +2216,19 @@ picture { display: contents; }
   line-height: 1.05;
   letter-spacing: -0.02em;
   color: var(--fg);
-  margin-bottom: 24px;
+  margin-bottom: 14px;
   animation: c3dRise 0.8s var(--ease-soft);
+}
+.cam3d-desc {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--fg-dim);
+  margin-bottom: 24px;
+  max-width: 360px;
+  line-height: 1.55;
+  text-transform: uppercase;
+  animation: c3dRise 0.8s var(--ease-soft) 0.1s both;
 }
 @keyframes c3dRise {
   from { opacity: 0; transform: translateY(10px); }
