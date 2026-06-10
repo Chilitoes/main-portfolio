@@ -28,12 +28,15 @@ function Camera3D() {
 
     /* ── scene ───────────────────────────────────────────────────────── */
     const scene = new THREE.Scene();
+    // Mobile gets a wider FOV and further pull-back so the full
+    // explosion (~3 units wide either side, ~3 units forward) actually
+    // fits inside a portrait viewport without clipping.
     const camera = new THREE.PerspectiveCamera(
-      30,
+      isMobile ? 42 : 30,
       container.clientWidth / Math.max(1, container.clientHeight),
       0.1, 100
     );
-    camera.position.set(0, 0.25, 6.0);
+    camera.position.set(0, isMobile ? 0.35 : 0.25, isMobile ? 9.0 : 6.0);
     camera.lookAt(0, -0.05, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -41,30 +44,47 @@ function Camera3D() {
     renderer.setSize(container.clientWidth, container.clientHeight);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.0;
+    renderer.toneMappingExposure = 1.35;            // brighter overall curve
     container.appendChild(renderer.domElement);
 
     /* ── lighting ────────────────────────────────────────────────────── */
-    scene.add(new THREE.AmbientLight(0x121214, 0.7));
+    // Warmer + brighter ambient so the body never sinks into black
+    scene.add(new THREE.AmbientLight(0x303034, 1.1));
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.5);
-    keyLight.position.set(2.4, 3.0, 2.4);
+    // Main key — brighter, gives the strong primary specular highlight
+    const keyLight = new THREE.DirectionalLight(0xfff4e4, 2.8);
+    keyLight.position.set(2.4, 3.2, 2.4);
     scene.add(keyLight);
 
+    // Secondary key from the opposite side so chrome/metal parts catch
+    // light from two angles — much more sparkle
+    const keyLight2 = new THREE.DirectionalLight(0xeaf0ff, 1.4);
+    keyLight2.position.set(-2.6, 2.0, 2.0);
+    scene.add(keyLight2);
+
     // Rim light from behind — the warm edge glow that defines the look
-    const rimLight = new THREE.DirectionalLight(0xC8A265, 3.2);
+    const rimLight = new THREE.DirectionalLight(0xE0B070, 3.6);
     rimLight.position.set(-1.6, 1.0, -2.0);
     scene.add(rimLight);
 
-    // Cool fill from below-side
-    const fillLight = new THREE.DirectionalLight(0x4060a0, 0.5);
-    fillLight.position.set(-2.2, -0.8, 1.6);
+    // Second rim from upper-back for top-edge glow
+    const rimLight2 = new THREE.DirectionalLight(0xFFCC88, 2.0);
+    rimLight2.position.set(1.4, 1.6, -2.2);
+    scene.add(rimLight2);
+
+    // Cool fill from below for shape definition
+    const fillLight = new THREE.DirectionalLight(0x5a78b0, 0.8);
+    fillLight.position.set(-2.2, -1.0, 1.6);
     scene.add(fillLight);
 
-    // Top accent — small warm spotlight giving lens highlights
-    const accentLight = new THREE.PointLight(0xE0C8A0, 1.2, 8);
-    accentLight.position.set(0.6, 1.8, 1.4);
+    // Two warm point accents near the lens for bright glass speculars
+    const accentLight = new THREE.PointLight(0xFFD8A0, 2.4, 10, 1.5);
+    accentLight.position.set(0.8, 1.4, 1.8);
     scene.add(accentLight);
+
+    const accentLight2 = new THREE.PointLight(0xFFE0B0, 1.6, 8, 1.8);
+    accentLight2.position.set(-0.6, 0.6, 1.6);
+    scene.add(accentLight2);
 
     /* ── model ───────────────────────────────────────────────────────── */
     const built = buildModel();
@@ -192,11 +212,11 @@ function buildModel() {
   const parts = [];
 
   // ── materials ───────────────────────────────────────────────────────
-  const matBody = new THREE.MeshStandardMaterial({ color: 0x252220, roughness: 0.55, metalness: 0.55 });
-  const matBodyDark = new THREE.MeshStandardMaterial({ color: 0x0e0c0b, roughness: 0.75, metalness: 0.25 });
-  const matRubber = new THREE.MeshStandardMaterial({ color: 0x141210, roughness: 0.95, metalness: 0 });
-  const matMetal = new THREE.MeshStandardMaterial({ color: 0x35302a, roughness: 0.32, metalness: 0.85 });
-  const matMetalLight = new THREE.MeshStandardMaterial({ color: 0x4a4540, roughness: 0.28, metalness: 0.9 });
+  const matBody       = new THREE.MeshStandardMaterial({ color: 0x35302a, roughness: 0.38, metalness: 0.7 });
+  const matBodyDark   = new THREE.MeshStandardMaterial({ color: 0x15110e, roughness: 0.55, metalness: 0.45 });
+  const matRubber     = new THREE.MeshStandardMaterial({ color: 0x1c1814, roughness: 0.85, metalness: 0.05 });
+  const matMetal      = new THREE.MeshStandardMaterial({ color: 0x45403a, roughness: 0.22, metalness: 0.92 });
+  const matMetalLight = new THREE.MeshStandardMaterial({ color: 0x5e5853, roughness: 0.18, metalness: 0.95 });
   const matOchre = new THREE.MeshStandardMaterial({ color: 0xC8A265, roughness: 0.35, metalness: 0.8, emissive: 0x6a4a20, emissiveIntensity: 0.15 });
   const matRed = new THREE.MeshStandardMaterial({ color: 0xE03A3E, roughness: 0.4, metalness: 0.6, emissive: 0xE03A3E, emissiveIntensity: 0.35 });
   const matGlass = new THREE.MeshPhysicalMaterial({
