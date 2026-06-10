@@ -2160,3 +2160,85 @@ picture { display: contents; }
   .cam-anatomy { height: auto; }
   .cam-sticky  { position: static; height: auto; padding: 80px 0; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Camera 3D — Three.js scene (replaces the SVG-layered cam-anatomy)
+   ═══════════════════════════════════════════════════════════════════════ */
+.cam3d-section {
+  position: relative;
+  height: 520vh;
+  background: linear-gradient(180deg, #0E0D0B 0%, #131110 50%, #0E0D0B 100%);
+}
+.cam3d-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.cam3d-sticky::before {
+  content: "";
+  position: absolute; inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 70% 45%, rgba(200,162,101,0.07), transparent 60%),
+    radial-gradient(ellipse 80% 70% at 20% 80%, rgba(200,162,101,0.04), transparent 70%);
+}
+
+/* Canvas fills the whole sticky stage — camera dominates the viewport */
+.cam3d-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.cam3d-canvas canvas { display: block; width: 100%; height: 100%; }
+
+/* Caption overlays the lower-left — minimal */
+.cam3d-cap {
+  position: absolute;
+  z-index: 2;
+  left: max(40px, 5vw);
+  bottom: 12vh;
+  max-width: 380px;
+  pointer-events: none;
+}
+.cam3d-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.45em;
+  color: var(--ochre);
+  margin-bottom: 14px;
+}
+.cam3d-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-style: italic;
+  font-size: clamp(28px, 3.4vw, 48px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  margin-bottom: 24px;
+  animation: c3dRise 0.8s var(--ease-soft);
+}
+@keyframes c3dRise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.cam3d-progress { display: flex; gap: 8px; align-items: center; }
+.c3d-dot {
+  width: 28px; height: 1.5px;
+  background: rgba(232,224,208,0.16);
+  border-radius: 2px;
+  transition: background 0.5s var(--ease-soft), transform 0.5s var(--ease-soft);
+}
+.c3d-dot.past { background: rgba(200,162,101,0.5); }
+.c3d-dot.on   { background: var(--ochre); transform: scaleX(1.6); transform-origin: left; }
+
+@media (max-width: 760px) {
+  .cam3d-section { height: 420vh; }
+  .cam3d-cap { left: 22px; right: 22px; bottom: 8vh; max-width: none; }
+  .cam3d-title { font-size: clamp(24px, 7vw, 40px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cam3d-section { height: auto; }
+  .cam3d-sticky { position: static; height: 100vh; }
+}
