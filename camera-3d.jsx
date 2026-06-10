@@ -29,11 +29,11 @@ function Camera3D() {
     /* ── scene ───────────────────────────────────────────────────────── */
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      32,
+      30,
       container.clientWidth / Math.max(1, container.clientHeight),
       0.1, 100
     );
-    camera.position.set(0, 0.25, 4.6);   // closer in → camera fills more of the frame
+    camera.position.set(0, 0.25, 6.0);
     camera.lookAt(0, -0.05, 0);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
