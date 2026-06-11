@@ -1,7 +1,7 @@
 "use strict";
 
 // ── Config ────────────────────────────────────────────────
-const API_BASE         = "https://YOUR-MACHINE.YOUR-TAILNET.ts.net"; // your Tailscale Funnel URL (tailscale funnel status)
+const API_BASE         = "https://alston-b550mh.tail8c7cb3.ts.net";
 const REFRESH_MS       = 30_000;
 const ARRIVING_THRESH  = 60;
 const SOON_THRESH      = 5 * 60;
