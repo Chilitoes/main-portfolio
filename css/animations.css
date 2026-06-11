@@ -1,0 +1,82 @@
+/* ============================================
+   SCROLL ANIMATIONS
+   ============================================ */
+
+/* Base state — elements are invisible until observed */
+[data-animate] {
+  opacity: 0;
+  transition: opacity var(--duration-slow) var(--ease-out),
+              transform var(--duration-slow) var(--ease-out);
+  transition-delay: var(--delay, 0ms);
+}
+
+[data-animate="fade-up"] {
+  transform: translateY(32px);
+}
+
+[data-animate="fade-in"] {
+  transform: none;
+}
+
+[data-animate="fade-left"] {
+  transform: translateX(-32px);
+}
+
+[data-animate="fade-right"] {
+  transform: translateX(32px);
+}
+
+[data-animate="scale-in"] {
+  transform: scale(0.96);
+}
+
+/* Visible state */
+[data-animate].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Keyframe animations ---- */
+
+@keyframes shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: -200% center; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
+/* ---- Loading skeleton ---- */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    var(--color-surface-2) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ---- Respect prefers-reduced-motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

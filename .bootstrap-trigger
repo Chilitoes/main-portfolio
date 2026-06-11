@@ -1,1 +1,0 @@
-Sentinel file. When this lands on main, .github/workflows/initial-pull.yml runs and pulls the live site over SFTP. The workflow deletes this file as part of its commit.

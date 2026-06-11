@@ -1,0 +1,19 @@
+{
+  "name": "alstonshi-portfolio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Alston Shi — photography portfolio. Source JSX precompiled to /dist for production.",
+  "scripts": {
+    "build": "mkdir -p dist && babel about.jsx app.jsx camera.jsx camera-3d.jsx carousel.jsx chrome.jsx contact.jsx core.jsx data.jsx home.jsx portfolio.jsx tweaks-panel.jsx --out-dir dist --presets=@babel/preset-env,@babel/preset-react --no-comments --minified",
+    "build:dev": "mkdir -p dist && babel about.jsx app.jsx camera.jsx camera-3d.jsx carousel.jsx chrome.jsx contact.jsx core.jsx data.jsx home.jsx portfolio.jsx tweaks-panel.jsx --out-dir dist --presets=@babel/preset-env,@babel/preset-react",
+    "optimize-images": "node scripts/optimize-images.js",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.25.0",
+    "@babel/core": "^7.25.0",
+    "@babel/preset-env": "^7.25.0",
+    "@babel/preset-react": "^7.25.0",
+    "sharp": "^0.34.5"
+  }
+}

@@ -16,6 +16,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install JS deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Build JSX → dist/
+        run: npm run build
+
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
@@ -46,6 +58,12 @@ jobs:
               --exclude-glob .gitattributes \
               --exclude-glob README.md \
               --exclude-glob .DS_Store \
+              --exclude-glob node_modules \
+              --exclude-glob node_modules/* \
+              --exclude-glob package.json \
+              --exclude-glob package-lock.json \
+              --exclude-glob babel.config.json \
+              --exclude-glob '*.jsx' \
               ./ '$REMOTE_DIR';
             bye
           "
