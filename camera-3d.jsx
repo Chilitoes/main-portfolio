@@ -606,14 +606,6 @@ function buildModel(maxAnisotropy = 4) {
     target: [0, -1.2, 1.5],
     targetRot: [Math.PI/2 + 0.4, 0.3, 0],
   });
-  // Lens spec engraving on top of the barrel (faces up, white). Travels
-  // with the barrel's explosion delta so the print stays on the lens.
-  addPart(makeLabel('RF 24-70mm  F2.8 L  IS USM', { color: '#eae4d6', weight: '600', w: 0.56, letterSpacing: '1px' }), {
-    pos: [0, 0.40, 0.5],
-    rot: [-Math.PI / 2, 0, 0],
-    target: [0, -1.2, 1.5],
-    targetRot: [0.4, 0.3, 0],
-  });
 
   // Zoom ring (wide, with knurled texture — separate cylinder slightly larger)
   const zoomGeo = cyl(0.395, 0.395, 0.18, 64);
