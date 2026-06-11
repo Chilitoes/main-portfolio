@@ -399,24 +399,11 @@ function buildModel(maxAnisotropy = 4) {
   });
 
   // ── branding / engraved labels ──────────────────────────────────────
-  // "Canon" across the top of the pentaprism hump (faces up — visible
-  // from the slightly elevated camera angle). Travels with the hump.
-  // (z values clear the rounded-box bevels which push real faces out.)
-  addPart(makeLabel('Canon', { color: '#f4efe6', weight: '700', w: 0.30 }), {
-    pos: [0, 0.80, -0.28],
-    rot: [-Math.PI / 2, 0, 0],
-    target: [0, 1.75, -0.22],     // matches EVF hump delta
-  });
   // "EOS R6 Mark III" on the front body face, below the lens mount.
   // Travels with the main chassis (delta [0,0,-0.7]). z=0.12 clears the
   // bevelled front face (~0.09) so the print sits on the surface.
   addPart(makeLabel('EOS R6  Mark III', { color: '#d8d2c4', weight: '600', w: 0.48, letterSpacing: '2px' }), {
     pos: [0.16, -0.47, 0.12],
-    target: [0, 0, -0.7],
-  });
-  // Small "FULL FRAME" mark on the front, upper-right shoulder.
-  addPart(makeLabel('FULL FRAME', { color: '#C8A265', weight: '700', w: 0.20, letterSpacing: '3px', opacity: 0.9 }), {
-    pos: [0.52, 0.4, 0.12],
     target: [0, 0, -0.7],
   });
 
