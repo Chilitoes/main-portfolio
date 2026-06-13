@@ -1816,10 +1816,12 @@ const _mapTabStopCodes = new Set();
 
 // HTML divIcon marker — taps fire reliably on iOS, unlike SVG circleMarkers
 // (Leaflet 1.7+ dropped its tap handler, so vector layers miss touch clicks).
-function _stopPinIcon() {
+function _stopPinIcon(label) {
   return L.divIcon({
     className: "stop-pin",
-    html: "<span></span>",
+    // Use a <button> so iOS Safari fires touch events without requiring
+    // cursor:pointer hacks — buttons are always interactive on all platforms.
+    html: `<button class="stop-pin-btn" aria-label="${esc(label || "")}"></button>`,
     iconSize: [22, 22],
     iconAnchor: [11, 11],
   });
@@ -1858,19 +1860,26 @@ function initMapView() {
 }
 
 function _loadMapTabStops(lat, lng) {
-  api(`/api/stops/nearby?lat=${lat}&lng=${lng}&limit=40`).then((d) => {
+  api(`/api/stops/nearby?lat=${lat}&lng=${lng}&limit=20`).then((d) => {
     if (!_mapTabMap) return;
     d.results?.forEach((s) => {
       if (!s.latitude) return;
       if (_mapTabStopCodes.has(s.bus_stop_code)) return;   // avoid duplicates
       _mapTabStopCodes.add(s.bus_stop_code);
-      L.marker([s.latitude, s.longitude], {
-        icon: _stopPinIcon(),
-        title: s.description || s.bus_stop_code,
+      const handler = () => { switchView("arrivals"); loadStop(s.bus_stop_code); };
+      const label = s.description || s.bus_stop_code;
+      const marker = L.marker([s.latitude, s.longitude], {
+        icon: _stopPinIcon(label),
+        title: label,
       })
-      .bindTooltip(s.description || s.bus_stop_code, { direction: "top", offset: [0, -12] })
-      .on("click", () => { switchView("arrivals"); loadStop(s.bus_stop_code); })
       .addTo(_mapTabMap);
+      // Attach click on the <button> inside the divIcon — buttons receive touch
+      // events on iOS Safari without any workarounds, unlike plain <div> elements.
+      // stopPropagation so the map's own click (pan gesture end) doesn't also fire.
+      marker._icon?.querySelector(".stop-pin-btn")?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        handler();
+      });
     });
     // Markers added after the container was first sized can land with a stale
     // hit-test offset; nudge Leaflet to recompute pane positions.
@@ -1924,9 +1933,23 @@ function _mrtClientWaypoints(fromCode, toCode) {
 
 // Smooth a sparse point list (e.g. MRT station coords) into a curved path with
 // a Catmull-Rom spline so the line bends through the stations instead of
-// cutting straight across them. Returns the original list if too short.
+// cutting straight across them.
 function _smoothLine(points, segments = 16) {
-  if (!points || points.length < 3) return points;
+  if (!points || points.length < 2) return points;
+  // For a 2-point leg (adjacent stations), insert a midpoint offset slightly
+  // perpendicular to the segment so the spline can produce a visible arc.
+  if (points.length === 2) {
+    const [p0, p1] = points;
+    const dlat = p1[0] - p0[0], dlng = p1[1] - p0[1];
+    const len = Math.sqrt(dlat * dlat + dlng * dlng);
+    const scale = len * 0.25;
+    // Perpendicular unit vector: rotate 90° (swap, negate one)
+    const mid = [
+      (p0[0] + p1[0]) / 2 - (dlng / len) * scale,
+      (p0[1] + p1[1]) / 2 + (dlat / len) * scale,
+    ];
+    points = [p0, mid, p1];
+  }
   const out = [];
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i - 1] || points[i];
