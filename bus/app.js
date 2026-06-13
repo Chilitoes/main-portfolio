@@ -1739,7 +1739,7 @@ function renderMrtLeg(leg) {
     : leg.wait_min != null ? `Wait ~${leg.wait_min} min` : "—";
   const waitClass = leg.wait_min === 0 ? "due" : "";
   return `
-    <div class="journey-leg mrt-leg">
+    <div class="journey-leg mrt-leg" style="--leg-color:${esc(leg.line_color)}">
       <div class="leg-top">
         <span class="leg-route mrt-route" style="background:${esc(leg.line_color)};color:#fff">${esc(leg.line)}</span>
         <span class="leg-stops">${leg.stations_count} stops · ~${leg.est_ride_min} min</span>
@@ -1781,7 +1781,7 @@ function renderBusLeg(leg) {
   }
 
   return `
-    <div class="journey-leg">
+    <div class="journey-leg bus-leg">
       <div class="leg-top">
         <span class="leg-route">${esc(leg.service_no)}</span>
         <span class="leg-stops">${leg.stops_count} stops · ~${leg.est_ride_min} min</span>
