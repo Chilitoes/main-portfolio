@@ -2188,7 +2188,15 @@ function updatePlanMap(data, coords, optIdx = 0) {
         if (leg.type === "mrt") {
           const map = _planMap;
           _osmMrtTrack(leg).then(track => {
-            if (track?.length > 2 && map === _planMap) poly.setLatLngs(track);
+            if (track?.length > 2 && map === _planMap) {
+              // Pin the exact station coords at both ends so any stitch
+              // connector drawn to board_lat/alight_lat still meets the line.
+              poly.setLatLngs([
+                [leg.board_lat, leg.board_lng],
+                ...track,
+                [leg.alight_lat, leg.alight_lng],
+              ]);
+            }
           });
         }
         points.forEach((p) => bounds.push(p));
