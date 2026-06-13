@@ -2151,13 +2151,29 @@ function updatePlanMap(data, coords, optIdx = 0) {
   const option = data.options?.[safeIdx];
   if (option?.legs) {
     let _busIdx = 0;
-    const _legEnds = []; // ordered drawn-geometry of each leg, to stitch gaps
+    // Track the explicit endpoint/startpoint of each leg (from leg fields, NOT
+    // from waypoint array — DB waypoints may exclude stops missing coordinates,
+    // so the array endpoint can be a mid-route stop rather than the real alight stop).
+    const _legEdges = []; // [{start:[lat,lng], end:[lat,lng]}]
     option.legs.forEach((leg, li) => {
       const busIdx = leg.type === "bus" ? _busIdx++ : 0;
       const color = _legColor(leg, busIdx);
       const isWalk = leg.type === "walk";
       const points = _legPoints(leg);
-      if (points.length) _legEnds.push(points);
+
+      // Derive the explicit start/end from leg metadata (source of truth for stitching)
+      let edgeStart = null, edgeEnd = null;
+      if (leg.type === "bus") {
+        edgeStart = leg.board_stop?.lat  ? [leg.board_stop.lat,  leg.board_stop.lng]  : points[0] ?? null;
+        edgeEnd   = leg.alight_stop?.lat ? [leg.alight_stop.lat, leg.alight_stop.lng] : points[points.length-1] ?? null;
+      } else if (leg.type === "mrt") {
+        edgeStart = leg.board_lat  ? [leg.board_lat,  leg.board_lng]  : points[0] ?? null;
+        edgeEnd   = leg.alight_lat ? [leg.alight_lat, leg.alight_lng] : points[points.length-1] ?? null;
+      } else if (leg.type === "walk") {
+        edgeStart = leg.from_lat != null ? [leg.from_lat, leg.from_lng] : points[0] ?? null;
+        edgeEnd   = leg.to_lat   != null ? [leg.to_lat,   leg.to_lng]   : points[points.length-1] ?? null;
+      }
+      if (edgeStart && edgeEnd) _legEdges.push({ start: edgeStart, end: edgeEnd });
       // MRT: curve the line through the stations so it follows the track shape.
       const drawPoints = leg.type === "mrt" ? _smoothLine(points) : points;
       if (points.length >= 2) {
@@ -2203,12 +2219,11 @@ function updatePlanMap(data, coords, optIdx = 0) {
       }
     });
 
-    // Stitch any gap between consecutive legs: connect the last drawn point of
-    // one leg to the first of the next. Covers transfers and legs whose own
-    // geometry doesn't quite reach the next (so the route is never broken).
-    for (let i = 1; i < _legEnds.length; i++) {
-      const prev = _legEnds[i - 1], curr = _legEnds[i];
-      const a = prev[prev.length - 1], b = curr[0];
+    // Stitch any gap between consecutive legs using the explicit alight/board
+    // coordinates (not waypoint array endpoints, which may skip stops that have
+    // no lat/lng in the DB, leaving the last waypoint short of the real alight stop).
+    for (let i = 1; i < _legEdges.length; i++) {
+      const a = _legEdges[i - 1].end, b = _legEdges[i].start;
       if (a && b && (Math.abs(a[0] - b[0]) > 5e-5 || Math.abs(a[1] - b[1]) > 5e-5)) {
         L.polyline([a, b], {
           color: "#aaa", opacity: 0.7, weight: 2, dashArray: "3,6", lineCap: "round",
