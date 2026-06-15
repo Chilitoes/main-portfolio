@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.15";
+const APP_VERSION = "1.1.16";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -570,6 +570,15 @@ document.querySelectorAll(".nav-item").forEach((b) =>
   b.addEventListener("click", () => switchView(b.dataset.view)));
 
 // ── Checkpoint view ───────────────────────────────────────
+const CP_CAM_LABELS = {
+  "2702": "Woodlands Checkpoint",
+  "2701": "Woodlands Causeway (SG)",
+  "2704": "Woodlands Road Approach",
+  "4713": "Tuas Second Link",
+  "4703": "Tuas Checkpoint",
+  "4712": "Tuas Approach Road",
+};
+
 let _cpData = null;
 let _cpTab  = "woodlands";
 let _cpRefreshTmr = null;
@@ -617,7 +626,7 @@ function _renderCpPanel(key, cp) {
     camEl.innerHTML = cp.cameras.map((c) => `
       <div class="cp-camera-card">
         <img class="cp-camera-img" src="${esc(c.url + bust)}" alt="Traffic camera" loading="lazy" />
-        <div class="cp-camera-label">Camera ${esc(c.id)}${c.dist_km != null ? ` · ${c.dist_km} km` : ""}</div>
+        <div class="cp-camera-label">${esc(CP_CAM_LABELS[c.id] || `Camera ${c.id}`)}</div>
       </div>`).join("");
   } else {
     camEl.innerHTML = `<p class="empty" style="font-size:.82rem;padding:.5rem 0">No camera feeds found for this checkpoint.</p>`;
