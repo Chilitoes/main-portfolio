@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.14";
+const APP_VERSION = "1.1.15";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -609,45 +609,6 @@ function _renderCheckpoint(data) {
 function _renderCpPanel(key, cp) {
   if (!cp) return;
   const bust = `?t=${Date.now()}`;
-
-  // Congestion + crossing estimate card
-  const congEl = $(`cp-cong-${key}`);
-  if (congEl) {
-    if (cp.congestion) {
-      const cLabels = { light: "Light traffic", moderate: "Moderate traffic", heavy: "Heavy traffic" };
-      const cLabel  = cLabels[cp.congestion] || cp.congestion;
-      const speed   = cp.speed_range
-        ? `<div class="cp-cong-speed">${cp.speed_range.min}–${cp.speed_range.max} km/h on approach road</div>`
-        : "";
-      const est = cp.crossing_estimate
-        ? `<div class="cp-cong-divider"></div>
-           <div class="cp-cong-row">
-             <span class="cp-cong-label">Est. crossing time</span>
-             <span class="cp-cong-badge">
-               <span class="cp-cong-dot ${cp.congestion}"></span>${esc(cp.crossing_estimate.label)}
-             </span>
-           </div>
-           <div class="cp-cong-speed">${esc(cp.crossing_estimate.detail)}</div>`
-        : "";
-      congEl.innerHTML = `
-        <div class="cp-cong-row">
-          <span class="cp-cong-label">Approach road</span>
-          <span class="cp-cong-badge">
-            <span class="cp-cong-dot ${cp.congestion}"></span>${esc(cLabel)}
-          </span>
-        </div>
-        ${speed}
-        ${est}
-        <div class="cp-cong-note">Queue at checkpoint not included — check cameras below</div>`;
-    } else {
-      congEl.innerHTML = `
-        <div class="cp-cong-row">
-          <span class="cp-cong-label">Est. crossing time</span>
-          <span class="cp-cong-badge cp-cong-na">N/A</span>
-        </div>
-        <div class="cp-cong-note">Speed data unavailable · Judge from cameras below</div>`;
-    }
-  }
 
   // Camera images
   const camEl = $(`cp-cameras-${key}`);
