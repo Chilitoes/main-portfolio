@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://b.basemaps.cartocdn.com" />
   <link rel="preconnect" href="https://c.basemaps.cartocdn.com" />
   <link rel="preconnect" href="https://d.basemaps.cartocdn.com" />
-  <link rel="stylesheet" href="styles.css?v=1.1.21" />
+  <link rel="stylesheet" href="styles.css?v=1.1.22" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
@@ -761,8 +761,30 @@
   </div>
 </div>
 
+<!-- Route viewer sheet (global overlay) -->
+<div id="route-sheet-backdrop" class="route-sheet-backdrop hidden"></div>
+<div id="route-sheet" class="route-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="route-sheet-title">
+  <div class="route-sheet-handle"></div>
+  <div class="route-sheet-head">
+    <div class="route-sheet-info">
+      <span class="route-sheet-badge" id="route-sheet-badge"></span>
+      <div>
+        <div class="route-sheet-title" id="route-sheet-title">Bus Route</div>
+        <div class="route-sheet-sub" id="route-sheet-sub"></div>
+      </div>
+    </div>
+    <button class="route-sheet-close iconbtn" id="route-sheet-close" aria-label="Close route viewer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="route-sheet-tabs hidden" id="route-sheet-tabs"></div>
+  <div class="route-sheet-body" id="route-sheet-body">
+    <div class="route-sheet-loading">Loading route…</div>
+  </div>
+</div>
+
 <div id="toast" class="toast hidden"></div>
 
-<script src="app.js?v=1.1.21"></script>
+<script src="app.js?v=1.1.22"></script>
 </body>
 </html>

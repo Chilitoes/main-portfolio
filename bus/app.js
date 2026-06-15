@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.21";
+const APP_VERSION = "1.1.22";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -625,7 +625,7 @@ function loadCpBus() {
             return `<span class="cp-bus-pill${t === "Arr" ? " due" : ""}">${esc(t)}</span>`;
           }).join("");
           return `<div class="cp-bus-row">
-            <span class="cp-bus-badge">${esc(s.service_no)}</span>
+            <button class="cp-bus-badge" data-service="${esc(s.service_no)}">${esc(s.service_no)}</button>
             <div class="cp-bus-times">${pills || "<span class=\"cp-bus-empty\">No data</span>"}</div>
           </div>`;
         }).join("");
@@ -731,6 +731,110 @@ document.querySelectorAll(".cp-tab").forEach((btn) => {
 });
 
 $("cp-refresh-btn").addEventListener("click", () => { _cpData = null; loadCheckpoint(true); loadCpBus(); });
+
+// ── Bus route viewer ──────────────────────────────────────
+function closeRouteSheet() {
+  const sheet = $("route-sheet");
+  sheet.classList.remove("open");
+  setTimeout(() => { hide(sheet); hide($("route-sheet-backdrop")); }, 280);
+}
+
+async function loadBusRoute(serviceNo) {
+  if (!serviceNo) return;
+  switchView("arrivals");
+  const sheet    = $("route-sheet");
+  const backdrop = $("route-sheet-backdrop");
+  const bodyEl   = $("route-sheet-body");
+  const tabsEl   = $("route-sheet-tabs");
+  $("route-sheet-badge").textContent = serviceNo;
+  $("route-sheet-title").textContent = `Bus ${serviceNo}`;
+  $("route-sheet-sub").textContent   = "";
+  bodyEl.innerHTML = `<div class="route-sheet-loading">Loading route…</div>`;
+  tabsEl.innerHTML = "";
+  tabsEl.classList.add("hidden");
+  // Remove any previous direction tab listener clone
+  const freshTabs = tabsEl.cloneNode(false);
+  tabsEl.replaceWith(freshTabs);
+  const newTabsEl = $("route-sheet-tabs");
+  show(backdrop); show(sheet);
+  requestAnimationFrame(() => sheet.classList.add("open"));
+
+  function renderDir(stops) {
+    if (!stops.length) { bodyEl.innerHTML = `<p class="route-sheet-empty">No stops found.</p>`; return; }
+    bodyEl.innerHTML = stops.map((stop, i) => `
+      <div class="route-stop-row">
+        <div class="route-stop-line">
+          <div class="route-stop-dot${i === 0 ? " first" : i === stops.length - 1 ? " last" : ""}"></div>
+          ${i < stops.length - 1 ? `<div class="route-stop-seg"></div>` : ""}
+        </div>
+        <button class="route-stop-btn" data-code="${esc(stop.code)}">
+          <span class="route-stop-name">${esc(stop.name || stop.code)}</span>
+          <span class="route-stop-code">${esc(stop.code)}</span>
+        </button>
+      </div>`).join("");
+  }
+
+  try {
+    const data = await api(`/api/routes/${encodeURIComponent(serviceNo)}`);
+    const { directions } = data;
+    if (!directions.length) {
+      bodyEl.innerHTML = `<p class="route-sheet-empty">No route data for Bus ${esc(serviceNo)}. Route data may not be synced on the server yet.</p>`;
+      return;
+    }
+    const allStops = directions[0].stops;
+    if (allStops.length >= 2) {
+      const first = allStops[0].name || allStops[0].code;
+      const last  = allStops[allStops.length - 1].name || allStops[allStops.length - 1].code;
+      $("route-sheet-sub").textContent = `${allStops.length} stops · ${first} → ${last}`;
+    }
+    if (directions.length > 1) {
+      newTabsEl.classList.remove("hidden");
+      let activeIdx = 0;
+      function setTab(idx) {
+        activeIdx = idx;
+        newTabsEl.querySelectorAll(".route-dir-tab").forEach((b, i) =>
+          b.classList.toggle("active", i === idx));
+        const stops = directions[idx].stops;
+        renderDir(stops);
+        if (stops.length >= 2) {
+          const first = stops[0].name || stops[0].code;
+          const last  = stops[stops.length - 1].name || stops[stops.length - 1].code;
+          $("route-sheet-sub").textContent = `${stops.length} stops · ${first} → ${last}`;
+        }
+      }
+      newTabsEl.innerHTML = directions.map((d, i) => {
+        const dest = d.stops[d.stops.length - 1]?.name || `Dir ${d.direction}`;
+        return `<button class="route-dir-tab${i === 0 ? " active" : ""}" data-idx="${i}">To ${esc(dest)}</button>`;
+      }).join("");
+      newTabsEl.addEventListener("click", (e) => {
+        const btn = e.target.closest(".route-dir-tab");
+        if (btn) setTab(parseInt(btn.dataset.idx));
+      });
+      renderDir(directions[0].stops);
+    } else {
+      renderDir(directions[0].stops);
+    }
+  } catch (e) {
+    bodyEl.innerHTML = `<p class="route-sheet-empty">Route not available: ${esc(e.message)}</p>`;
+  }
+}
+
+$("route-sheet-close").addEventListener("click", closeRouteSheet);
+$("route-sheet-backdrop").addEventListener("click", closeRouteSheet);
+$("route-sheet-body").addEventListener("click", (e) => {
+  const btn = e.target.closest(".route-stop-btn");
+  if (btn) { closeRouteSheet(); loadStop(btn.dataset.code); }
+});
+
+// Checkpoint bus badges delegate (badges are rendered dynamically)
+document.getElementById("cp-panel-woodlands").addEventListener("click", (e) => {
+  const badge = e.target.closest(".cp-bus-badge[data-service]");
+  if (badge) loadBusRoute(badge.dataset.service);
+});
+document.getElementById("cp-panel-tuas").addEventListener("click", (e) => {
+  const badge = e.target.closest(".cp-bus-badge[data-service]");
+  if (badge) loadBusRoute(badge.dataset.service);
+});
 
 document.querySelectorAll(".cp-bus-stop-btn").forEach((btn) => {
   btn.addEventListener("click", (e) => {
@@ -909,6 +1013,13 @@ function renderArrivals(data) {
 }
 
 $("rows").addEventListener("click", (e) => {
+  // Clicking the route badge opens the route viewer instead of toggling expand
+  const badge = e.target.closest(".route-badge");
+  if (badge) {
+    const svc = badge.closest(".svc");
+    if (svc) loadBusRoute(svc.dataset.svc);
+    return;
+  }
   const head = e.target.closest(".svc-head");
   if (head) head.closest(".svc").classList.toggle("open");
 });
