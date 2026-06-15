@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.19";
+const APP_VERSION = "1.1.20";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -582,7 +582,7 @@ const CP_CAM_LABELS = {
 // Bus timing config for Woodlands checkpoint
 // services: only cross-border routes that go to Woodlands Causeway
 const CP_BUS_STOPS = [
-  { id: "kranji",    label: "From Kranji",        stop: "45139", services: ["160", "170", "961"] },
+  { id: "kranji",    label: "From Kranji",        stop: "45139", services: ["160", "170"] },
   { id: "marsiling", label: "From Marsiling",     stop: "47009", services: ["950", "950A"] },
   { id: "wdlint",    label: "From Woodlands Int", stop: "46211", services: ["950", "950A", "170X"] },
 ];
