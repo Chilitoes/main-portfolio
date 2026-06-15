@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://b.basemaps.cartocdn.com" />
   <link rel="preconnect" href="https://c.basemaps.cartocdn.com" />
   <link rel="preconnect" href="https://d.basemaps.cartocdn.com" />
-  <link rel="stylesheet" href="styles.css?v=1.1.16" />
+  <link rel="stylesheet" href="styles.css?v=1.1.17" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer></script>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
@@ -378,6 +378,31 @@
     <div id="cp-panel-woodlands" class="cp-panel">
       <div class="cp-section-hd cp-cam-hd">Live cameras <span class="cp-cam-note">~90 s refresh by LTA</span></div>
       <div id="cp-cameras-woodlands" class="cp-cameras"></div>
+      <div class="cp-section-hd" style="margin-top:1.1rem">Bus to checkpoint</div>
+      <details class="cp-bus-acc" id="cp-bus-acc-kranji">
+        <summary class="cp-bus-sum">
+          <span class="cp-bus-origin">From Kranji</span>
+          <span class="cp-bus-preview" id="cp-bus-pre-kranji"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-kranji"></div>
+      </details>
+      <details class="cp-bus-acc" id="cp-bus-acc-marsiling">
+        <summary class="cp-bus-sum">
+          <span class="cp-bus-origin">From Marsiling</span>
+          <span class="cp-bus-preview" id="cp-bus-pre-marsiling"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-marsiling"></div>
+      </details>
+      <details class="cp-bus-acc" id="cp-bus-acc-wdlint">
+        <summary class="cp-bus-sum">
+          <span class="cp-bus-origin">From Woodlands Int</span>
+          <span class="cp-bus-preview" id="cp-bus-pre-wdlint"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-wdlint"></div>
+      </details>
     </div>
 
     <div id="cp-panel-tuas" class="cp-panel hidden">
@@ -545,7 +570,7 @@
         <div class="stg-card">
           <div class="stg-row">
             <span class="stg-row-label">Version</span>
-            <span class="stg-row-val" id="stg-version-val">1.1.16</span>
+            <span class="stg-row-val" id="stg-version-val">1.1.17</span>
           </div>
           <div class="stg-row stg-row-sep">
             <span class="stg-row-label">Data</span>
@@ -728,6 +753,6 @@
 
 <div id="toast" class="toast hidden"></div>
 
-<script src="app.js?v=1.1.16"></script>
+<script src="app.js?v=1.1.17"></script>
 </body>
 </html>

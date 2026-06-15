@@ -1608,6 +1608,52 @@ th.num, td.num { text-align: right; }
   font-size: .72rem; color: var(--ink-3);
   padding: .3rem .65rem .4rem;
 }
+/* Bus timing accordions */
+.cp-bus-acc {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); margin-bottom: .45rem;
+  overflow: hidden;
+}
+.cp-bus-acc summary { list-style: none; }
+.cp-bus-acc summary::-webkit-details-marker { display: none; }
+.cp-bus-sum {
+  display: flex; align-items: center; gap: .5rem;
+  padding: .75rem 1rem; cursor: pointer; user-select: none;
+}
+.cp-bus-sum:active { background: var(--surface-2); }
+.cp-bus-origin { font-size: .9rem; font-weight: 600; flex: 1; }
+.cp-bus-preview {
+  font-size: .8rem; color: var(--ink-2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%;
+}
+.cp-bus-chev {
+  flex-shrink: 0; color: var(--ink-3);
+  transition: transform .2s;
+}
+.cp-bus-acc[open] .cp-bus-chev { transform: rotate(180deg); }
+.cp-bus-body {
+  padding: .1rem .85rem .85rem;
+  display: flex; flex-direction: column; gap: .55rem;
+}
+.cp-bus-row {
+  display: flex; align-items: center; gap: .75rem;
+}
+.cp-bus-badge {
+  min-width: 44px; height: 34px; border-radius: 8px;
+  background: var(--ink); color: var(--bg);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: .95rem; font-weight: 700; padding: 0 .4rem; flex-shrink: 0;
+}
+.cp-bus-times {
+  display: flex; gap: .35rem; flex-wrap: wrap;
+}
+.cp-bus-pill {
+  font-size: .78rem; font-weight: 600; color: var(--ink);
+  background: var(--surface-2); border-radius: 6px;
+  padding: .18rem .5rem;
+}
+.cp-bus-pill.due { color: var(--good); }
+.cp-bus-empty { font-size: .8rem; color: var(--ink-3); padding: .2rem 0 .3rem; }
 .cp-note {
   font-size: .72rem; color: var(--ink-3);
   padding: .5rem 1rem 1.5rem;

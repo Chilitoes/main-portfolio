@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.16";
+const APP_VERSION = "1.1.17";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -579,9 +579,62 @@ const CP_CAM_LABELS = {
   "4712": "Tuas Approach Road",
 };
 
+// Bus timing config for Woodlands checkpoint — update stop codes if needed
+const CP_BUS_STOPS = [
+  { id: "kranji",    label: "From Kranji",        stop: "44009", services: ["170", "170A", "170X"] },
+  { id: "marsiling", label: "From Marsiling",     stop: "47009", services: ["950", "950A"] },
+  { id: "wdlint",    label: "From Woodlands Int", stop: "46211", services: ["950", "950A", "170X"] },
+];
+
 let _cpData = null;
 let _cpTab  = "woodlands";
 let _cpRefreshTmr = null;
+
+function _waitText(bus) {
+  const min = parseInt(bus.api_wait_min, 10);
+  if (isNaN(min)) return bus.api_wait_min || "–";
+  if (min <= 1) return "Arr";
+  return `${min} min`;
+}
+
+function loadCpBus() {
+  for (const cfg of CP_BUS_STOPS) {
+    const preEl  = $(`cp-bus-pre-${cfg.id}`);
+    const bodyEl = $(`cp-bus-body-${cfg.id}`);
+    if (!preEl || !bodyEl) continue;
+    preEl.textContent = "Loading…";
+    bodyEl.innerHTML  = "";
+    api(`/api/arrivals/${cfg.stop}`)
+      .then((data) => {
+        const svcs = (data.services || []).filter(s => cfg.services.includes(s.service_no));
+        if (!svcs.length) {
+          preEl.textContent = "No service";
+          bodyEl.innerHTML  = `<p class="cp-bus-empty">No cross-checkpoint buses at this stop right now.</p>`;
+          return;
+        }
+        // Preview: first service + first arrival
+        const firstBus = svcs[0].buses?.[0];
+        preEl.textContent = firstBus
+          ? `${svcs[0].service_no} · ${_waitText(firstBus)}`
+          : svcs[0].service_no;
+        // Body: one row per service
+        bodyEl.innerHTML = svcs.map((s) => {
+          const pills = (s.buses || []).slice(0, 3).map((b) => {
+            const t = _waitText(b);
+            return `<span class="cp-bus-pill${t === "Arr" ? " due" : ""}">${esc(t)}</span>`;
+          }).join("");
+          return `<div class="cp-bus-row">
+            <span class="cp-bus-badge">${esc(s.service_no)}</span>
+            <div class="cp-bus-times">${pills || "<span class=\"cp-bus-empty\">No data</span>"}</div>
+          </div>`;
+        }).join("");
+      })
+      .catch(() => {
+        preEl.textContent = "–";
+        bodyEl.innerHTML  = `<p class="cp-bus-empty">Could not load timings.</p>`;
+      });
+  }
+}
 
 function loadCheckpoint(force = false) {
   if (_cpData && !force) { _renderCheckpoint(_cpData); return; }
@@ -591,6 +644,7 @@ function loadCheckpoint(force = false) {
       _cpData = data;
       hide($("cp-loading"));
       _renderCheckpoint(data);
+      loadCpBus();
       clearTimeout(_cpRefreshTmr);
       _cpRefreshTmr = setTimeout(() => {
         _cpData = null;
@@ -642,7 +696,7 @@ document.querySelectorAll(".cp-tab").forEach((btn) => {
   });
 });
 
-$("cp-refresh-btn").addEventListener("click", () => { _cpData = null; loadCheckpoint(true); });
+$("cp-refresh-btn").addEventListener("click", () => { _cpData = null; loadCheckpoint(true); loadCpBus(); });
 
 // ── Search + autocomplete ─────────────────────────────────
 const input = $("stop-input");
