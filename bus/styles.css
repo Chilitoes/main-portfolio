@@ -1591,6 +1591,10 @@ th.num, td.num { text-align: right; }
 .cp-cong-note {
   font-size: .72rem; color: var(--ink-3); margin-top: .3rem;
 }
+.cp-cong-divider {
+  border: none; border-top: 1px solid var(--border); margin: .55rem 0;
+}
+.cp-cong-na { color: var(--ink-3); font-weight: 400; }
 .cp-cameras { display: flex; flex-direction: column; gap: .75rem; }
 .cp-camera-card {
   border-radius: 10px; overflow: hidden;
@@ -1599,6 +1603,10 @@ th.num, td.num { text-align: right; }
 .cp-camera-img {
   width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover;
   background: var(--surface-2);
+}
+.cp-camera-label {
+  font-size: .72rem; color: var(--ink-3);
+  padding: .3rem .65rem .4rem;
 }
 .cp-note {
   font-size: .72rem; color: var(--ink-3);

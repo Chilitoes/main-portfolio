@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.13";
+const APP_VERSION = "1.1.14";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -600,7 +600,7 @@ function _renderCheckpoint(data) {
   if (data.fetched_at) {
     const t = new Date(data.fetched_at + "Z");
     $("cp-updated").textContent =
-      `Updated ${fmtClock(t)} · LTA DataMall`;
+      `Updated ${fmtClock(t)} · data.gov.sg`;
   }
   _renderCpPanel("woodlands", data.woodlands);
   _renderCpPanel("tuas",      data.tuas);
@@ -610,26 +610,42 @@ function _renderCpPanel(key, cp) {
   if (!cp) return;
   const bust = `?t=${Date.now()}`;
 
-  // Congestion card
+  // Congestion + crossing estimate card
   const congEl = $(`cp-cong-${key}`);
   if (congEl) {
     if (cp.congestion) {
-      const labels = { light: "Light traffic", moderate: "Moderate traffic", heavy: "Heavy traffic" };
-      const label  = labels[cp.congestion] || cp.congestion;
-      const speed  = cp.speed_range
-        ? `<div class="cp-cong-speed">Road speed: ${cp.speed_range.min}–${cp.speed_range.max} km/h on approach road</div>`
+      const cLabels = { light: "Light traffic", moderate: "Moderate traffic", heavy: "Heavy traffic" };
+      const cLabel  = cLabels[cp.congestion] || cp.congestion;
+      const speed   = cp.speed_range
+        ? `<div class="cp-cong-speed">${cp.speed_range.min}–${cp.speed_range.max} km/h on approach road</div>`
+        : "";
+      const est = cp.crossing_estimate
+        ? `<div class="cp-cong-divider"></div>
+           <div class="cp-cong-row">
+             <span class="cp-cong-label">Est. crossing time</span>
+             <span class="cp-cong-badge">
+               <span class="cp-cong-dot ${cp.congestion}"></span>${esc(cp.crossing_estimate.label)}
+             </span>
+           </div>
+           <div class="cp-cong-speed">${esc(cp.crossing_estimate.detail)}</div>`
         : "";
       congEl.innerHTML = `
         <div class="cp-cong-row">
           <span class="cp-cong-label">Approach road</span>
           <span class="cp-cong-badge">
-            <span class="cp-cong-dot ${cp.congestion}"></span>${esc(label)}
+            <span class="cp-cong-dot ${cp.congestion}"></span>${esc(cLabel)}
           </span>
         </div>
         ${speed}
+        ${est}
         <div class="cp-cong-note">Queue at checkpoint not included — check cameras below</div>`;
     } else {
-      congEl.innerHTML = `<div class="cp-cong-note" style="padding:.1rem 0">Traffic speed data unavailable · Use cameras to assess queue</div>`;
+      congEl.innerHTML = `
+        <div class="cp-cong-row">
+          <span class="cp-cong-label">Est. crossing time</span>
+          <span class="cp-cong-badge cp-cong-na">N/A</span>
+        </div>
+        <div class="cp-cong-note">Speed data unavailable · Judge from cameras below</div>`;
     }
   }
 
@@ -640,6 +656,7 @@ function _renderCpPanel(key, cp) {
     camEl.innerHTML = cp.cameras.map((c) => `
       <div class="cp-camera-card">
         <img class="cp-camera-img" src="${esc(c.url + bust)}" alt="Traffic camera" loading="lazy" />
+        <div class="cp-camera-label">Camera ${esc(c.id)}${c.dist_km != null ? ` · ${c.dist_km} km` : ""}</div>
       </div>`).join("");
   } else {
     camEl.innerHTML = `<p class="empty" style="font-size:.82rem;padding:.5rem 0">No camera feeds found for this checkpoint.</p>`;
