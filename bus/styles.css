@@ -1608,6 +1608,35 @@ th.num, td.num { text-align: right; }
   font-size: .72rem; color: var(--ink-3);
   padding: .3rem .65rem .4rem;
 }
+/* Carpark card */
+.cp-carpark-card {
+  background: var(--surface); border-radius: var(--radius);
+  box-shadow: var(--shadow-sm); padding: .75rem 1rem; margin-bottom: .65rem;
+}
+.cp-cp-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.cp-cp-name { font-size: .88rem; font-weight: 600; }
+.cp-cp-note {
+  font-size: .72rem; font-weight: 400; color: var(--ink-2);
+  background: var(--surface-2); border-radius: 4px; padding: .05rem .35rem;
+  margin-left: .3rem;
+}
+.cp-cp-time { font-size: .72rem; color: var(--ink-3); margin-top: .15rem; }
+.cp-cp-lots { display: flex; align-items: baseline; gap: .15rem; flex-shrink: 0; }
+.cp-cp-avail { font-size: 1.35rem; font-weight: 700; }
+.cp-cp-avail.good { color: var(--good); }
+.cp-cp-avail.warn { color: var(--warn); }
+.cp-cp-avail.bad  { color: var(--bad); }
+.cp-cp-sep { font-size: .8rem; color: var(--ink-3); }
+.cp-cp-bar-track {
+  height: 4px; border-radius: 2px; background: var(--surface-2); margin-top: .55rem;
+}
+.cp-cp-bar-fill {
+  height: 100%; border-radius: 2px; transition: width .4s;
+}
+.cp-cp-bar-fill.good { background: var(--good); }
+.cp-cp-bar-fill.warn { background: var(--warn); }
+.cp-cp-bar-fill.bad  { background: var(--bad); }
+
 /* Bus timing accordions */
 .cp-bus-acc {
   background: var(--surface); border-radius: var(--radius);
@@ -1621,7 +1650,12 @@ th.num, td.num { text-align: right; }
   padding: .75rem 1rem; cursor: pointer; user-select: none;
 }
 .cp-bus-sum:active { background: var(--surface-2); }
-.cp-bus-origin { font-size: .9rem; font-weight: 600; flex: 1; }
+.cp-bus-sum-left { display: flex; align-items: center; gap: .5rem; flex: 1; min-width: 0; }
+.cp-bus-origin { font-size: .9rem; font-weight: 600; }
+.cp-bus-stop-btn {
+  font-size: .7rem; color: var(--accent); background: none; border: none;
+  padding: .1rem .2rem; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+}
 .cp-bus-preview {
   font-size: .8rem; color: var(--ink-2);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 45%;

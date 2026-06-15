@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.18";
+const APP_VERSION = "1.1.19";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -579,9 +579,10 @@ const CP_CAM_LABELS = {
   "4712": "Tuas Approach Road",
 };
 
-// Bus timing config for Woodlands checkpoint — update stop codes if needed
+// Bus timing config for Woodlands checkpoint
+// services: only cross-border routes that go to Woodlands Causeway
 const CP_BUS_STOPS = [
-  { id: "kranji",    label: "From Kranji",        stop: "44231", services: ["170", "170A", "170X", "856E"] },
+  { id: "kranji",    label: "From Kranji",        stop: "45139", services: ["160", "170", "961"] },
   { id: "marsiling", label: "From Marsiling",     stop: "47009", services: ["950", "950A"] },
   { id: "wdlint",    label: "From Woodlands Int", stop: "46211", services: ["950", "950A", "170X"] },
 ];
@@ -662,11 +663,35 @@ function loadCheckpoint(force = false) {
 function _renderCheckpoint(data) {
   if (data.fetched_at) {
     const t = new Date(data.fetched_at + "Z");
-    $("cp-updated").textContent =
-      `Updated ${fmtClock(t)} · data.gov.sg`;
+    $("cp-updated").textContent = `Updated ${fmtClock(t)} · data.gov.sg`;
   }
+  _renderCarpark(data.carpark);
   _renderCpPanel("woodlands", data.woodlands);
   _renderCpPanel("tuas",      data.tuas);
+}
+
+function _renderCarpark(cp) {
+  const el = $("cp-carpark");
+  if (!el) return;
+  if (!cp) { hide(el); return; }
+  const pct    = cp.total > 0 ? Math.round((cp.available / cp.total) * 100) : 0;
+  const status = pct > 50 ? "good" : pct > 20 ? "warn" : "bad";
+  const t      = cp.updated_at ? fmtClock(new Date(cp.updated_at.replace(" ", "T"))) : "";
+  el.innerHTML = `
+    <div class="cp-cp-row">
+      <div class="cp-cp-info">
+        <div class="cp-cp-name">Blk 29A Marsiling MSCP <span class="cp-cp-note">Park &amp; Ride</span></div>
+        ${t ? `<div class="cp-cp-time">Updated ${esc(t)}</div>` : ""}
+      </div>
+      <div class="cp-cp-lots">
+        <span class="cp-cp-avail ${status}">${cp.available}</span>
+        <span class="cp-cp-sep">/ ${cp.total}</span>
+      </div>
+    </div>
+    <div class="cp-cp-bar-track">
+      <div class="cp-cp-bar-fill ${status}" style="width:${pct}%"></div>
+    </div>`;
+  show(el);
 }
 
 function _renderCpPanel(key, cp) {
@@ -697,6 +722,13 @@ document.querySelectorAll(".cp-tab").forEach((btn) => {
 });
 
 $("cp-refresh-btn").addEventListener("click", () => { _cpData = null; loadCheckpoint(true); loadCpBus(); });
+
+document.querySelectorAll(".cp-bus-stop-btn").forEach((btn) => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation(); // don't toggle the <details>
+    loadStop(btn.dataset.stop);
+  });
+});
 
 // ── Search + autocomplete ─────────────────────────────────
 const input = $("stop-input");
