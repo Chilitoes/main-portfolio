@@ -24,7 +24,7 @@ const USER_KEY   = "sgbus_user";
 //   PATCH  → bug fixes & small tweaks (bumped on most pushes)
 // Bump this on every push and keep the <span id="stg-version-val"> in
 // index.html in sync.
-const APP_VERSION = "1.1.20";
+const APP_VERSION = "1.1.21";
 
 const POPULAR = [
   { code: "83139", description: "Bedok Int" },
@@ -675,22 +675,31 @@ function _renderCarpark(cp) {
   if (!el) return;
   if (!cp) { hide(el); return; }
   const pct    = cp.total > 0 ? Math.round((cp.available / cp.total) * 100) : 0;
-  const status = pct > 50 ? "good" : pct > 20 ? "warn" : "bad";
+  // green = lots free (>25%), orange = getting full (10-25%), red = almost full (<10%)
+  const status = pct > 25 ? "good" : pct > 10 ? "warn" : "bad";
   const t      = cp.updated_at ? fmtClock(new Date(cp.updated_at.replace(" ", "T"))) : "";
   el.innerHTML = `
     <div class="cp-cp-row">
       <div class="cp-cp-info">
-        <div class="cp-cp-name">Blk 29A Marsiling MSCP <span class="cp-cp-note">Park &amp; Ride</span></div>
-        ${t ? `<div class="cp-cp-time">Updated ${esc(t)}</div>` : ""}
+        <div class="cp-cp-name">Blk 29A Marsiling MSCP</div>
+        <div class="cp-cp-time">Drive here · take bus to checkpoint${t ? ` · Updated ${esc(t)}` : ""}</div>
       </div>
-      <div class="cp-cp-lots">
-        <span class="cp-cp-avail ${status}">${cp.available}</span>
-        <span class="cp-cp-sep">/ ${cp.total}</span>
+      <div class="cp-cp-right">
+        <div class="cp-cp-lots">
+          <span class="cp-cp-avail ${status}">${cp.available}</span>
+          <span class="cp-cp-sep">/ ${cp.total}</span>
+        </div>
+        <button class="cp-cp-refresh iconbtn" aria-label="Refresh carpark">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </button>
       </div>
     </div>
     <div class="cp-cp-bar-track">
       <div class="cp-cp-bar-fill ${status}" style="width:${pct}%"></div>
     </div>`;
+  el.querySelector(".cp-cp-refresh").addEventListener("click", () => {
+    _cpData = null; loadCheckpoint(true);
+  });
   show(el);
 }
 

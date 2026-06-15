@@ -1615,14 +1615,11 @@ th.num, td.num { text-align: right; }
 }
 .cp-cp-row { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 .cp-cp-name { font-size: .88rem; font-weight: 600; }
-.cp-cp-note {
-  font-size: .72rem; font-weight: 400; color: var(--ink-2);
-  background: var(--surface-2); border-radius: 4px; padding: .05rem .35rem;
-  margin-left: .3rem;
-}
 .cp-cp-time { font-size: .72rem; color: var(--ink-3); margin-top: .15rem; }
-.cp-cp-lots { display: flex; align-items: baseline; gap: .15rem; flex-shrink: 0; }
+.cp-cp-right { display: flex; align-items: center; gap: .4rem; flex-shrink: 0; }
+.cp-cp-lots { display: flex; align-items: baseline; gap: .15rem; }
 .cp-cp-avail { font-size: 1.35rem; font-weight: 700; }
+.cp-cp-refresh { color: var(--ink-3); }
 .cp-cp-avail.good { color: var(--good); }
 .cp-cp-avail.warn { color: var(--warn); }
 .cp-cp-avail.bad  { color: var(--bad); }
