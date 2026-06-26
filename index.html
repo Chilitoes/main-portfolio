@@ -4,6 +4,15 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
+  <!-- ── Content Security Policy ─────────────────────────────────
+       Restricts where scripts/styles/fonts/connections may come from.
+       'unsafe-inline' is kept for scripts because two inline blocks below
+       (the intro-skip check and TWEAK_DEFAULTS, which the edit host rewrites
+       on disk) can't carry a stable hash; the CDN React bundles are pinned
+       with Subresource Integrity instead. frame-ancestors is intentionally
+       omitted so the edit-mode host can still load the site in an iframe. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' https://formspree.io https://cloudflareinsights.com https://static.cloudflareinsights.com; form-action 'self' https://formspree.io; base-uri 'self'; object-src 'none'" />
+
   <!-- ── Primary SEO ────────────────────────────────────────── -->
   <title>Alston Shi — Travel &amp; Editorial Photographer | Singapore</title>
   <meta name="description" content="Alston Shi is a Singapore-based travel and editorial photographer documenting people and places across Asia since 2020. Browse the archive of work from Japan, China, Taiwan, and beyond." />
@@ -27,9 +36,10 @@
   <meta property="og:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
   <meta property="og:description" content="Singapore-based travel and editorial photographer documenting people and places across Asia since 2020. Browse work from Japan, China, Taiwan, and beyond." />
   <meta property="og:url" content="https://alstonshi.com/" />
-  <meta property="og:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
-  <meta property="og:image:width" content="1920" />
-  <meta property="og:image:height" content="1280" />
+  <meta property="og:image" content="https://alstonshi.com/images/og/og-cover.jpg" />
+  <meta property="og:image:type" content="image/jpeg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="Editorial travel photograph by Alston Shi" />
   <meta property="og:locale" content="en_SG" />
 
@@ -39,7 +49,7 @@
   <meta name="twitter:creator" content="@alstonsjpeg" />
   <meta name="twitter:title" content="Alston Shi — Travel &amp; Editorial Photographer" />
   <meta name="twitter:description" content="Singapore-based travel and editorial photographer documenting Asia since 2020." />
-  <meta name="twitter:image" content="https://alstonshi.com/images/Japan/IMG_2564.JPG" />
+  <meta name="twitter:image" content="https://alstonshi.com/images/og/og-cover.jpg" />
 
   <!-- ── Structured data: Person + ProfessionalService ──────── -->
   <script type="application/ld+json">
@@ -113,7 +123,11 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Libre+Caslon+Text:ital,wght@0,400;1,400&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500;600&family=Work+Sans:wght@300;400;500&family=Nunito+Sans:wght@300;400;600&family=Lora:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <!-- Production visitors only ever see the three default families (serif /
+       sans / mono). Shipping just these keeps the render-blocking font request
+       small. The full set the Tweaks panel can switch between is loaded lazily
+       only when edit mode activates (see tweaks-panel.jsx). -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="carousel.css" />
@@ -122,8 +136,10 @@
   <!-- React production builds (smaller, faster, no dev warnings).
        Babel-standalone removed; JSX is precompiled to /dist by `npm run build`
        and shipped as plain JS. ──────────────────────────────────────────────── -->
-  <script defer crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
-  <script defer crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script defer crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"
+          integrity="sha384-DGyLxAyjq0f9SPpVevD6IgztCFlnMF6oW/XQGmfe+IsZ8TqEiDrcHkMLKI6fiB/Z"></script>
+  <script defer crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"
+          integrity="sha384-gTGxhz21lVGYNMcdJOyq01Edg0jhn/c22nsx0kyqP0TxaV5WVdsSH1fSDUf5YJj1"></script>
 </head>
 <body class="theme-dark">
   <!-- Grain overlay: SVG turbulence filter, fixed to viewport -->

@@ -151,6 +151,29 @@ function useTweaks(defaults) {
 // The close button posts __edit_mode_dismissed so the host's toolbar toggle
 // flips off in lockstep; the host echoes __deactivate_edit_mode back which
 // is what actually hides the panel.
+// The index.html font request only ships the three production default
+// families. The Tweaks panel can switch headlines/body/labels to several
+// more; load that fuller set on demand the first time edit mode activates so
+// regular visitors never pay for fonts they'll never see.
+let __editFontsLoaded = false;
+function ensureEditFonts() {
+  if (__editFontsLoaded) return;
+  __editFontsLoaded = true;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = 'https://fonts.googleapis.com/css2?'
+    + 'family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500'
+    + '&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500'
+    + '&family=Libre+Caslon+Text:ital,wght@0,400;1,400'
+    + '&family=Crimson+Pro:ital,wght@0,300;0,400;0,500;1,300;1,400'
+    + '&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400;1,9..144,500'
+    + '&family=Work+Sans:wght@300;400;500'
+    + '&family=Nunito+Sans:wght@300;400;600'
+    + '&family=Lora:ital,wght@0,400;0,500;1,400'
+    + '&display=swap';
+  document.head.appendChild(link);
+}
+
 function TweaksPanel({ title = 'Tweaks', children }) {
   const [open, setOpen] = React.useState(false);
   const dragRef = React.useRef(null);
@@ -186,7 +209,7 @@ function TweaksPanel({ title = 'Tweaks', children }) {
   React.useEffect(() => {
     const onMsg = (e) => {
       const t = e?.data?.type;
-      if (t === '__activate_edit_mode') setOpen(true);
+      if (t === '__activate_edit_mode') { ensureEditFonts(); setOpen(true); }
       else if (t === '__deactivate_edit_mode') setOpen(false);
     };
     window.addEventListener('message', onMsg);

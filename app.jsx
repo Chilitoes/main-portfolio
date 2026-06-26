@@ -68,6 +68,11 @@ function App() {
         </div>
       )}
 
+      {/* Top-edge loading bar — fills while a route is in flight, sitting above
+          the curtain so there's a clear "loading" cue on slower devices where
+          the swap + heavy-page mount takes a perceptible beat. */}
+      {leaving && <div className="route-progress" aria-hidden="true" />}
+
       <window.Lightbox
         items={window.PORTFOLIO}
         index={lbIndex}

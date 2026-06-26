@@ -1407,6 +1407,17 @@ picture { display: contents; }
   align-items: start;
 }
 .contact-form { display: flex; flex-direction: column; gap: 36px; }
+/* Two fields sharing a row (Timeline + Budget); collapses to one column on
+   narrow screens. The row itself supplies the 36px gap the form column would
+   otherwise give each field. */
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+}
+@media (max-width: 600px) {
+  .field-row { grid-template-columns: 1fr; }
+}
 .field {
   position: relative;
   padding-bottom: 12px;
@@ -1573,12 +1584,24 @@ picture { display: contents; }
   margin-top: 40px;
 }
 .about-strip-item {
+  /* Rendered as a <button> for keyboard + screen-reader access; strip the
+     native chrome so it stays a flush image tile. */
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  background-color: transparent;
   background-size: cover;
   background-position: center;
-  cursor: auto;
+  cursor: pointer;
   transition: transform 0.7s var(--ease-soft), filter 0.5s var(--ease-soft);
 }
-.about-strip-item:hover { cursor: pointer; transform: scale(1.03); filter: brightness(1.08); }
+.about-strip-item:hover { transform: scale(1.03); filter: brightness(1.08); }
+.about-strip-item:focus-visible {
+  outline: 2px solid var(--ochre);
+  outline-offset: 3px;
+}
 @media (max-width: 900px) {
   .about-strip { grid-template-columns: repeat(3, 1fr); height: 360px; }
 }
@@ -1918,6 +1941,30 @@ picture { display: contents; }
 }
 @media (prefers-reduced-motion: reduce) {
   .route-curtain { display: none !important; }
+}
+
+/* Top-edge route loading bar (rendered only while navigating). */
+.route-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0;
+  z-index: 9600;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    rgba(200, 162, 101, 0.9) 0%,
+    rgba(243, 236, 222, 1) 100%);
+  box-shadow: 0 0 10px rgba(200, 162, 101, 0.6);
+  animation: routeProgress 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes routeProgress {
+  0%   { width: 0; opacity: 1; }
+  70%  { width: 82%; opacity: 1; }
+  100% { width: 98%; opacity: 0.85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-progress { display: none !important; }
 }
 
 /* ─── Featured stories — sticky editorial captions ──────────────────── */

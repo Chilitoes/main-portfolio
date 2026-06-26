@@ -120,7 +120,9 @@ function Contact({ go }) {
       const subject = encodeURIComponent(`Inquiry — ${data.get("project") || "Photography"}`);
       const body = encodeURIComponent(
         `From: ${data.get("name") || ""} <${data.get("email") || ""}>\n` +
-        `Project: ${data.get("project") || ""}\n\n` +
+        `Project: ${data.get("project") || ""}\n` +
+        `Timeline: ${data.get("timeline") || ""}\n` +
+        `Budget: ${data.get("budget") || ""}\n\n` +
         `${data.get("message") || ""}`
       );
       window.location.href = `mailto:${CONTACT_EMAIL}?subject=${subject}&body=${body}`;
@@ -168,7 +170,11 @@ function Contact({ go }) {
           <Field label="Name" name="name" placeholder="Your name" required error={errors.name} />
           <Field label="Email" name="email" type="email" placeholder="your@email.com" required error={errors.email} />
           <Field label="Project type" name="project" placeholder="Editorial · travel · personal · print · other" />
-          <Field label="Message" name="message" placeholder="Tell me about your project — timeline, location, vision..." as="textarea" required error={errors.message} />
+          <div className="field-row">
+            <Field label="Timeline" name="timeline" placeholder="Shoot date or range — e.g. early August, flexible" />
+            <Field label="Budget range" name="budget" placeholder="Optional — helps me tailor a proposal" />
+          </div>
+          <Field label="Message" name="message" placeholder="Tell me about your project — location, vision, anything useful..." as="textarea" required error={errors.message} />
           {/* Honeypot field — bots fill it, humans don't see it */}
           <input type="text" name="_gotcha" tabIndex="-1" autoComplete="off" style={{ position: "absolute", left: "-9999px", opacity: 0 }} />
           <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>

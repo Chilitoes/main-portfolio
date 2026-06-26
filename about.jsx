@@ -32,7 +32,13 @@ function About({ go, onOpenLightbox }) {
 
           <div className="para">
             <p>
-              I shoot travel, and people too — events, portraits, the moments worth holding onto. Different subjects, same instinct. Based in Singapore.
+              I'm a travel and editorial photographer based in Singapore. Since 2020 I've been making pictures across Asia — temple courtyards in China, cherry-blossom streets in Japan, night markets and quiet corners most people walk past without a second look.
+            </p>
+            <p>
+              I shoot people too: events, portraits, the moments worth holding onto. Different subjects, same instinct. I travel with a camera the way other people keep a journal — to slow things down and pay attention.
+            </p>
+            <p>
+              The work is really about proximity. I don't look for extraordinary places; I look for ordinary ones at extraordinary moments — and try to get close enough that you stop being a tourist and start being a witness.
             </p>
           </div>
 
@@ -62,13 +68,14 @@ function About({ go, onOpenLightbox }) {
         {strip.map((item, i) => {
           const fullIdx = window.PORTFOLIO.findIndex((p) => p === item);
           return (
-            <a key={i}
+            <button key={i}
+               type="button"
                className="about-strip-item"
                data-cursor="view"
                data-cursor-label="Open"
                onClick={() => onOpenLightbox && onOpenLightbox(fullIdx)}
                style={{ backgroundImage: window.bgImage(item.src, 480) }}
-               aria-label={item.title}
+               aria-label={`Open photo: ${item.title}`}
             />
           );
         })}
