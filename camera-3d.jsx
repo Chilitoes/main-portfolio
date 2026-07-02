@@ -139,7 +139,27 @@ function Camera3D() {
     };
 
     let raf;
+    // Only render while the section is anywhere near the viewport — Home is a
+    // long page, and an always-on rAF loop burns GPU/battery the entire time
+    // the user is reading other sections.
+    let visible = true;
+    const vio = new IntersectionObserver(([entry]) => {
+      const was = visible;
+      visible = entry.isIntersecting;
+      if (visible && !was) { raf = requestAnimationFrame(tick); }
+    }, { rootMargin: "200px" });
+    vio.observe(section);
+
+    // If the WebGL context is lost (GPU pressure, tab backgrounding on
+    // mobile), stop the loop and re-render once it's restored — otherwise the
+    // canvas stays permanently blank.
+    const onCtxLost = (e) => { e.preventDefault(); cancelAnimationFrame(raf); };
+    const onCtxRestored = () => { raf = requestAnimationFrame(tick); };
+    renderer.domElement.addEventListener("webglcontextlost", onCtxLost, false);
+    renderer.domElement.addEventListener("webglcontextrestored", onCtxRestored, false);
+
     const tick = () => {
+      if (!visible) return;
       const xT = explodeCurve(scrollP);
 
       // Apply per-part interpolation
@@ -173,15 +193,26 @@ function Camera3D() {
     /* ── cleanup ─────────────────────────────────────────────────────── */
     return () => {
       cancelAnimationFrame(raf);
+      vio.disconnect();
+      renderer.domElement.removeEventListener("webglcontextlost", onCtxLost);
+      renderer.domElement.removeEventListener("webglcontextrestored", onCtxRestored);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
       container.removeChild(renderer.domElement);
-      // dispose geometries + materials
+      // Dispose geometries + materials + their textures. material.dispose()
+      // does NOT free attached textures — without disposing maps, the label
+      // canvases and the full-size LCD photo leak GPU memory on every
+      // Home-route remount.
       scene.traverse((o) => {
         if (o.geometry) o.geometry.dispose();
         if (o.material) {
-          if (Array.isArray(o.material)) o.material.forEach(m => m.dispose());
-          else o.material.dispose();
+          const mats = Array.isArray(o.material) ? o.material : [o.material];
+          mats.forEach((m) => {
+            for (const k of ["map", "emissiveMap", "normalMap", "roughnessMap", "metalnessMap", "alphaMap"]) {
+              if (m[k]?.dispose) m[k].dispose();
+            }
+            m.dispose();
+          });
         }
       });
       renderer.dispose();

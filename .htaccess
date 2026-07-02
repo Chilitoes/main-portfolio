@@ -7,6 +7,16 @@ RewriteCond %{HTTPS} !=on
 RewriteCond %{HTTP:X-Forwarded-Proto} !=https
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# ─── Legacy pre-SPA pages → SPA routes ──────────────────────────────────
+# The old static site (about.html etc.) was replaced by the hash-routed SPA;
+# without redirects, old inbound links and crawlers still landed on the
+# outdated copies. NE keeps the # literal in the Location header.
+RewriteRule ^about\.html$ /#/about [R=301,L,NE]
+RewriteRule ^contact\.html$ /#/contact [R=301,L,NE]
+RewriteRule ^portfolio\.html$ /#/archive [R=301,L,NE]
+RewriteRule ^prototype-viewfinder\.html$ / [R=301,L]
+RewriteRule ^redesign(/.*)?$ / [R=301,L]
+
 # ─── Compression ────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/xml application/xml application/rss+xml image/svg+xml

@@ -1,8 +1,7 @@
 // ============ App root ============
 
 function App() {
-  const { route, leaving, go } = window.useRouter();
-  const [theme, setTheme] = window.useTheme();
+  const { route, query, leaving, go } = window.useRouter();
   const [t, setTweak] = window.useTweaks(window.TWEAK_DEFAULTS);
 
   // Apply font tweaks via CSS vars on :root
@@ -39,8 +38,6 @@ function App() {
     return () => clearTimeout(t);
   }, []);
 
-  const onToggleTheme = () => setTheme(theme === "dark" ? "light" : "dark");
-
   const onOpenLightbox = (i) => setLbIndex(i);
   const onCloseLightbox = () => setLbIndex(null);
   const onPrev = () => setLbIndex((i) => (i == null ? null : (i - 1 + window.PORTFOLIO.length) % window.PORTFOLIO.length));
@@ -55,10 +52,10 @@ function App() {
 
   return (
     <React.Fragment>
-      <window.Nav route={route} go={go} theme={theme} onToggleTheme={onToggleTheme} />
+      <window.Nav route={route} go={go} />
 
       <div className={leaving ? "route-leaving" : "route-entering"} style={{ opacity: leaving ? 0 : 1, transition: "opacity 0.45s cubic-bezier(0.22,1,0.36,1)" }}>
-        <Page go={go} onOpenLightbox={onOpenLightbox} />
+        <Page go={go} query={query} onOpenLightbox={onOpenLightbox} />
       </div>
 
       {curtainKey > 0 && (

@@ -342,8 +342,6 @@
   line-height: 1.1;
   margin: 0;
 }
-.c3d-expand-details { display: flex; gap: 20px; margin-top: 4px; }
-.c3d-expand-details .label.dim { color: rgba(232, 224, 208, 0.55); }
 .c3d-expand-info .label.ochre { color: var(--ochre); font-size: 10px; letter-spacing: 0.2em; }
 
 .c3d-expand-close {

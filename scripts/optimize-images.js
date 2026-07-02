@@ -59,11 +59,11 @@ async function processOne(srcPath) {
   let written = 0, skipped = 0;
   const tasks = [];
   for (const w of WIDTHS) {
-    // Don't upscale; if source is smaller, just use the source width once.
+    // Don't upscale — cap at the source width — but ALWAYS emit every width
+    // name. bgImage() constructs "-480/-960/-1920" URLs unconditionally, so
+    // skipping a name (e.g. no -1920 for a 900px source) would leave the
+    // image-set() pointing at 404s and the slot rendering blank.
     const targetWidth = w > srcWidth ? srcWidth : w;
-    if (w > srcWidth && WIDTHS.indexOf(w) > 0 && WIDTHS[WIDTHS.indexOf(w) - 1] >= srcWidth) {
-      continue; // already covered by a previous width
-    }
     for (const { ext, encode } of FORMATS) {
       const outPath = path.join(dir, `${base}-${w}.${ext}`);
       if (await shouldSkip(srcPath, outPath)) { skipped++; continue; }

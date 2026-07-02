@@ -100,12 +100,7 @@
         "alternateName": ["Alston Shi Photography", "alstonshi"],
         "description": "Travel and editorial photography portfolio by Alston Shi.",
         "inLanguage": "en-SG",
-        "publisher": { "@id": "https://alstonshi.com/#alston" },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": "https://alstonshi.com/#/archive?q={search_term_string}",
-          "query-input": "required name=search_term_string"
-        }
+        "publisher": { "@id": "https://alstonshi.com/#alston" }
       }
     ]
   }
@@ -145,13 +140,19 @@
   <!-- Grain overlay: SVG turbulence filter, fixed to viewport -->
   <div class="grain" aria-hidden="true"></div>
 
-  </div>
-
   <!-- Skip cinematic intro on subsequent navigations within the session -->
   <script>
     if (sessionStorage.getItem('as-intro-seen')) {
       document.documentElement.classList.add('intro-seen');
     }
+    // Failsafe: if React (CDN) never loads, hideLoader() is never called and
+    // the intro would cover the site forever. Force-dismiss after 12 s if the
+    // app hasn't mounted.
+    setTimeout(function () {
+      var app = document.getElementById('app');
+      var intro = document.getElementById('intro');
+      if (intro && app && !app.childElementCount) intro.remove();
+    }, 12000);
   </script>
 
   <!-- Cinematic intro v2 -->
@@ -238,7 +239,6 @@
   <script defer src="dist/chrome.js"></script>
   <script defer src="lib/three.min.js"></script>
   <script defer src="dist/carousel.js"></script>
-  <script defer src="dist/camera.js"></script>
   <script defer src="dist/camera-3d.js"></script>
   <script defer src="dist/home.js"></script>
   <script defer src="dist/portfolio.js"></script>

@@ -274,9 +274,9 @@ function Home({ go, onOpenLightbox }) {
               return (
                 <a
                   key={country}
-                  href={`#/archive?country=${country}`}
+                  className="country-card"
+                  href={`#/archive?country=${encodeURIComponent(country)}`}
                   data-cursor="hover"
-                  onClick={(e) => { e.preventDefault(); sessionStorage.setItem("archiveCountry", country); go("archive"); }}
                   style={{
                     position: "relative",
                     aspectRatio: "2/1",
@@ -289,15 +289,6 @@ function Home({ go, onOpenLightbox }) {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    transition: "transform 0.3s ease, filter 0.3s ease",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.target.style.transform = "scale(1.05)";
-                    e.target.style.filter = "brightness(0.6)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.target.style.transform = "scale(1)";
-                    e.target.style.filter = "brightness(0.5)";
                   }}
                 >
                   <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }} />

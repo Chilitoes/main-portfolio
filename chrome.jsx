@@ -1,6 +1,6 @@
 // ============ Chrome: Nav, SideMeta, Footer, Lightbox ============
 
-function Nav({ route, go, theme, onToggleTheme }) {
+function Nav({ route, go }) {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const progressRef = React.useRef(null);
   const links = [
@@ -253,8 +253,10 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
               <div className="title">{item.title}</div>
             </div>
             <div className="block" style={{ alignItems: "flex-end", textAlign: "right" }}>
-              <div className="label">{item.camera}</div>
-              <div className="label dim">{item.year} · Frame {String(index + 1).padStart(3, "0")}</div>
+              {/* camera/year are optional in the data model — render only what
+                  exists so there's no empty line or dangling "· Frame" separator */}
+              {item.camera && <div className="label">{item.camera}</div>}
+              <div className="label dim">{item.year ? `${item.year} · ` : ""}Frame {String(index + 1).padStart(3, "0")}</div>
             </div>
           </div>
         </React.Fragment>

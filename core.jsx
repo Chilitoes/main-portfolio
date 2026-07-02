@@ -43,49 +43,63 @@ function hideLoader() {
   const skipBtn = el.querySelector(".i-skip");
   if (skipBtn) skipBtn.addEventListener("click", skipNow, { once: true });
   const onKey = (e) => {
-    if (e.key === "Escape" || e.key === "Enter") { skipNow(); window.removeEventListener("keydown", onKey); }
+    if (e.key === "Escape" || e.key === "Enter") skipNow();
   };
   window.addEventListener("keydown", onKey);
-}
-
-// ---- Theme toggle ----
-function useTheme() {
-  const [theme, setTheme] = React.useState(() =>
-    localStorage.getItem("as-theme") || "dark"
-  );
-  React.useEffect(() => {
-    document.body.classList.toggle("theme-dark", theme === "dark");
-    document.body.classList.toggle("theme-light", theme === "light");
-    localStorage.setItem("as-theme", theme);
-  }, [theme]);
-  return [theme, setTheme];
+  // Remove the key listener whenever the intro goes away (skip, key, or the
+  // auto-timer) — previously it survived auto-dismiss for the whole session,
+  // holding the removed #intro subtree via closure.
+  el.addEventListener("transitionend", () => window.removeEventListener("keydown", onKey), { once: true });
+  setTimeout(() => window.removeEventListener("keydown", onKey), total + 1000);
 }
 
 // ---- Router (hash-based multi-page) with fade transition ----
+// Understands query strings in the hash (#/archive?country=Japan): the query
+// is split off before route matching — previously such URLs fell through to
+// Home — and exposed so pages can read their params.
+function parseHash() {
+  const raw = window.location.hash.replace(/^#\/?/, "");
+  const [path, qs = ""] = raw.split("?");
+  return { route: path.replace(/\/+$/, "") || "home", query: new URLSearchParams(qs) };
+}
+
 function useRouter() {
-  const [route, setRoute] = React.useState(() => {
-    const h = window.location.hash.replace(/^#\//, "");
-    return h || "home";
-  });
+  const [state, setState] = React.useState(parseHash);
   const [leaving, setLeaving] = React.useState(false);
+  const pendingTmr = React.useRef(null);
 
   React.useEffect(() => {
     const onHash = () => {
-      const h = window.location.hash.replace(/^#\//, "") || "home";
-      if (h === route) return;
+      const next = parseHash();
+      // Cancel any in-flight transition first. Rapid back/forward inside the
+      // 450 ms window could otherwise commit the OLD target after the URL had
+      // already changed back, desyncing the page from the address bar (and
+      // dead-locking the nav, since re-clicking writes an identical hash).
+      if (pendingTmr.current) { clearTimeout(pendingTmr.current); pendingTmr.current = null; }
+      if (next.route === state.route) {
+        // Same page — only the query changed (or a cancelled transition
+        // returned here). Commit instantly, no fade.
+        setState(next);
+        setLeaving(false);
+        return;
+      }
       setLeaving(true);
-      setTimeout(() => {
-        setRoute(h);
+      pendingTmr.current = setTimeout(() => {
+        pendingTmr.current = null;
+        setState(next);
         setLeaving(false);
         window.scrollTo({ top: 0, behavior: "instant" });
       }, 450);
     };
     window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, [route]);
+    return () => {
+      window.removeEventListener("hashchange", onHash);
+      if (pendingTmr.current) clearTimeout(pendingTmr.current);
+    };
+  }, [state.route]);
 
   const go = (r) => { window.location.hash = "#/" + r; };
-  return { route, leaving, go };
+  return { route: state.route, query: state.query, leaving, go };
 }
 
 // ---- Magnetic button ----
@@ -154,5 +168,5 @@ function useMouseParallax(ref, strength = 12) {
 }
 
 Object.assign(window, {
-  useReveal, hideLoader, useTheme, useRouter, useMagnetic, useMouseParallax
+  useReveal, hideLoader, useRouter, useMagnetic, useMouseParallax
 });

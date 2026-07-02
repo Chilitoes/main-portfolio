@@ -8,7 +8,10 @@
 // Until then the form will fall back to a mailto: link so users can
 // still reach you.
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/mzdwokqp";
+// Delivery inbox for the mailto: fallback (kept out of user-facing text).
 const CONTACT_EMAIL = "swnssoe@gmail.com";
+// Address shown to visitors — matches the contact aside.
+const PUBLIC_EMAIL = "alstonjpeg@gmail.com";
 
 function Field({ label, type = "text", name, placeholder, as = "input", required = false, error = "" }) {
   const [focused, setFocused] = React.useState(false);
@@ -81,6 +84,10 @@ function Contact({ go }) {
   const [errorDetail, setErrorDetail] = React.useState("");
   const [errors, setErrors] = React.useState({});
   const [attempted, setAttempted] = React.useState(false);
+  // Fields are controlled inside <Field>, so form.reset() is a no-op (React
+  // re-renders the old values right back). Bumping this key remounts them
+  // with fresh state after a successful send.
+  const [resetKey, setResetKey] = React.useState(0);
   const formRef = React.useRef(null);
 
   const sent = status === "sent";
@@ -142,7 +149,7 @@ function Contact({ go }) {
       try { bodyJson = await res.json(); } catch (_) {}
       if (res.ok) {
         setStatus("sent");
-        form.reset();
+        setResetKey((k) => k + 1);
       } else {
         console.error("[contact-form] Formspree", res.status, bodyJson);
         setErrorDetail(`HTTP ${res.status}${bodyJson && bodyJson.error ? " · " + bodyJson.error : ""}`);
@@ -167,14 +174,14 @@ function Contact({ go }) {
 
       <div className="contact-grid">
         <form ref={formRef} className="contact-form" onSubmit={handleSubmit} onChange={revalidate} noValidate>
-          <Field label="Name" name="name" placeholder="Your name" required error={errors.name} />
-          <Field label="Email" name="email" type="email" placeholder="your@email.com" required error={errors.email} />
-          <Field label="Project type" name="project" placeholder="Editorial · travel · personal · print · other" />
+          <Field key={`name-${resetKey}`} label="Name" name="name" placeholder="Your name" required error={errors.name} />
+          <Field key={`email-${resetKey}`} label="Email" name="email" type="email" placeholder="your@email.com" required error={errors.email} />
+          <Field key={`project-${resetKey}`} label="Project type" name="project" placeholder="Editorial · travel · personal · print · other" />
           <div className="field-row">
-            <Field label="Timeline" name="timeline" placeholder="Shoot date or range — e.g. early August, flexible" />
-            <Field label="Budget range" name="budget" placeholder="Optional — helps me tailor a proposal" />
+            <Field key={`timeline-${resetKey}`} label="Timeline" name="timeline" placeholder="Shoot date or range — e.g. early August, flexible" />
+            <Field key={`budget-${resetKey}`} label="Budget range" name="budget" placeholder="Optional — helps me tailor a proposal" />
           </div>
-          <Field label="Message" name="message" placeholder="Tell me about your project — location, vision, anything useful..." as="textarea" required error={errors.message} />
+          <Field key={`message-${resetKey}`} label="Message" name="message" placeholder="Tell me about your project — location, vision, anything useful..." as="textarea" required error={errors.message} />
           {/* Honeypot field — bots fill it, humans don't see it */}
           <input type="text" name="_gotcha" tabIndex="-1" autoComplete="off" style={{ position: "absolute", left: "-9999px", opacity: 0 }} />
           <div style={{ marginTop: 16, display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
@@ -184,7 +191,7 @@ function Contact({ go }) {
             <div className="label dim">
               {errored
                 ? <span style={{ color: "#d97757" }}>
-                    Send failed{errorDetail ? ` (${errorDetail})` : ""}. Email {CONTACT_EMAIL} directly.
+                    Send failed{errorDetail ? ` (${errorDetail})` : ""}. Email {PUBLIC_EMAIL} directly.
                   </span>
                 : sent
                   ? "I'll reply within 48 hours."

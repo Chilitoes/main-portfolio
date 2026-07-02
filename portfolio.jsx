@@ -1,7 +1,13 @@
 // ============ Archive page ============
 
-function Portfolio({ go, onOpenLightbox }) {
-  const initialCountry = sessionStorage.getItem("archiveCountry") || "All";
+function Portfolio({ go, query, onOpenLightbox }) {
+  // Country comes from the URL (#/archive?country=Japan — shareable, works in
+  // new tabs) with the old sessionStorage handoff kept as a fallback.
+  const urlCountry = query?.get("country");
+  const initialCountry =
+    (urlCountry && window.COUNTRIES.includes(urlCountry) ? urlCountry : null)
+    || sessionStorage.getItem("archiveCountry")
+    || "All";
   const [filter, setFilter] = React.useState(initialCountry);
   const [pillStyle, setPillStyle] = React.useState({});
   const pillsRef = React.useRef(null);
@@ -10,6 +16,12 @@ function Portfolio({ go, onOpenLightbox }) {
   React.useEffect(() => {
     sessionStorage.removeItem("archiveCountry");
   }, []);
+
+  // Follow query changes while already on the page (e.g. a country link
+  // tapped from the footer or a back/forward step between filters).
+  React.useEffect(() => {
+    if (urlCountry && window.COUNTRIES.includes(urlCountry)) setFilter(urlCountry);
+  }, [urlCountry]);
 
   // Position moving pill background
   React.useEffect(() => {
@@ -83,12 +95,20 @@ function PortfolioGrid({ items, filter, onOpenLightbox }) {
     const grid = gridRef.current;
     if (!grid) return;
 
-    // Record new positions
+    // Record new positions. Document coordinates (rect + scroll), not viewport
+    // ones — scrolling between filter clicks would otherwise skew every delta.
+    // Hidden tiles (display:none → 0×0 rect at the viewport origin) must not
+    // be recorded: animating from those coords made newly revealed tiles fly
+    // in from the page's top-left corner.
     const tiles = grid.querySelectorAll("[data-id]");
     const newPositions = {};
     tiles.forEach((t) => {
       const r = t.getBoundingClientRect();
-      newPositions[t.getAttribute("data-id")] = { x: r.left, y: r.top };
+      if (!r.width && !r.height) return;
+      newPositions[t.getAttribute("data-id")] = {
+        x: r.left + window.scrollX,
+        y: r.top + window.scrollY,
+      };
     });
 
     // Animate from old to new via FLIP

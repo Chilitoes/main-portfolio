@@ -64,6 +64,18 @@ jobs:
               --exclude-glob package-lock.json \
               --exclude-glob babel.config.json \
               --exclude-glob '*.jsx' \
+              --exclude-glob scripts \
+              --exclude-glob scripts/* \
+              --exclude-glob redesign \
+              --exclude-glob redesign/* \
+              --exclude-glob js \
+              --exclude-glob js/* \
+              --exclude-glob css \
+              --exclude-glob css/* \
+              --exclude-glob about.html \
+              --exclude-glob contact.html \
+              --exclude-glob portfolio.html \
+              --exclude-glob prototype-viewfinder.html \
               ./ '$REMOTE_DIR';
             bye
           "
