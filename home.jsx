@@ -11,15 +11,21 @@ function Home({ go, onOpenLightbox }) {
   window.useMouseParallax(heroBgRef, 14);
 
   React.useEffect(() => {
-    // Hero: 1.2 → 1.0
+    // Hero: zoom 1.2 → 1.0; content drifts up and fades as it hands over to
+    // the next section (rather than being abruptly covered).
     const zone = heroScrollRef.current;
     const zoom = heroZoomRef.current;
     if (!zone || !zoom) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     if (window.matchMedia('(max-width: 900px)').matches) return;
+    const content = zone.querySelector('.hero-content');
     const onScroll = () => {
       const progress = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / window.innerHeight));
       zoom.style.transform = `scale(${1.2 - 0.2 * progress})`;
+      if (content) {
+        content.style.opacity = String(Math.max(0, 1 - progress * 1.6));
+        content.style.transform = `translateY(${progress * -46}px)`;
+      }
     };
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -149,8 +155,18 @@ function Home({ go, onOpenLightbox }) {
             <div className="hero-meta">
               <span className="label">Est. 2020</span>
             </div>
-            <h1 className="hero-title">
-              Alston <span className="last">Shi</span>
+            <h1 className="hero-title" aria-label="Alston Shi">
+              {/* Per-character cascade — each letter rises with its own delay.
+                  aria-label keeps the split invisible to screen readers. */}
+              {"Alston".split("").map((c, i) => (
+                <span key={"f" + i} className="ch" aria-hidden="true" style={{ "--chd": `${0.25 + i * 0.045}s` }}>{c}</span>
+              ))}
+              <span className="ch-space" aria-hidden="true"> </span>
+              <span className="last">
+                {"Shi".split("").map((c, i) => (
+                  <span key={"l" + i} className="ch" aria-hidden="true" style={{ "--chd": `${0.55 + i * 0.055}s` }}>{c}</span>
+                ))}
+              </span>
             </h1>
             <p className="hero-tagline">
               I photograph places. I photograph people. <span className="em">Sometimes both at once.</span>

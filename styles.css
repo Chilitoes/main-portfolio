@@ -234,13 +234,15 @@ body.nav-menu-open { overflow: hidden; }
 }
 .reveal-img {
   opacity: 0;
-  filter: blur(10px);
+  /* Desaturated while blurred — colour arrives as the image sharpens, like a
+     print coming up in the developer tray. */
+  filter: blur(10px) saturate(0.55) brightness(0.92);
   transform: scale(1.03);
-  transition: opacity 1.4s var(--ease-soft), filter 1.4s var(--ease-soft), transform 1.8s var(--ease-soft);
+  transition: opacity 1.4s var(--ease-soft), filter 1.6s var(--ease-soft), transform 1.8s var(--ease-soft);
 }
 .reveal-img.in {
   opacity: 1;
-  filter: blur(0);
+  filter: blur(0) saturate(1) brightness(1);
   transform: none;
 }
 
@@ -316,6 +318,22 @@ body.nav-menu-open { overflow: hidden; }
   font-style: italic;
   color: var(--ochre);
   font-weight: 300;
+}
+/* Per-character entrance: each letter rises out of a baseline clip with its
+   own delay (--chd set inline). The h1 opts out of the block-level .stagger
+   animation so the letters are the only thing moving. */
+.stagger > .hero-title { opacity: 1; transform: none; animation: none; }
+.hero-title .ch {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.42em) rotate(1.5deg);
+  filter: blur(6px);
+  animation: chRise 1.05s var(--ease-soft) var(--chd, 0.25s) forwards;
+}
+.hero-title .ch-space { display: inline-block; white-space: pre; }
+@keyframes chRise {
+  60% { filter: blur(0); }
+  to  { opacity: 1; transform: none; filter: blur(0); }
 }
 .hero-tagline {
   margin-top: 36px;
@@ -432,9 +450,11 @@ body.nav-menu-open { overflow: hidden; }
   display: inline-block;
   opacity: 0;
   transform: translateY(22px);
-  transition: opacity 0.9s var(--ease-soft), transform 0.9s var(--ease-soft);
+  filter: blur(5px);
+  transition: opacity 0.9s var(--ease-soft), transform 0.9s var(--ease-soft),
+              filter 0.9s var(--ease-soft);
 }
-.pull-quote.in .w { opacity: 1; transform: none; }
+.pull-quote.in .w { opacity: 1; transform: none; filter: blur(0); }
 .pull-quote-text .italic { font-style: italic; color: var(--ochre); }
 
 /* ===== About teaser split ===== */
@@ -655,6 +675,21 @@ footer.site-footer {
 .port-grid .tile { transition: transform 0.6s var(--ease-soft), opacity 0.5s var(--ease-soft); }
 .port-grid .tile.filtered-out { opacity: 0; transform: scale(0.96); pointer-events: none; }
 
+/* Staggered tile entrance. Animation (not transition) with `backwards` fill:
+   the from-state holds through the per-tile delay (--d), and after finishing
+   the element returns to its natural styles — so the FLIP filter animation
+   and hover transitions are never fighting a lingering fill. */
+.tile-reveal { opacity: 0; }
+.tile-reveal.in {
+  opacity: 1;
+  animation: tileIn 0.9s var(--ease-soft) var(--d, 0s) backwards;
+}
+@keyframes tileIn {
+  from { opacity: 0; transform: translateY(34px) scale(0.97); filter: blur(5px) saturate(0.7); }
+  60%  { filter: blur(0) saturate(1); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
 /* ===== Lightbox ===== */
 .lightbox {
   position: fixed; inset: 0;
@@ -667,16 +702,26 @@ footer.site-footer {
   transition: opacity 0.5s var(--ease-soft), visibility 0s 0.5s;
 }
 .lightbox.open { opacity: 1; visibility: visible; transition: opacity 0.5s var(--ease-soft); }
+
+/* Chrome staggers in after the photo lands: counter/close first, then the
+   nav arrows, then the caption strip. Opacity-only keyframes with backwards
+   fill — no interference with each element's own transforms/hover
+   transitions, and nothing lingers after the entrance. */
+.lightbox.open .lightbox-counter,
+.lightbox.open .lightbox-close { animation: lbChromeIn 0.6s var(--ease-soft) 0.15s backwards; }
+.lightbox.open .lightbox-nav   { animation: lbChromeIn 0.6s var(--ease-soft) 0.26s backwards; }
+.lightbox.open .lightbox-strip { animation: lbChromeIn 0.7s var(--ease-soft) 0.36s backwards; }
+@keyframes lbChromeIn { from { opacity: 0; } }
 picture { display: contents; }
 .lightbox-img-wrap {
   position: relative;
   max-width: 80vw;
   max-height: 80vh;
-  transform: scale(0.96);
-  transition: transform 0.6s var(--ease-soft), filter 0.4s ease;
+  transform: scale(0.94) translateY(14px);
+  transition: transform 0.65s var(--ease-soft), filter 0.4s ease;
   box-shadow: 0 40px 120px rgba(0,0,0,0.6);
 }
-.lightbox.open .lightbox-img-wrap { transform: scale(1); }
+.lightbox.open .lightbox-img-wrap { transform: scale(1) translateY(0); }
 .lightbox-img-wrap::after {
   content: "";
   position: absolute; inset: 0;
@@ -688,6 +733,13 @@ picture { display: contents; }
   width: 100%; height: 100%;
   max-width: 80vw; max-height: 80vh;
   object-fit: contain;
+  /* Crossfade on prev/next — the <picture> remounts per photo (React key),
+     so this plays on every navigation instead of an instant swap. */
+  animation: lbImgIn 0.55s var(--ease-soft);
+}
+@keyframes lbImgIn {
+  from { opacity: 0; transform: scale(1.015); filter: blur(8px); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
 }
 .lightbox-strip {
   position: absolute;
@@ -1087,8 +1139,13 @@ picture { display: contents; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
+    /* Zero the delays too: staggered entrances use animation-delay with
+       `backwards` fill, which would otherwise hold content invisible for
+       the length of the stagger even with the duration zeroed. */
+    animation-delay: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.2s !important;
+    transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }
   .hero-bg-kb { animation: none; }
@@ -1519,7 +1576,9 @@ picture { display: contents; }
   max-width: 100%;
   max-height: 78vh;
   margin: 0 auto;
+  transition: transform 1.4s var(--ease-soft);
 }
+.fs-photo:hover img { transform: scale(1.025); }
 .fs-photo::after {
   content: "";
   position: absolute; inset: 0;

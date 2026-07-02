@@ -90,6 +90,24 @@ function PortfolioGrid({ items, filter, onOpenLightbox }) {
   const gridRef = React.useRef(null);
   const prevPositions = React.useRef({});
 
+  // Staggered scroll reveal: tiles cascade in as they enter the viewport
+  // (previously every tile was hardcoded ".in" and never animated). Once a
+  // tile has revealed it stays revealed — filters and FLIP are unaffected.
+  React.useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("in");
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
+    grid.querySelectorAll(".tile-reveal:not(.in)").forEach((t) => io.observe(t));
+    return () => io.disconnect();
+  }, [filter]);
+
   // Record positions BEFORE filter changes render (layout effect runs before paint)
   React.useLayoutEffect(() => {
     const grid = gridRef.current;
@@ -142,11 +160,11 @@ function PortfolioGrid({ items, filter, onOpenLightbox }) {
           <div
             key={item.id}
             data-id={item.id}
-            className={"tile t-uniform reveal-img in" + (hidden ? " filtered-out" : "")}
+            className={"tile t-uniform tile-reveal" + (hidden ? " filtered-out" : "")}
             data-cursor="view"
             data-cursor-label="Open"
             onClick={() => !hidden && onOpenLightbox(i)}
-            style={{ display: hidden ? "none" : "" }}
+            style={{ display: hidden ? "none" : "", "--d": `${(i % 6) * 0.07}s` }}
           >
             <div className="tile-img" style={{ backgroundImage: window.bgImage(item.src, 960) }} />
             <div className="tile-idx label">{String(i + 1).padStart(3, "0")}</div>

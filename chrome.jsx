@@ -238,7 +238,9 @@ function Lightbox({ items, index, onClose, onPrev, onNext }) {
           </button>
 
           <div className="lightbox-img-wrap" ref={wrapRef} onClick={(e) => e.stopPropagation()}>
-            <PhotoImg className="lightbox-img" src={item.src} alt={item.title} sizes="80vw" loading="eager" />
+            {/* key remounts the picture on prev/next so the crossfade
+                animation plays — without it the photo swaps instantly. */}
+            <PhotoImg key={item.src} className="lightbox-img" src={item.src} alt={item.title} sizes="80vw" loading="eager" />
           </div>
 
           <div className="lightbox-hint" aria-hidden="true">
