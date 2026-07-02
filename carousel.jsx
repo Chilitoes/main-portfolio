@@ -26,43 +26,107 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
   const SLICE = N > 0 ? 360 / N : 0;
 
   const sectionRef = React.useRef(null);
-  const [angle, setAngle] = React.useState(0);
+  const stageRef = React.useRef(null);
+  const progressRef = React.useRef(null);
+  const [frontIdx, setFrontIdx] = React.useState(0);
   const [expanded, setExpanded] = React.useState(null);
   const [expandAnim, setExpandAnim] = React.useState(false);
-  // Ring radius shrinks on narrow screens so the neighbouring cards peek in
-  // from the edges instead of orbiting entirely off-screen.
-  const [ringRadius, setRingRadius] = React.useState(600);
 
-  // Scroll-driven rotation on EVERY device (the old mobile auto-spin is
-  // gone). Touch scrolling has native momentum, so the ring inherits a
-  // natural flick-and-glide feel; updates are rAF-throttled so fast scroll
-  // streams collapse into one render per frame.
-  React.useEffect(() => {
+  // Scroll-driven rotation on EVERY device, smoothed in a single rAF loop.
+  // Scroll events only move a TARGET angle; each frame the displayed angle
+  // eases toward it and card styles are written straight to the DOM. Two
+  // reasons this is the shape it is:
+  //  1. Wheel/touch scrolling arrives in chunky steps — mapping them 1:1
+  //     makes the ring jump between positions. The lerp turns those steps
+  //     into one continuous glide.
+  //  2. Writing styles imperatively avoids a React re-render of every card
+  //     per frame, and lets CSS keep NO transition on the card transform —
+  //     a CSS transition retargeted every scroll event is what made the
+  //     motion smear ("fuzzy") instead of tracking crisply.
+  React.useLayoutEffect(() => {
+    const sec = sectionRef.current;
+    const stage = stageRef.current;
+    if (!sec || !stage || N === 0) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Ring radius shrinks on narrow screens so the neighbouring cards peek
+    // in from the edges instead of orbiting entirely off-screen.
+    let radius = Math.min(600, window.innerWidth * 0.78);
+    let target = 0;
+    let display = 0;
     let raf = null;
-    const measure = () => {
-      setRingRadius(Math.min(600, window.innerWidth * 0.78));
-    };
-    const update = () => {
-      raf = null;
-      const sec = sectionRef.current;
-      if (!sec) return;
+    let inView = true;
+    let lastFront = -1;
+
+    const readScroll = () => {
       const r = sec.getBoundingClientRect();
-      const vh = window.innerHeight;
-      const scrollable = sec.offsetHeight - vh;
+      const scrollable = sec.offsetHeight - window.innerHeight;
       if (scrollable <= 0) return;
-      const p = Math.max(0, Math.min(1, -r.top / scrollable));
-      setAngle(p * 360);
+      target = Math.max(0, Math.min(1, -r.top / scrollable)) * 360;
     };
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
-    const onResize = () => { measure(); onScroll(); };
-    measure();
-    update();
+
+    const apply = () => {
+      const cards = stage.children;
+      for (let i = 0; i < cards.length; i++) {
+        const rad = ((i * SLICE + display) * Math.PI) / 180;
+        const x = Math.sin(rad);
+        const z = Math.cos(rad); // 1 = front, -1 = back
+        const depthT = (z + 1) / 2;
+        const el = cards[i];
+        el.style.transform =
+          `translate3d(${x * radius}px, ${Math.sin(rad * 2) * 55}px, 0) ` +
+          `scale(${0.65 + depthT * 0.35}) rotateY(${-x * 12}deg)`;
+        el.style.opacity = String(0.35 + depthT * 0.65);
+        el.style.zIndex = String(Math.round(depthT * 100));
+      }
+      if (progressRef.current) {
+        progressRef.current.style.transform = `scaleY(${display / 360})`;
+      }
+      let best = 0, bestZ = -Infinity;
+      for (let i = 0; i < N; i++) {
+        const z = Math.cos(((i * SLICE + display) * Math.PI) / 180);
+        if (z > bestZ) { bestZ = z; best = i; }
+      }
+      if (best !== lastFront) { lastFront = best; setFrontIdx(best); }
+    };
+
+    const step = () => {
+      if (!inView) { raf = null; return; }
+      display += (target - display) * (reduce ? 1 : 0.16);
+      if (Math.abs(target - display) < 0.02) display = target;
+      apply();
+      if (display === target) { raf = null; return; } // settled — kick() rearms
+      raf = requestAnimationFrame(step);
+    };
+    const kick = () => { if (inView && raf == null) raf = requestAnimationFrame(step); };
+
+    // Pause all work while the section is off-screen.
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView) { readScroll(); kick(); }
+      else if (raf != null) { cancelAnimationFrame(raf); raf = null; }
+    }, { rootMargin: "80px" });
+    io.observe(sec);
+
+    const onScroll = () => { readScroll(); kick(); };
+    const onResize = () => {
+      radius = Math.min(600, window.innerWidth * 0.78);
+      readScroll();
+      kick();
+    };
+
+    // First paint: land directly on the scroll position, no swoop-in.
+    readScroll();
+    display = target;
+    apply();
+
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onResize);
     return () => {
+      io.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onResize);
-      if (raf) cancelAnimationFrame(raf);
+      if (raf != null) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -80,43 +144,10 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
     return () => { document.body.style.overflow = ""; };
   }, [expanded]);
 
-  // Compute card style — ring with vertical bobbing
-  const getCardStyle = (i) => {
-    const cardAngle = i * SLICE;
-    const totalAngle = cardAngle + angle;
-    const rad = (totalAngle * Math.PI) / 180;
-
-    const x = Math.sin(rad);
-    const z = Math.cos(rad); // 1 = front, -1 = back
-    const y = Math.sin(rad * 2) * 55; // ±55px vertical wave
-
-    const tx = x * ringRadius;
-    const ty = y;
-
-    const depthT = (z + 1) / 2; // 0 back → 1 front
-    const scale = 0.65 + depthT * 0.35;
-    const opacity = 0.35 + depthT * 0.65;
-    const zIdx = Math.round(depthT * 100);
-    const rotY = -x * 12;
-
-    return {
-      transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale}) rotateY(${rotY}deg)`,
-      opacity,
-      zIndex: zIdx,
-    };
-  };
-
-  // Whichever card is closest to the camera
-  const frontIdx = (() => {
-    let best = 0, bestZ = -Infinity;
-    for (let i = 0; i < N; i++) {
-      const rad = ((i * SLICE + angle) * Math.PI) / 180;
-      const z = Math.cos(rad);
-      if (z > bestZ) { bestZ = z; best = i; }
-    }
-    return best;
-  })();
-  const frontItem = items[frontIdx];
+  // Card transforms/opacity/z-index are written imperatively by the rAF loop
+  // above; the caption + .front class are the only angle-dependent things
+  // React renders.
+  const frontItem = items[frontIdx] || items[0];
 
   if (N === 0) return null;
 
@@ -173,16 +204,14 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
             <div className="label dim">Scroll to orbit · click to expand</div>
           </div>
 
-          {/* Carousel ring */}
-          <div className="c3d-ring-stage">
+          {/* Carousel ring — per-card transforms are driven by the rAF loop */}
+          <div className="c3d-ring-stage" ref={stageRef}>
             {items.map((item, i) => {
-              const style = getCardStyle(i);
               const isFront = i === frontIdx;
               return (
                 <div
                   key={item.id}
                   className={"c3d-card" + (isFront ? " front" : "")}
-                  style={style}
                   onClick={() => onCardClick(i)}
                   data-cursor="view"
                   data-cursor-label="Expand"
@@ -216,9 +245,9 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
             </div>
           </div>
 
-          {/* Vertical progress bar */}
+          {/* Vertical progress bar — fill driven by the rAF loop */}
           <div className="c3d-progress-bar">
-            <div className="c3d-progress-fill" style={{ transform: `scaleY(${angle / 360})` }} />
+            <div className="c3d-progress-fill" ref={progressRef} />
           </div>
         </div>
       </section>

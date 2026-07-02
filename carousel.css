@@ -116,7 +116,9 @@
   height: 560px;
   cursor: pointer;
   will-change: transform, opacity;
-  transition: transform 0.15s ease-out, opacity 0.15s ease-out;
+  /* NO transition on transform/opacity: the rAF loop in carousel.jsx eases
+     these every frame itself. A CSS transition retargeted on every scroll
+     event fights that loop and smears the motion. */
 }
 
 .c3d-card-img {
