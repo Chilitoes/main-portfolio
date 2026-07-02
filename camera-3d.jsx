@@ -92,12 +92,58 @@ function Camera3D() {
     accentLight2.position.set(-0.6, 0.6, 1.6);
     scene.add(accentLight2);
 
+    /* ── environment reflections ─────────────────────────────────────────
+       A tiny hand-built "studio" (softbox panels around the origin) baked
+       through PMREM. Metals and lens glass pick up real reflections from it
+       instead of relying on point speculars alone — this is what makes the
+       chrome read as chrome. Baked once; costs nothing per frame. */
+    let envTex = null;
+    {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const envScene = new THREE.Scene();
+      envScene.background = new THREE.Color(0x0b0a09);
+      const panel = (color, w, h, pos) => {
+        const m = new THREE.Mesh(
+          new THREE.PlaneGeometry(w, h),
+          new THREE.MeshBasicMaterial({ color })
+        );
+        m.position.set(pos[0], pos[1], pos[2]);
+        m.lookAt(0, 0, 0);
+        envScene.add(m);
+      };
+      panel(0xfff2dc, 6, 3, [3, 5, 3]);      // warm overhead key softbox
+      panel(0x9fb2d8, 4, 5, [-6, 1, 2]);     // cool side fill
+      panel(0xe0b070, 5, 2.5, [-2, 2, -6]);  // warm rim card behind
+      panel(0x2a2a33, 8, 8, [0, -6, 0]);     // dim floor bounce
+      envTex = pmrem.fromScene(envScene, 0.05).texture;
+      scene.environment = envTex;
+      pmrem.dispose();
+      envScene.traverse((o) => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material) o.material.dispose();
+      });
+    }
+
     /* ── model ───────────────────────────────────────────────────────── */
     const built = buildModel(renderer.capabilities.getMaxAnisotropy());
     scene.add(built.group);
     // Initial pose: slightly angled so we see the lens depth
     built.group.rotation.y = -0.55;
     built.group.rotation.x = 0.15;
+
+    // Temper the baked environment so it layers under the existing light rig
+    // instead of blowing it out.
+    built.group.traverse((o) => {
+      if (o.material && o.material.isMeshStandardMaterial) {
+        o.material.envMapIntensity = 0.55;
+      }
+    });
+
+    // Deterministic per-part stagger for the explosion: each part waits out
+    // a slice of the progress before moving, so the disassembly cascades
+    // outward like a choreographed teardown instead of everything sliding
+    // in unison. (Pseudo-random from the index so it's stable across loads.)
+    built.parts.forEach((p, i) => { p.delay = ((i * 37) % 23) / 23 * 0.28; });
 
     /* ── scroll state ────────────────────────────────────────────────── */
     let scrollP = 0;
@@ -112,6 +158,16 @@ function Camera3D() {
     };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
+
+    /* ── mouse parallax (desktop only) ───────────────────────────────── */
+    // The whole assembly leans a few degrees toward the cursor, lerped in
+    // the tick so it feels weighted rather than glued to the pointer.
+    let mouseX = 0, mouseY = 0;
+    const onMouse = (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;   // -1 … 1
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    };
+    if (!reduce && !isMobile) window.addEventListener('mousemove', onMouse, { passive: true });
 
     /* ── resize ──────────────────────────────────────────────────────── */
     const onResize = () => {
@@ -158,15 +214,25 @@ function Camera3D() {
     renderer.domElement.addEventListener("webglcontextlost", onCtxLost, false);
     renderer.domElement.addEventListener("webglcontextrestored", onCtxRestored, false);
 
+    // Scroll smoothing: the rendered progress chases the raw scroll position
+    // each frame, so fast flicks and touch momentum resolve into one fluid
+    // motion instead of the assembly snapping between scroll events.
+    let smoothP = scrollP;
+    let tiltX = 0, tiltY = 0;
+
     const tick = () => {
       if (!visible) return;
-      const xT = explodeCurve(scrollP);
+      smoothP += (scrollP - smoothP) * 0.085;
+      const xT = explodeCurve(smoothP);
+      const now = performance.now();
 
-      // Apply per-part interpolation
+      // Apply per-part interpolation, staggered by each part's delay slice
       const parts = built.parts;
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
-        const t = xT * (p.weight || 1);
+        const d = p.delay || 0;
+        const local = Math.max(0, Math.min(1, (xT - d) / (1 - d)));
+        const t = local * (p.weight || 1);
         p.mesh.position.x = p.rest.position.x + (p.target.position.x - p.rest.position.x) * t;
         p.mesh.position.y = p.rest.position.y + (p.target.position.y - p.rest.position.y) * t;
         p.mesh.position.z = p.rest.position.z + (p.target.position.z - p.rest.position.z) * t;
@@ -176,11 +242,16 @@ function Camera3D() {
       }
 
       if (!reduce) {
-        // Continuous rotation throughout scroll
-        const yaw = -0.55 + scrollP * Math.PI * 1.6 * (isMobile ? 0.7 : 1);
-        const pitch = 0.15 + Math.sin(scrollP * Math.PI * 0.85) * 0.18 * (1 - Math.max(0, (scrollP - 0.92) / 0.08));
-        built.group.rotation.y = yaw;
-        built.group.rotation.x = pitch;
+        // Cursor tilt eases toward the pointer (zero on mobile — no cursor)
+        tiltX += (mouseX * 0.07 - tiltX) * 0.04;
+        tiltY += (mouseY * 0.05 - tiltY) * 0.04;
+        // Continuous rotation throughout scroll + idle breathing so the
+        // camera never looks frozen while the page rests
+        const yaw = -0.55 + smoothP * Math.PI * 1.6 * (isMobile ? 0.7 : 1);
+        const pitch = 0.15 + Math.sin(smoothP * Math.PI * 0.85) * 0.18 * (1 - Math.max(0, (smoothP - 0.92) / 0.08));
+        built.group.rotation.y = yaw + tiltX + Math.sin(now * 0.00045) * 0.012;
+        built.group.rotation.x = pitch + tiltY + Math.sin(now * 0.00062) * 0.008;
+        built.group.position.y = Math.sin(now * 0.0008) * 0.022;
       }
 
       renderer.render(scene, camera);
@@ -198,6 +269,8 @@ function Camera3D() {
       renderer.domElement.removeEventListener("webglcontextrestored", onCtxRestored);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', onMouse);
+      if (envTex) envTex.dispose();
       container.removeChild(renderer.domElement);
       // Dispose geometries + materials + their textures. material.dispose()
       // does NOT free attached textures — without disposing maps, the label

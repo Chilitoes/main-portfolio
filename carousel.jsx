@@ -27,26 +27,23 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
 
   const sectionRef = React.useRef(null);
   const [angle, setAngle] = React.useState(0);
-  const [isTouch, setIsTouch] = React.useState(false);
   const [expanded, setExpanded] = React.useState(null);
   const [expandAnim, setExpandAnim] = React.useState(false);
+  // Ring radius shrinks on narrow screens so the neighbouring cards peek in
+  // from the edges instead of orbiting entirely off-screen.
+  const [ringRadius, setRingRadius] = React.useState(600);
 
-  // Detect touch and apply smooth timer-based rotation; scroll-driven on desktop
+  // Scroll-driven rotation on EVERY device (the old mobile auto-spin is
+  // gone). Touch scrolling has native momentum, so the ring inherits a
+  // natural flick-and-glide feel; updates are rAF-throttled so fast scroll
+  // streams collapse into one render per frame.
   React.useEffect(() => {
-    const touch = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-    setIsTouch(touch);
-
-    if (touch) {
-      // Timer-based rotation on touch (less jank than RAF, updates every 50ms)
-      const SPEED = 20; // degrees per second (40 * 50ms = 2 degrees per update)
-      let intervalId = setInterval(() => {
-        setAngle(prev => (prev + SPEED * 0.05) % 360);
-      }, 50);
-      return () => clearInterval(intervalId);
-    }
-
-    // Desktop: scroll-driven rotation
-    const onScroll = () => {
+    let raf = null;
+    const measure = () => {
+      setRingRadius(Math.min(600, window.innerWidth * 0.78));
+    };
+    const update = () => {
+      raf = null;
       const sec = sectionRef.current;
       if (!sec) return;
       const r = sec.getBoundingClientRect();
@@ -56,12 +53,16 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
       const p = Math.max(0, Math.min(1, -r.top / scrollable));
       setAngle(p * 360);
     };
-    onScroll();
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update); };
+    const onResize = () => { measure(); onScroll(); };
+    measure();
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
+      if (raf) cancelAnimationFrame(raf);
     };
   }, []);
 
@@ -89,11 +90,7 @@ function Cinematic3DCarousel({ onOpenLightbox }) {
     const z = Math.cos(rad); // 1 = front, -1 = back
     const y = Math.sin(rad * 2) * 55; // ±55px vertical wave
 
-    const RADIUS_X = 600;
-    const RADIUS_Z = 420;
-
-    const tx = x * RADIUS_X;
-    const tz = z * RADIUS_Z;
+    const tx = x * ringRadius;
     const ty = y;
 
     const depthT = (z + 1) / 2; // 0 back → 1 front
