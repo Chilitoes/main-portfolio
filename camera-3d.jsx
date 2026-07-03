@@ -12,13 +12,17 @@ function Camera3D() {
 
   const PHILOSOPHY = [
     { kicker: "I",   title: "How I see.",
-      desc: "Travel photographer based in Singapore, shooting across Asia since 2020." },
+      desc: "Travel photographer based in Singapore, shooting across Asia since 2020.",
+      spec: "24.2MP FULL-FRAME · DUAL PIXEL AF" },
     { kicker: "II",  title: "What I look for.",
-      desc: "Quiet streets, soft light, the in-between moments most people walk past." },
+      desc: "Quiet streets, soft light, the in-between moments most people walk past.",
+      spec: "RF 24-70MM F/2.8 L · 21 ELEMENTS" },
     { kicker: "III", title: "Ordinary places, extraordinary moments.",
-      desc: "Street, travel, and editorial photography." },
+      desc: "Street, travel, and editorial photography.",
+      spec: "IBIS 8 STOPS · DIGIC X" },
     { kicker: "IV",  title: "The photo is what stays.",
-      desc: "Browse the archive, or get in touch for work." },
+      desc: "Browse the archive, or get in touch for work.",
+      spec: "EST. 2020 · SINGAPORE" },
   ];
 
   React.useEffect(() => {
@@ -143,7 +147,105 @@ function Camera3D() {
     // a slice of the progress before moving, so the disassembly cascades
     // outward like a choreographed teardown instead of everything sliding
     // in unison. (Pseudo-random from the index so it's stable across loads.)
-    built.parts.forEach((p, i) => { p.delay = ((i * 37) % 23) / 23 * 0.28; });
+    // Each part also gets a small arc vector: it swings out along a curve
+    // (zero at both endpoints) rather than gliding on a straight line.
+    built.parts.forEach((p, i) => {
+      p.delay = ((i * 37) % 23) / 23 * 0.28;
+      const a = ((i * 131) % 360) * (Math.PI / 180);
+      const mag = 0.16 + ((i * 53) % 17) / 17 * 0.22;
+      p.arc = {
+        x: Math.cos(a) * mag * 0.7,
+        y: 0.12 + ((i * 29) % 13) / 13 * 0.24,
+        z: Math.sin(a) * mag * 0.4,
+      };
+    });
+
+    /* ── contact shadow ──────────────────────────────────────────────── */
+    // Soft radial disc under the assembly. Spreads and thins out as the
+    // parts fly apart, visually grounding the object in the void.
+    let shadowMesh = null;
+    {
+      const sc = document.createElement('canvas');
+      sc.width = sc.height = 256;
+      const g = sc.getContext('2d');
+      const grad = g.createRadialGradient(128, 128, 8, 128, 128, 128);
+      grad.addColorStop(0, 'rgba(0,0,0,0.55)');
+      grad.addColorStop(0.55, 'rgba(0,0,0,0.22)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      g.fillStyle = grad;
+      g.fillRect(0, 0, 256, 256);
+      const shadowTex = new THREE.CanvasTexture(sc);
+      shadowMesh = new THREE.Mesh(
+        new THREE.PlaneGeometry(3.4, 2.2),
+        new THREE.MeshBasicMaterial({
+          map: shadowTex, transparent: true, depthWrite: false, opacity: 0.5,
+        })
+      );
+      shadowMesh.rotation.x = -Math.PI / 2;
+      shadowMesh.position.y = -1.32;
+      scene.add(shadowMesh);
+    }
+
+    /* ── dust motes ──────────────────────────────────────────────────── */
+    // A sparse cloud of warm specks drifting through the light volume —
+    // gives the black void depth and atmosphere.
+    let motes = null;
+    if (!reduce) {
+      const COUNT = 110;
+      const posArr = new Float32Array(COUNT * 3);
+      for (let i = 0; i < COUNT; i++) {
+        posArr[i * 3]     = (((i * 73) % 100) / 100 - 0.5) * 9;
+        posArr[i * 3 + 1] = (((i * 41) % 100) / 100 - 0.45) * 5;
+        posArr[i * 3 + 2] = (((i * 89) % 100) / 100 - 0.6) * 5;
+      }
+      const moteGeo = new THREE.BufferGeometry();
+      moteGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+      motes = new THREE.Points(moteGeo, new THREE.PointsMaterial({
+        color: 0xC8A265, size: 0.02, sizeAttenuation: true,
+        transparent: true, opacity: 0.4, depthWrite: false,
+        blending: THREE.AdditiveBlending,
+      }));
+      scene.add(motes);
+    }
+
+    /* ── technical callouts ──────────────────────────────────────────── */
+    // Teardown-diagram labels with leader lines, pinned to key parts in 3D
+    // and projected to the screen every frame. They fade in as the
+    // explosion approaches its peak. Desktop only — too dense for phones.
+    const CALLOUTS = [
+      { anchor: 'anchor-sensor',  num: '01', label: 'FULL-FRAME CMOS', sub: '24.2 MP · DUAL PIXEL AF', dx: 150,  dy: -80 },
+      { anchor: 'anchor-optics',  num: '02', label: 'RF 24-70 F/2.8 L', sub: '21 ELEMENTS · 15 GROUPS', dx: 140,  dy: 90 },
+      { anchor: 'anchor-pcb',     num: '03', label: 'DIGIC X',          sub: 'IMAGE PROCESSOR',         dx: -50,  dy: -150 },
+      { anchor: 'anchor-battery', num: '04', label: 'LP-E6P',           sub: 'POWER CELL',              dx: 170,  dy: 40 },
+      { anchor: 'anchor-evf',     num: '05', label: 'OLED EVF',         sub: '5.76M DOTS',              dx: 60,   dy: -90 },
+    ];
+    let calloutEls = null;
+    const _v = new THREE.Vector3();
+    if (!isMobile && !reduce) {
+      const overlay = document.createElement('div');
+      overlay.className = 'cam3d-callouts';
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svg = document.createElementNS(svgNS, 'svg');
+      svg.setAttribute('class', 'cam3d-callout-lines');
+      overlay.appendChild(svg);
+      calloutEls = CALLOUTS.map((c) => {
+        const mesh = built.group.getObjectByName(c.anchor);
+        const line = document.createElementNS(svgNS, 'line');
+        const dot = document.createElementNS(svgNS, 'circle');
+        dot.setAttribute('r', '2.5');
+        svg.appendChild(line);
+        svg.appendChild(dot);
+        const el = document.createElement('div');
+        el.className = 'cam3d-callout';
+        el.innerHTML =
+          `<span class="cam3d-callout-num">${c.num}</span>` +
+          `<span class="cam3d-callout-label">${c.label}</span>` +
+          `<span class="cam3d-callout-sub">${c.sub}</span>`;
+        overlay.appendChild(el);
+        return { ...c, mesh, el, line, dot };
+      }).filter((c) => c.mesh);
+      container.appendChild(overlay);
+    }
 
     /* ── scroll state ────────────────────────────────────────────────── */
     let scrollP = 0;
@@ -170,10 +272,12 @@ function Camera3D() {
     if (!reduce && !isMobile) window.addEventListener('mousemove', onMouse, { passive: true });
 
     /* ── resize ──────────────────────────────────────────────────────── */
+    let vw = container.clientWidth, vh = container.clientHeight;
     const onResize = () => {
       const w = container.clientWidth;
       const h = container.clientHeight;
       if (w === 0 || h === 0) return;
+      vw = w; vh = h;
       renderer.setSize(w, h);
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
@@ -220,26 +324,46 @@ function Camera3D() {
     let smoothP = scrollP;
     let tiltX = 0, tiltY = 0;
 
+    const camBaseZ = camera.position.z;
     const tick = () => {
       if (!visible) return;
       smoothP += (scrollP - smoothP) * 0.085;
       const xT = explodeCurve(smoothP);
       const now = performance.now();
 
-      // Apply per-part interpolation, staggered by each part's delay slice
+      // Per-part interpolation: staggered by each part's delay slice, and
+      // bowed along its arc vector (sin bump — zero at rest and at target)
+      // so pieces swing outward on curves instead of straight rails.
       const parts = built.parts;
       for (let i = 0; i < parts.length; i++) {
         const p = parts[i];
         const d = p.delay || 0;
         const local = Math.max(0, Math.min(1, (xT - d) / (1 - d)));
         const t = local * (p.weight || 1);
-        p.mesh.position.x = p.rest.position.x + (p.target.position.x - p.rest.position.x) * t;
-        p.mesh.position.y = p.rest.position.y + (p.target.position.y - p.rest.position.y) * t;
-        p.mesh.position.z = p.rest.position.z + (p.target.position.z - p.rest.position.z) * t;
+        const bow = Math.sin(local * Math.PI);
+        p.mesh.position.x = p.rest.position.x + (p.target.position.x - p.rest.position.x) * t + p.arc.x * bow;
+        p.mesh.position.y = p.rest.position.y + (p.target.position.y - p.rest.position.y) * t + p.arc.y * bow;
+        p.mesh.position.z = p.rest.position.z + (p.target.position.z - p.rest.position.z) * t + p.arc.z * bow;
         p.mesh.rotation.x = p.rest.rotation.x + (p.target.rotation.x - p.rest.rotation.x) * t;
         p.mesh.rotation.y = p.rest.rotation.y + (p.target.rotation.y - p.rest.rotation.y) * t;
         p.mesh.rotation.z = p.rest.rotation.z + (p.target.rotation.z - p.rest.rotation.z) * t;
       }
+
+      // Cinematic dolly: pull back as the spread widens, and let the warm
+      // rim light flare with it so the peak of the teardown feels charged.
+      camera.position.z = camBaseZ + xT * 1.15;
+      camera.lookAt(0, -0.05, 0);
+      rimLight.intensity = 4.0 + xT * 2.6;
+      rimLight2.intensity = 2.4 + xT * 1.5;
+      accentLight.intensity = 3.0 + Math.sin(now * 0.0035) * 0.5 * xT;
+
+      // Contact shadow spreads and thins as parts leave the ground plane
+      if (shadowMesh) {
+        shadowMesh.material.opacity = 0.5 - xT * 0.3;
+        const ss = 1 + xT * 0.9;
+        shadowMesh.scale.set(ss, ss, 1);
+      }
+      if (motes) motes.rotation.y = now * 0.000018;
 
       if (!reduce) {
         // Cursor tilt eases toward the pointer (zero on mobile — no cursor)
@@ -252,6 +376,53 @@ function Camera3D() {
         built.group.rotation.y = yaw + tiltX + Math.sin(now * 0.00045) * 0.012;
         built.group.rotation.x = pitch + tiltY + Math.sin(now * 0.00062) * 0.008;
         built.group.position.y = Math.sin(now * 0.0008) * 0.022;
+      }
+
+      // Project the teardown callouts to screen space. They surface as the
+      // explosion approaches its peak and trail its motion 1:1.
+      if (calloutEls) {
+        const show = Math.max(0, Math.min(1, (xT - 0.5) / 0.22));
+        // Pass 1: project each anchor, clamp its label into the stage.
+        // Callouts whose part is out of frame fade out entirely — the yaw
+        // sweep brings different parts (and their labels) through the frame
+        // as you scroll, so the plate annotates whatever is on stage.
+        const placed = [];
+        for (const c of calloutEls) {
+          c.mesh.getWorldPosition(_v);
+          _v.project(camera);
+          const px = (_v.x * 0.5 + 0.5) * vw;
+          const py = (-_v.y * 0.5 + 0.5) * vh;
+          const off = _v.z > 1 || px < 30 || px > vw - 30 || py < 70 || py > vh - 50;
+          // Clamp the label into the stage (leader lines stretch to reach,
+          // like a real technical plate); keep clear of the nav/fig plate
+          // up top and the caption's lower-left quadrant.
+          let lx = Math.max(110, Math.min(vw - 130, px + c.dx));
+          let ly = Math.max(128, Math.min(vh - 120, py + c.dy));
+          if (lx < 500 && ly > vh * 0.44) ly = vh * 0.44;
+          c._px = px; c._py = py; c._lx = lx; c._ly = ly;
+          c._o = off ? 0 : show;
+          if (!off) placed.push(c);
+        }
+        // Pass 2: separate labels that clamped into the same spot.
+        for (let a = 0; a < placed.length; a++) {
+          for (let b = a + 1; b < placed.length; b++) {
+            const A = placed[a], B = placed[b];
+            if (Math.abs(A._lx - B._lx) < 165 && Math.abs(A._ly - B._ly) < 72) {
+              B._ly = Math.max(128, Math.min(vh - 120,
+                A._ly + (B._ly >= A._ly ? 72 : -72)));
+            }
+          }
+        }
+        for (const c of calloutEls) {
+          c.el.style.opacity = c._o;
+          c.el.style.transform = `translate(${c._lx}px, ${c._ly}px) translate(-50%, -50%)`;
+          c.line.setAttribute('x1', c._px); c.line.setAttribute('y1', c._py);
+          c.line.setAttribute('x2', c._px + (c._lx - c._px) * 0.72);
+          c.line.setAttribute('y2', c._py + (c._ly - c._py) * 0.72);
+          c.line.style.opacity = c._o;
+          c.dot.setAttribute('cx', c._px); c.dot.setAttribute('cy', c._py);
+          c.dot.style.opacity = c._o;
+        }
       }
 
       renderer.render(scene, camera);
@@ -271,6 +442,7 @@ function Camera3D() {
       window.removeEventListener('resize', onResize);
       window.removeEventListener('mousemove', onMouse);
       if (envTex) envTex.dispose();
+      container.querySelector('.cam3d-callouts')?.remove();
       container.removeChild(renderer.domElement);
       // Dispose geometries + materials + their textures. material.dispose()
       // does NOT free attached textures — without disposing maps, the label
@@ -298,10 +470,24 @@ function Camera3D() {
     <section className="cam3d-section" ref={sectionRef}>
       <div className="cam3d-sticky">
         <div className="cam3d-canvas" ref={containerRef} aria-hidden="true" />
+
+        {/* Figure plate — technical-drawing framing for the teardown */}
+        <div className="cam3d-fig" aria-hidden="true">
+          <span className="cam3d-fig-no">FIG. 01</span>
+          <span className="cam3d-fig-name">EOS R6 MARK III — EXPLODED VIEW</span>
+        </div>
+
+        {/* Viewfinder corner ticks framing the stage */}
+        <div className="cam3d-corners" aria-hidden="true">
+          <span className="cc tl" /><span className="cc tr" />
+          <span className="cc bl" /><span className="cc br" />
+        </div>
+
         <div className="cam3d-cap">
           <div className="cam3d-kicker">{cur.kicker}</div>
           <h2 className="cam3d-title" key={"t" + phase}>{cur.title}</h2>
           <p className="cam3d-desc" key={"d" + phase}>{cur.desc}</p>
+          <div className="cam3d-spec" key={"s" + phase}>{cur.spec}</div>
           <div className="cam3d-progress" aria-hidden="true">
             {PHILOSOPHY.map((_, i) => (
               <span key={i} className={"c3d-dot" + (i === phase ? " on" : (i < phase ? " past" : ""))} />
@@ -484,10 +670,11 @@ function buildModel(maxAnisotropy = 4) {
   // EVF prism hump (top center) — small pyramid using small cylinder
   const evfGeo = new THREE.CylinderGeometry(0.18, 0.22, 0.22, 4);
   evfGeo.rotateY(Math.PI / 4);
-  addPart(new THREE.Mesh(evfGeo, matBody), {
+  const evfMesh = addPart(new THREE.Mesh(evfGeo, matBody), {
     pos: [0, 0.65, -0.28],
     target: [0, 2.4, -0.5],
   });
+  evfMesh.name = 'anchor-evf'; // callout anchor
   // EVF eyepiece (back side, small)
   addPart(new THREE.Mesh(cyl(0.08, 0.09, 0.05, 32), matBodyDark), {
     pos: [0, 0.62, -0.66],
@@ -792,6 +979,7 @@ function buildModel(maxAnisotropy = 4) {
   ];
   lensSpecs.forEach((s, i) => {
     const el = lensElement(s.rG, s.rR, s.depth, s.mat);
+    if (i === 4) el.name = 'anchor-optics'; // callout anchor (mid element)
     el.position.set(0, 0, s.z);
     // Target: chain forward AND fan slightly upward as they get rear
     const fwd = (lensSpecs.length - 1 - i) * 0.5;          // rear chains further back/up
@@ -860,6 +1048,7 @@ function buildModel(maxAnisotropy = 4) {
     arm.rotation.z = Math.atan2(cy, cx);
     sensorGroup.add(arm);
   }
+  sensorGroup.name = 'anchor-sensor'; // callout anchor
   sensorGroup.position.set(0, 0, 0.03);
   parts.push({
     mesh: sensorGroup,
@@ -870,10 +1059,11 @@ function buildModel(maxAnisotropy = 4) {
   group.add(sensorGroup);
 
   // PCB (behind sensor)
-  addPart(new THREE.Mesh(box(0.55, 0.42, 0.02), matPCB), {
+  const pcbMesh = addPart(new THREE.Mesh(box(0.55, 0.42, 0.02), matPCB), {
     pos: [0, 0, -0.12],
     target: [0.8, -1.6, -2.0],
   });
+  pcbMesh.name = 'anchor-pcb'; // callout anchor
   // DIGIC X processor chip (on PCB)
   addPart(new THREE.Mesh(box(0.14, 0.14, 0.035), matChip), {
     pos: [0.08, 0.05, -0.1],
@@ -889,10 +1079,11 @@ function buildModel(maxAnisotropy = 4) {
   }
 
   // Battery (LP-E6P) inside grip
-  addPart(new THREE.Mesh(box(0.18, 0.42, 0.14), matBodyDark), {
+  const battMesh = addPart(new THREE.Mesh(box(0.18, 0.42, 0.14), matBodyDark), {
     pos: [-0.82, -0.18, -0.32],
     target: [-3.2, -1.8, -1.2],
   });
+  battMesh.name = 'anchor-battery'; // callout anchor
   // Battery contacts (3 golden strips on top)
   for (let i = 0; i < 3; i++) {
     addPart(new THREE.Mesh(box(0.018, 0.012, 0.018), matOchre), {

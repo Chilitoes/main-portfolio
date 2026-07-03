@@ -1813,6 +1813,104 @@ picture { display: contents; }
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* Per-phase spec line — a small mono "data plate" under the description */
+.cam3d-spec {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  color: var(--ochre);
+  opacity: 0.85;
+  margin-bottom: 20px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(200, 162, 101, 0.25);
+  animation: c3dRise 0.8s var(--ease-soft) 0.18s both;
+}
+
+/* Figure plate — technical-drawing header, top-left of the stage */
+.cam3d-fig {
+  position: absolute;
+  z-index: 2;
+  top: calc(70px + 3vh);
+  left: max(40px, 5vw);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--mono);
+  letter-spacing: 0.3em;
+  pointer-events: none;
+}
+.cam3d-fig-no {
+  font-size: 10px;
+  color: var(--ochre);
+  padding: 4px 8px;
+  border: 1px solid rgba(200, 162, 101, 0.35);
+}
+.cam3d-fig-name {
+  font-size: 9.5px;
+  color: var(--fg-dim);
+}
+
+/* Viewfinder corner ticks framing the sticky stage */
+.cam3d-corners { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+.cam3d-corners .cc {
+  position: absolute;
+  width: 22px; height: 22px;
+  border: 0 solid rgba(200, 162, 101, 0.35);
+}
+.cam3d-corners .tl { top: calc(66px + 2vh); left: 26px; border-top-width: 1px; border-left-width: 1px; }
+.cam3d-corners .tr { top: calc(66px + 2vh); right: 26px; border-top-width: 1px; border-right-width: 1px; }
+.cam3d-corners .bl { bottom: 3vh; left: 26px; border-bottom-width: 1px; border-left-width: 1px; }
+.cam3d-corners .br { bottom: 3vh; right: 26px; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* Teardown callouts — labels + leader lines projected from 3D each frame.
+   Created/positioned imperatively by camera-3d.jsx; opacity is driven by
+   explosion progress so they surface at the peak of the spread. */
+.cam3d-callouts {
+  position: absolute; inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+.cam3d-callout-lines {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+.cam3d-callout-lines line {
+  stroke: rgba(200, 162, 101, 0.5);
+  stroke-width: 1;
+}
+.cam3d-callout-lines circle { fill: var(--ochre); }
+.cam3d-callout {
+  position: absolute;
+  top: 0; left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.cam3d-callout-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ochre);
+}
+.cam3d-callout-label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--fg);
+  white-space: nowrap;
+}
+.cam3d-callout-sub {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  letter-spacing: 0.24em;
+  color: var(--fg-dim);
+  white-space: nowrap;
+}
+
 .cam3d-progress { display: flex; gap: 8px; align-items: center; }
 .c3d-dot {
   width: 28px; height: 1.5px;
@@ -1827,6 +1925,11 @@ picture { display: contents; }
   .cam3d-section { height: 420vh; }
   .cam3d-cap { left: 22px; right: 22px; bottom: 8vh; max-width: none; }
   .cam3d-title { font-size: clamp(24px, 7vw, 40px); }
+  /* Callouts are desktop-only (never created on mobile); tuck the figure
+     plate in and drop the name so it fits small screens. */
+  .cam3d-fig { left: 22px; }
+  .cam3d-fig-name { display: none; }
+  .cam3d-corners .tl, .cam3d-corners .tr { top: calc(60px + 1vh); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cam3d-section { height: auto; }
