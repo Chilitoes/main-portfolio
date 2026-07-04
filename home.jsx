@@ -1,5 +1,141 @@
 // ============ Home page ============
 
+// ---- Contact-sheet film strip — vertical scroll pulls the roll sideways ----
+// A sticky stage where scroll progress drags a horizontal strip of frames
+// through the viewport, styled as a film negative: sprocket holes, frame
+// numbers, grease-pencil circles on the editor's selects. Same smoothing
+// pattern as the carousel: scroll moves a target, a rAF loop lerps the strip
+// and writes the transform directly (no per-frame React render).
+function FilmStrip({ onOpenLightbox }) {
+  const zoneRef = React.useRef(null);
+  const stripRef = React.useRef(null);
+  const [current, setCurrent] = React.useState(0);
+
+  const frames = React.useMemo(() => {
+    const picks = [
+      "Japan/IMG_0893.JPG",    // Great Buddha, Kamakura
+      "China/DSCF7118.JPG",    // Night Market Dumplings
+      "Japan/_MG_5886.JPG",    // Daruma Dolls
+      "China/IMG_3181.JPG",    // Canal, Suzhou
+      "Japan/IMG_5768 3.JPG",  // Kanoko Train
+      "Malaysia/DSCF1078.JPG", // KL Skyline
+      "China/DSCF6798.JPG",    // Golden Campfire
+      "Japan/IMG_6143.JPG",    // Night Traffic
+    ];
+    return picks
+      .map((f) => window.PORTFOLIO_BY_FILE && window.PORTFOLIO_BY_FILE[f])
+      .filter(Boolean);
+  }, []);
+
+  React.useLayoutEffect(() => {
+    const zone = zoneRef.current;
+    const strip = stripRef.current;
+    if (!zone || !strip || !frames.length) return;
+    // Reduced motion: CSS turns the stage into a native horizontal scroller.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let target = 0, display = 0, raf = null, inView = true, lastIdx = -1;
+    let travel = 0;
+
+    // Runway sized so vertical scroll maps ~1:1 onto horizontal travel.
+    const size = () => {
+      travel = Math.max(0, strip.scrollWidth - zone.clientWidth);
+      zone.style.height = `${window.innerHeight + travel}px`;
+    };
+    const read = () => {
+      const runway = zone.offsetHeight - window.innerHeight;
+      if (runway <= 0) return;
+      const p = Math.max(0, Math.min(1, -zone.getBoundingClientRect().top / runway));
+      target = p * travel;
+    };
+    const apply = () => {
+      strip.style.transform = `translate3d(${-display}px, 0, 0)`;
+      const idx = Math.min(frames.length - 1,
+        Math.round((display / Math.max(1, travel)) * (frames.length - 1)));
+      if (idx !== lastIdx) { lastIdx = idx; setCurrent(idx); }
+    };
+    const step = () => {
+      if (!inView) { raf = null; return; }
+      display += (target - display) * 0.14;
+      if (Math.abs(target - display) < 0.5) display = target;
+      apply();
+      if (display === target) { raf = null; return; }
+      raf = requestAnimationFrame(step);
+    };
+    const kick = () => { if (inView && raf == null) raf = requestAnimationFrame(step); };
+
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView) { read(); kick(); }
+      else if (raf != null) { cancelAnimationFrame(raf); raf = null; }
+    }, { rootMargin: "80px" });
+    io.observe(zone);
+
+    const onScroll = () => { read(); kick(); };
+    const onResize = () => { size(); read(); kick(); };
+    size();
+    read();
+    display = target;
+    apply();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    return () => {
+      io.disconnect();
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onResize);
+      if (raf != null) cancelAnimationFrame(raf);
+    };
+  }, [frames]);
+
+  if (!frames.length) return null;
+  const marked = new Set([2, 5]); // the editor's grease-pencil selects
+
+  return (
+    <section className="flm-zone" ref={zoneRef} aria-label="Contact sheet">
+      <div className="flm-sticky">
+        <div className="flm-head">
+          <div>
+            <div className="label reveal" style={{ color: "var(--ochre)" }}>Contact Sheet</div>
+            <h2 className="section-title reveal">Straight off <span className="italic">the roll.</span></h2>
+          </div>
+          <div className="label dim flm-count" aria-live="off">
+            FRAME {String(current + 1).padStart(2, "0")} / {String(frames.length).padStart(2, "0")}
+          </div>
+        </div>
+        <div className="flm-mask">
+          <div className="flm-strip" ref={stripRef}>
+            {frames.map((item, i) => {
+              const fullIdx = window.PORTFOLIO.findIndex((p) => p === item);
+              return (
+                <button
+                  key={i}
+                  className="flm-frame"
+                  onClick={() => onOpenLightbox && onOpenLightbox(fullIdx)}
+                  data-cursor="view"
+                  data-cursor-label="Open"
+                  aria-label={`Open photo: ${item.title}`}
+                >
+                  <span className="flm-no">{String(i + 1).padStart(2, "0")}A</span>
+                  <span className="flm-img" style={{ backgroundImage: window.bgImage(item.src, 960) }} />
+                  {marked.has(i) && (
+                    <svg className="flm-mark" viewBox="0 0 100 70" preserveAspectRatio="none" aria-hidden="true">
+                      <ellipse cx="50" cy="35" rx="45" ry="28" fill="none"
+                        stroke="var(--ochre)" strokeWidth="2.4"
+                        strokeDasharray="168 40" strokeLinecap="round"
+                        opacity="0.9" transform="rotate(-4 50 35)" />
+                    </svg>
+                  )}
+                  <span className="flm-cap">{item.country} · {item.title}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Home({ go, onOpenLightbox }) {
   const heroBgRef = React.useRef(null);
   const heroScrollRef = React.useRef(null);
@@ -210,6 +346,9 @@ function Home({ go, onOpenLightbox }) {
 
       {/* Camera anatomy — Three.js pinned scene */}
       <window.Camera3D />
+
+      {/* Contact sheet — scroll pulls the roll sideways */}
+      <FilmStrip onOpenLightbox={onOpenLightbox} />
 
       {/* About teaser */}
       <div className="split-scroll-zone" ref={splitScrollRef}>

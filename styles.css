@@ -358,6 +358,122 @@ body.nav-menu-open { overflow: hidden; }
   to { opacity: 1; transform: none; }
 }
 
+/* ===== Contact-sheet film strip (scroll pulls the roll sideways) ===== */
+.flm-zone {
+  position: relative;
+  /* real height set by JS: 100vh + horizontal travel, so vertical scroll
+     maps ~1:1 onto strip movement */
+  height: 300vh;
+}
+.flm-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.flm-head {
+  position: absolute;
+  top: calc(70px + 4vh);
+  left: max(40px, 5vw);
+  right: max(40px, 5vw);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  z-index: 2;
+}
+.flm-count { letter-spacing: 0.3em; white-space: nowrap; }
+
+.flm-mask { overflow: hidden; }
+.flm-strip {
+  display: flex;
+  align-items: stretch;
+  gap: 26px;
+  width: max-content;
+  padding: 30px max(6vw, 48px) 34px;
+  background-color: #16130f;
+  /* Sprocket perforations top + bottom — the page background shows through
+     the "holes" */
+  background-image:
+    repeating-linear-gradient(90deg, #0B0A08 0 14px, transparent 14px 40px),
+    repeating-linear-gradient(90deg, #0B0A08 0 14px, transparent 14px 40px);
+  background-size: 100% 11px, 100% 11px;
+  background-position: 20px 10px, 20px calc(100% - 21px);
+  background-repeat: no-repeat;
+  border-top: 1px solid rgba(232, 224, 208, 0.06);
+  border-bottom: 1px solid rgba(232, 224, 208, 0.06);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+.flm-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.flm-no {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  color: rgba(200, 162, 101, 0.75);
+  text-align: left;
+}
+.flm-img {
+  display: block;
+  height: min(46vh, 430px);
+  aspect-ratio: 3 / 2;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(232, 224, 208, 0.08);
+  filter: saturate(0.94);
+  transition: filter 0.6s var(--ease-soft);
+}
+.flm-frame:hover .flm-img { filter: saturate(1.08); }
+.flm-frame:focus-visible .flm-img { outline: 2px solid var(--ochre); outline-offset: 3px; }
+.flm-mark {
+  position: absolute;
+  top: 10px; left: -3%;
+  width: 106%;
+  height: calc(min(46vh, 430px) + 12px);
+  pointer-events: none;
+}
+.flm-cap {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--fg-dim);
+  text-align: left;
+}
+
+@media (max-width: 760px) {
+  .flm-head {
+    top: calc(60px + 2vh);
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .flm-img { height: min(34vh, 300px); }
+  .flm-mark { height: calc(min(34vh, 300px) + 12px); }
+  .flm-strip { gap: 16px; padding: 24px 22px 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No pinned stage — the strip becomes a native horizontal scroller */
+  .flm-zone { height: auto !important; padding: 100px 0; }
+  .flm-sticky { position: static; height: auto; overflow: visible; }
+  .flm-head { position: static; margin: 0 max(40px, 5vw) 28px; }
+  .flm-mask { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+}
+
 /* ===== Home: selected work grid ===== */
 .section {
   padding: 120px 40px;
