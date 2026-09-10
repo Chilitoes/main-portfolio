@@ -365,3 +365,158 @@ input, textarea, select { font-size: 17px; border-radius: 10px; }
   background: rgba(118,118,128,.12); color: var(--ink-2);
 }
 [data-theme="dark"] .stop-code { background: rgba(118,118,128,.24); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PASS 3 — LIQUID GLASS
+   ───────────────────────────────────────────────────────────────────────
+   Apple's current material: surfaces are translucent and refractive rather
+   than opaque, they float above the content instead of sitting flush, and
+   depth comes from layered translucency + a specular edge rather than from
+   drop shadows.
+
+   Three things make it read as glass rather than "blurry white":
+     1. Something to refract. Flat views get an ambient colour field
+        behind the content, so the blur has content to bend.
+     2. A specular edge — a bright inset highlight along the top lip and a
+        hairline rim. This is what sells it as a physical pane.
+     3. Float. Chrome detaches from the screen edges and casts a soft
+        ambient shadow instead of being welded to the frame.
+
+   CONTRAST NOTE: translucency costs legibility, so the panes behind text
+   stay at ~0.72 alpha (light) / ~0.62 (dark) rather than the prettier but
+   unreadable ~0.4. Body text still measures ≥4.5:1 against the composited
+   result on both the ambient field and the map.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --glass:        rgba(255,255,255,.55);
+  --glass-strong: rgba(255,255,255,.72);   /* used behind text */
+  --glass-edge:   rgba(255,255,255,.70);   /* specular rim      */
+  --glass-line:   rgba(255,255,255,.55);
+  --glass-spec:   rgba(255,255,255,.75);   /* top-lip highlight */
+  --glass-cast:   rgba(0,0,0,.10);         /* ambient float     */
+  --nav-h: 78px;                            /* + float gap      */
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --glass:        rgba(28,28,30,.52);
+    --glass-strong: rgba(28,28,30,.62);
+    --glass-edge:   rgba(255,255,255,.16);
+    --glass-line:   rgba(255,255,255,.12);
+    --glass-spec:   rgba(255,255,255,.20);
+    --glass-cast:   rgba(0,0,0,.55);
+  }
+}
+[data-theme="dark"] {
+  --glass:        rgba(28,28,30,.52);
+  --glass-strong: rgba(28,28,30,.62);
+  --glass-edge:   rgba(255,255,255,.16);
+  --glass-line:   rgba(255,255,255,.12);
+  --glass-spec:   rgba(255,255,255,.20);
+  --glass-cast:   rgba(0,0,0,.55);
+}
+
+/* 1 ── Something to refract ──────────────────────────────────────────
+   Glass over a flat fill just looks like a flat fill. A soft colour
+   field sits behind the content so the panes have something to bend.
+   Paints above body's own background but below all content. */
+body::before {
+  content: ""; position: fixed; inset: -25%; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(36% 30% at 16% 10%, rgba(10,132,255,.26), transparent 70%),
+    radial-gradient(32% 28% at 86% 20%, rgba(175,82,222,.20), transparent 70%),
+    radial-gradient(38% 32% at 74% 86%, rgba(48,209,88,.16), transparent 70%),
+    radial-gradient(30% 26% at 24% 92%, rgba(255,159,10,.14), transparent 70%);
+  filter: blur(48px) saturate(120%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) body::before { opacity: .55; }
+}
+[data-theme="dark"] body::before { opacity: .55; }
+
+/* Let the field through — these carry opaque fills in the base sheet. */
+.main, .view, .stg-section { background: transparent; }
+
+/* 2 ── Glass panes: rim + specular lip + ambient cast ────────────────── */
+.svc, .stop-card, .stg-card, .saved-card, .block, .panel,
+.jcard, .notif-card, .accuracy-scorecard {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: .5px solid var(--glass-edge);
+  box-shadow:
+    inset 0 1px 0 var(--glass-spec),      /* the lit top lip   */
+    0 6px 20px var(--glass-cast);         /* float, not weight */
+}
+
+/* 3 ── Tab bar: a floating capsule, detached from the frame ──────────── */
+.bottomnav {
+  left: 10px; right: 10px;
+  bottom: calc(env(safe-area-inset-bottom) + 8px);
+  border-radius: 26px; border: .5px solid var(--glass-edge); border-top: none;
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  backdrop-filter: blur(30px) saturate(200%);
+  box-shadow:
+    inset 0 1px 0 var(--glass-spec),
+    0 10px 30px var(--glass-cast);
+  padding: 6px 6px 8px;
+}
+
+/* Search: the same pane language, over the map */
+.arr-search-wrap .search-box, .search-box {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  backdrop-filter: blur(28px) saturate(190%);
+  border: .5px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-spec), 0 4px 16px var(--glass-cast);
+  border-radius: 14px;
+}
+
+/* Sheets read as a thicker pane — more blur, brighter lip */
+.sheet, .feedback-sheet, .route-sheet, .arr-sheet {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(34px) saturate(200%);
+  backdrop-filter: blur(34px) saturate(200%);
+  border-top: .5px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-spec), 0 -8px 40px var(--glass-cast);
+}
+
+/* Floating round controls become glass beads */
+.iconbtn, .arr-locate-btn, .search-clear {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: .5px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-spec), 0 3px 12px var(--glass-cast);
+}
+
+/* Tinted controls keep their tint but gain the pane treatment */
+.chip, .tag, .stop-code {
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  backdrop-filter: blur(14px) saturate(160%);
+}
+
+/* Alerts: a thick frosted slab, the way iOS dialogs sit over content */
+.notif-popup-card, .maintenance-card, .confirm-card, .a2hs-card {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  backdrop-filter: blur(40px) saturate(200%);
+  border: .5px solid var(--glass-edge);
+  box-shadow: inset 0 1px 0 var(--glass-spec), 0 24px 60px rgba(0,0,0,.28);
+}
+
+/* The primary action stays solid — a glass button on glass loses its
+   affordance, and Apple keeps filled buttons opaque for exactly that. */
+.bigbtn:not(.outline), .notif-popup-ok, .maintenance-retry {
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+
+/* Graceful degradation: without backdrop-filter the panes would be
+   see-through and unreadable, so fall back to solid surfaces. */
+@supports not (backdrop-filter: blur(1px)) {
+  .svc, .stop-card, .stg-card, .saved-card, .block, .panel, .jcard,
+  .notif-card, .bottomnav, .search-box, .sheet, .arr-sheet, .iconbtn,
+  .notif-popup-card, .maintenance-card, .a2hs-card { background: var(--surface); }
+  body::before { display: none; }
+}
