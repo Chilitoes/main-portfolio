@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Alston Shi — Travel &amp; Editorial Photographer | Singapore</title>
+<meta name="description" content="Alston Shi is a Singapore-based travel and editorial photographer documenting people and places across Asia since 2020." />
+<meta name="robots" content="noindex" /><!-- design preview: keep out of search until/unless promoted -->
+<meta name="theme-color" content="#ffffff" />
+<link rel="canonical" href="https://alstonshi.com/" />
+
+<!--
+  APPLE-HIG DESIGN PASS — alternate version of alstonshi.com
+  Built against the six audit axes (type / spacing / hierarchy / contrast /
+  motion / density). Every value below is deliberate; the numbers are the
+  point. See the design tokens in :root.
+-->
+<style>
+/* ══════════════════════════════════════════════════════════════════
+   1. TYPE SCALE — 5 steps, one job each (was ~11 arbitrary sizes)
+   2. SPACING    — strict 8px base unit, no exceptions
+   4. CONTRAST   — every text pair measured, all ≥4.5:1 for body
+   5. MOTION     — nothing over 300ms, no linear curves
+   ══════════════════════════════════════════════════════════════════ */
+:root{
+  /* Type scale */
+  --t-display: clamp(40px, 7.2vw, 80px);   /* hero only              */
+  --t-title:   clamp(32px, 4.4vw, 40px);   /* section headings       */
+  --t-lead:    21px;                        /* intro paragraphs       */
+  --t-body:    17px;                        /* default body / UI      */
+  --t-meta:    13px;                        /* eyebrows, captions     */
+
+  /* Spacing — 8px base */
+  --s-1: 8px;   --s-2: 16px;  --s-3: 24px;  --s-4: 32px;
+  --s-5: 48px;  --s-6: 64px;  --s-7: 96px;  --s-8: 128px;
+
+  /* Colour — measured against #fff */
+  --ink:      #1D1D1F;   /* 16.83:1  primary text            */
+  --ink-2:    #6E6E73;   /*  5.07:1  secondary text          */
+  --ink-3:    #86868B;   /*  3.62:1  LARGE text only         */
+  --accent:   #0071E3;   /*  4.70:1  links / actions         */
+  --accent-h: #0077ED;
+  --bg:       #FFFFFF;
+  --bg-2:     #F5F5F7;   /* Apple's canonical panel grey     */
+  --hairline: rgba(0,0,0,.10);
+
+  /* Motion */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --fast: 150ms;
+  --base: 250ms;
+
+  --radius: 18px;
+  --pill:   980px;       /* Apple's pill radius              */
+  --measure: 980px;      /* Apple's content width            */
+  --nav-h: 48px;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:var(--t-body);line-height:1.47059;
+  letter-spacing:-.022em;                 /* SF's optical tracking */
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+img{display:block;max-width:100%;height:auto}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+
+.wrap{max-width:var(--measure);margin-inline:auto;padding-inline:var(--s-3)}
+@media(min-width:735px){.wrap{padding-inline:var(--s-4)}}
+
+/* ── Nav: frosted, 48px, Apple's exact treatment ─────────────── */
+.nav{
+  position:sticky;top:0;z-index:100;height:var(--nav-h);
+  background:rgba(255,255,255,.72);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid var(--hairline);
+}
+.nav-in{max-width:var(--measure);margin-inline:auto;height:100%;padding-inline:var(--s-3);
+  display:flex;align-items:center;justify-content:space-between;gap:var(--s-3)}
+.brand{font-size:var(--t-body);font-weight:600;color:var(--ink);letter-spacing:-.022em}
+.brand:hover{text-decoration:none}
+.nav-links{display:flex;gap:var(--s-3);align-items:center}
+.nav-links a{
+  font-size:12px;color:var(--ink);opacity:.8;letter-spacing:-.01em;
+  transition:opacity var(--fast) var(--ease);
+}
+.nav-links a:hover{opacity:1;text-decoration:none}
+@media(max-width:620px){.nav-links a:nth-child(n+4){display:none}}
+
+/* ── Hero: headline wins outright (3. HIERARCHY) ─────────────── */
+.hero{padding:var(--s-7) 0 var(--s-5);text-align:center}
+.eyebrow{
+  font-size:var(--t-meta);font-weight:600;color:var(--accent);
+  letter-spacing:.01em;margin-bottom:var(--s-2);
+}
+h1{
+  font-size:var(--t-display);line-height:1.05;font-weight:600;
+  letter-spacing:-.015em;                  /* tighter as size grows */
+  max-width:16ch;margin-inline:auto;
+}
+.sub{
+  font-size:var(--t-lead);line-height:1.381;color:var(--ink-2);
+  max-width:42ch;margin:var(--s-3) auto 0;letter-spacing:-.022em;
+}
+.cta-row{display:flex;gap:var(--s-3);justify-content:center;flex-wrap:wrap;margin-top:var(--s-4)}
+.btn{
+  display:inline-block;background:var(--accent);color:#fff;
+  font-size:var(--t-body);font-weight:400;
+  padding:12px var(--s-3);border-radius:var(--pill);
+  transition:background var(--fast) var(--ease),transform var(--fast) var(--ease);
+}
+.btn:hover{background:var(--accent-h);text-decoration:none}
+.btn:active{transform:scale(.97)}
+.link-arrow{font-size:var(--t-body);align-self:center}
+.link-arrow::after{content:"›";margin-left:4px;display:inline-block;
+  transition:transform var(--fast) var(--ease)}
+.link-arrow:hover{text-decoration:none}
+.link-arrow:hover::after{transform:translateX(3px)}
+
+/* Full-bleed hero frame */
+.hero-shot{margin-top:var(--s-6);padding-inline:var(--s-3)}
+.hero-shot .frame{
+  max-width:1440px;margin-inline:auto;border-radius:var(--radius);
+  overflow:hidden;background:var(--bg-2);aspect-ratio:16/9;
+}
+.hero-shot img{width:100%;height:100%;object-fit:cover}
+
+/* ── Sections (6. DENSITY: 96px rhythm, 64px on small) ────────── */
+section{padding-block:var(--s-7)}
+@media(max-width:734px){section{padding-block:var(--s-6)}}
+.sec-head{margin-bottom:var(--s-5)}
+h2{font-size:var(--t-title);line-height:1.1;font-weight:600;letter-spacing:-.01em}
+.sec-sub{font-size:var(--t-lead);color:var(--ink-2);margin-top:var(--s-2);max-width:56ch}
+.band{background:var(--bg-2)}
+
+/* ── Work grid ───────────────────────────────────────────────── */
+.grid{display:grid;gap:var(--s-3);grid-template-columns:repeat(2,1fr)}
+@media(min-width:735px){.grid{grid-template-columns:repeat(3,1fr)}}
+.tile{
+  position:relative;border-radius:12px;overflow:hidden;background:var(--bg-2);
+  aspect-ratio:4/5;display:block;width:100%;
+  transition:transform var(--base) var(--ease),box-shadow var(--base) var(--ease);
+}
+.tile img{width:100%;height:100%;object-fit:cover;
+  transition:transform var(--base) var(--ease)}
+.tile:hover{box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.tile:hover img{transform:scale(1.04)}
+.tile figcaption{
+  position:absolute;inset:auto 0 0 0;padding:var(--s-3) var(--s-2) var(--s-2);
+  background:linear-gradient(transparent,rgba(0,0,0,.72));
+  color:#fff;font-size:var(--t-meta);text-align:left;letter-spacing:-.01em;
+  opacity:0;transition:opacity var(--base) var(--ease);
+}
+.tile:hover figcaption,.tile:focus-visible figcaption{opacity:1}
+.tile figcaption b{display:block;font-weight:600;font-size:15px;margin-bottom:2px}
+
+/* ── Filters ─────────────────────────────────────────────────── */
+.filters{display:flex;gap:var(--s-1);flex-wrap:wrap;margin-bottom:var(--s-4)}
+.chip{
+  font-size:var(--t-meta);font-weight:500;color:var(--ink);
+  padding:var(--s-1) var(--s-2);border-radius:var(--pill);
+  background:var(--bg-2);border:1px solid transparent;
+  transition:background var(--fast) var(--ease),color var(--fast) var(--ease);
+}
+.band .chip{background:#fff}
+.chip:hover{background:#E8E8ED}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff}
+.count{font-size:var(--t-meta);color:var(--ink-2);margin-bottom:var(--s-3)}
+
+/* ── About ───────────────────────────────────────────────────── */
+.about{display:grid;gap:var(--s-5);align-items:center}
+@media(min-width:735px){.about{grid-template-columns:5fr 7fr;gap:var(--s-6)}}
+.portrait{border-radius:var(--radius);overflow:hidden;background:var(--bg-2);aspect-ratio:4/5}
+.portrait img{width:100%;height:100%;object-fit:cover}
+.about p{font-size:var(--t-lead);line-height:1.5;color:var(--ink-2);margin-top:var(--s-3);letter-spacing:-.022em}
+.about p:first-of-type{margin-top:var(--s-3)}
+.gear{margin-top:var(--s-4);padding-top:var(--s-3);border-top:1px solid var(--hairline)}
+.gear-label{font-size:var(--t-meta);font-weight:600;color:var(--ink-2);margin-bottom:var(--s-2)}
+.gear-list{display:flex;flex-wrap:wrap;gap:var(--s-1)}
+.gear-list span{font-size:var(--t-meta);color:var(--ink);background:var(--bg-2);
+  padding:6px 12px;border-radius:var(--pill)}
+.band .gear-list span{background:#fff}
+
+/* ── Contact ─────────────────────────────────────────────────── */
+.contact{text-align:center}
+.contact h2{max-width:18ch;margin-inline:auto}
+.contact .sub{margin-top:var(--s-2)}
+
+/* ── Footer ──────────────────────────────────────────────────── */
+footer{border-top:1px solid var(--hairline);padding-block:var(--s-4);
+  font-size:12px;color:var(--ink-2);line-height:1.6}
+.foot-row{display:flex;justify-content:space-between;gap:var(--s-3);flex-wrap:wrap}
+.foot-row nav{display:flex;gap:var(--s-3);flex-wrap:wrap}
+
+/* ── Lightbox ────────────────────────────────────────────────── */
+.lb{
+  position:fixed;inset:0;z-index:200;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.94);padding:var(--s-5) var(--s-3);
+  opacity:0;transition:opacity var(--base) var(--ease);
+}
+.lb.open{display:flex}
+.lb.shown{opacity:1}
+.lb img{max-width:100%;max-height:82vh;object-fit:contain;border-radius:8px}
+.lb-cap{position:absolute;left:0;right:0;bottom:var(--s-3);text-align:center;
+  color:#fff;font-size:var(--t-meta);opacity:.85}
+.lb-x,.lb-nav{
+  position:absolute;color:#fff;width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  background:rgba(255,255,255,.12);
+  transition:background var(--fast) var(--ease);
+}
+.lb-x:hover,.lb-nav:hover{background:rgba(255,255,255,.24)}
+.lb-x{top:var(--s-3);right:var(--s-3)}
+.lb-nav.prev{left:var(--s-2);top:50%;transform:translateY(-50%)}
+.lb-nav.next{right:var(--s-2);top:50%;transform:translateY(-50%)}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-in">
+    <a class="brand" href="#top">Alston Shi</a>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#archive">Archive</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+      <a href="/">Original site</a>
+    </div>
+  </div>
+</nav>
+
+<main id="top">
+
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Travel &amp; Editorial Photography</p>
+      <h1>Ordinary places, extraordinary moments.</h1>
+      <p class="sub">Singapore-based. Documenting people and places across Asia since 2020.</p>
+      <div class="cta-row">
+        <a class="btn" href="#archive">Browse the archive</a>
+        <a class="link-arrow" href="#contact">Get in touch</a>
+      </div>
+    </div>
+    <div class="hero-shot"><div class="frame" id="hero-frame"></div></div>
+  </header>
+
+  <section id="work">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>Selected work</h2>
+        <p class="sec-sub">Twelve frames from Japan, China, Taiwan and closer to home.</p>
+      </div>
+      <div class="grid" id="featured"></div>
+    </div>
+  </section>
+
+  <section id="archive" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>The archive</h2>
+        <p class="sec-sub">Everything, by country.</p>
+      </div>
+      <div class="filters" id="filters"></div>
+      <p class="count" id="count"></p>
+      <div class="grid" id="archive-grid"></div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="wrap">
+      <div class="about">
+        <div class="portrait" id="portrait"></div>
+        <div>
+          <h2>About</h2>
+          <p>I'm a travel and editorial photographer based in Singapore. Since 2020 I've been making pictures across Asia — temple courtyards in China, cherry-blossom streets in Japan, night markets and quiet corners most people walk past without a second look.</p>
+          <p>I shoot people too: events, portraits, the moments worth holding onto. Different subjects, same instinct.</p>
+          <div class="gear">
+            <p class="gear-label">Gear</p>
+            <div class="gear-list" id="gear"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="band">
+    <div class="wrap contact">
+      <h2>Available for travel, editorial and event work.</h2>
+      <p class="sub">Replies within 48 hours.</p>
+      <div class="cta-row">
+        <a class="btn" href="mailto:alstonjpeg@gmail.com">alstonjpeg@gmail.com</a>
+        <a class="link-arrow" href="https://instagram.com/alstonsjpeg" target="_blank" rel="noopener">Instagram</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap foot-row">
+    <span>© 2026 Alston Shi. All rights reserved.</span>
+    <nav>
+      <a href="/">Original design</a>
+      <a href="/personal/">Digital portfolio</a>
+      <a href="/bus/">SG Bus AI</a>
+    </nav>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <button class="lb-x" id="lb-x" aria-label="Close">&times;</button>
+  <button class="lb-nav prev" id="lb-prev" aria-label="Previous">&#8249;</button>
+  <button class="lb-nav next" id="lb-next" aria-label="Next">&#8250;</button>
+  <img id="lb-img" alt="" />
+  <p class="lb-cap" id="lb-cap"></p>
+</div>
+
+<script>
+/* Photo data mirrors ../data.jsx. Paths resolve to the responsive
+   -480/-960/-1920 AVIF/WebP variants already generated by
+   scripts/optimize-images.js, so this page costs no new assets. */
+const ITEMS = [
+["Japan","Torii Gate, Hakone","Japan/IMG_0393.JPG"],["Japan","Skytree & Sakura","Japan/IMG_0496.JPG"],
+["Japan","Canal Boat, Kyoto","Japan/IMG_0544.JPG"],["Japan","Osaka Castle","Japan/IMG_0590.JPG"],
+["Japan","Great Buddha, Kamakura","Japan/IMG_0893.JPG"],["Japan","Cherry Blossom Crossing","Japan/IMG_1282.JPG"],
+["Japan","Wedded Rocks, Ise","Japan/IMG_2564.JPG"],["Japan","Sakura Canal","Japan/IMG_8970.JPG"],
+["Japan","Daruma Dolls","Japan/_MG_5886.JPG"],["China","Golden Campfire","China/DSCF6798.JPG"],
+["China","Night Market Dumplings","China/DSCF7118.JPG"],["China","Hexagon Window","China/DSCF8199.JPG"],
+["China","Redhead Duck","China/DSCF8409.JPG"],["China","Garden Pavilion","China/DSCF8511.JPG"],
+["China","Old City, Shanghai","China/IMG_3029.JPG"],["China","Canal, Suzhou","China/IMG_3181.JPG"],
+["China","Shanghai Night","China/IMG_7694.JPG"],["China","Temple Incense","China/IMG_9089.JPG"],
+["Japan","Dotonbori, Osaka","Japan/IMG_5583.JPG"],["Japan","Rickshaw, Kyoto","Japan/IMG_5305 2.JPG"],
+["Japan","Kanoko Train","Japan/IMG_5768 3.JPG"],["Japan","Tsutenkaku, Osaka","Japan/IMG_5931.JPG"],
+["Japan","Neon Alley, Tsuruhashi","Japan/IMG_5936.JPG"],["Japan","Sakura After Dark","Japan/IMG_6090.JPG"],
+["Japan","Night Traffic","Japan/IMG_6143.JPG"],["Japan","Shibuya Crossing","Japan/IMG_6229 2.JPG"],
+["Japan","Late Night Corner","Japan/IMG_6785.JPG"],["Japan","Street Karts, Tokyo","Japan/IMG_6819 2.JPG"],
+["China","Night Market Vendor","China/DSCF7231.JPG"],["China","West Lake, Hangzhou","China/IMG_3244.JPG"],
+["Malaysia","Steel Arch Bridge","Malaysia/DSCF1058.JPG"],["Malaysia","KL Skyline","Malaysia/DSCF1078.JPG"],
+["Singapore","Tropical Garden","Singapore/IMG_6462.JPG"],
+["Japan","Japan","Japan/DSC_0516.JPG"],["Japan","Japan","Japan/IMG_0546.JPG"],["Japan","Japan","Japan/IMG_0597.JPG"],
+["Japan","Japan","Japan/IMG_0911.JPG"],["Japan","Japan","Japan/IMG_1324.JPG"],["Japan","Japan","Japan/IMG_1338.JPG"],
+["Japan","Japan","Japan/IMG_1913.JPG"],["Japan","Japan","Japan/IMG_2010.JPG"],["Japan","Japan","Japan/IMG_2218 2.JPG"],
+["Japan","Japan","Japan/IMG_2253.JPG"],["Japan","Japan","Japan/IMG_2269.JPG"],["Japan","Japan","Japan/IMG_2341.JPG"],
+["Japan","Japan","Japan/IMG_2557.JPG"],["Japan","Japan","Japan/IMG_2558.JPG"],["Japan","Japan","Japan/IMG_2571.JPG"],
+["Japan","Japan","Japan/IMG_5317.JPG"],["Japan","Japan","Japan/IMG_5336 2.JPG"],["Japan","Japan","Japan/IMG_5365.JPG"],
+["Japan","Japan","Japan/IMG_5385 2.JPG"],["Japan","Japan","Japan/IMG_5708 2.JPG"],["Japan","Japan","Japan/IMG_5804 3.JPG"],
+["Japan","Japan","Japan/IMG_5876 2.JPG"],["Japan","Japan","Japan/IMG_5953.JPG"],["Japan","Japan","Japan/IMG_5959.JPG"],
+["Japan","Japan","Japan/IMG_6130 2.JPG"],["Japan","Japan","Japan/IMG_6248 2.JPG"],["Japan","Japan","Japan/IMG_6838 2.JPG"],
+["Japan","Japan","Japan/IMG_6845 2.JPG"],["Japan","Japan","Japan/IMG_6862 2.JPG"],["Japan","Japan","Japan/IMG_6969 2.JPG"],
+["Japan","Japan","Japan/_MG_4298 3.JPG"],
+["China","China","China/DSCF7305.JPG"],["China","China","China/DSCF8280.JPG"],["China","China","China/DSCF8518.JPG"],
+["China","China","China/DSCF8952.JPG"],["China","China","China/IMG_2960.JPG"],["China","China","China/IMG_3228.JPG"],
+["China","China","China/IMG_3246.JPG"],["China","China","China/IMG_3297.JPG"],["China","China","China/IMG_3331.JPG"],
+["China","China","China/IMG_3335.JPG"],["China","China","China/IMG_3336.JPG"],["China","China","China/IMG_3338.JPG"],
+["China","China","China/IMG_3342.JPG"],["China","China","China/IMG_6010.JPG"],["China","China","China/IMG_6956.JPG"],
+["China","China","China/IMG_7111.JPG"],["China","China","China/IMG_7145.JPG"],["China","China","China/IMG_7212.JPG"],
+["China","China","China/IMG_7705.JPG"],["China","China","China/IMG_8614.JPG"],["China","China","China/IMG_8660.JPG"],
+["China","China","China/IMG_8661.JPG"],["China","China","China/IMG_8662.JPG"],["China","China","China/IMG_9090.JPG"],
+["China","China","China/IMG_9091.JPG"],
+["Malaysia","Malaysia","Malaysia/IMG_6274.JPG"],
+["Taiwan","Taiwan","Taiwan/DSCF3878.jpeg"],["Taiwan","Taiwan","Taiwan/DSCF3903.jpeg"],["Taiwan","Taiwan","Taiwan/DSCF4191.jpeg"],
+["Taiwan","Taiwan","Taiwan/DSCF4224.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_3876.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_3883.jpeg"],
+["Taiwan","Taiwan","Taiwan/IMG_3924.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_3935.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_4057.jpeg"],
+["Taiwan","Taiwan","Taiwan/IMG_4112.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_4169.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_4211.jpeg"],
+["Taiwan","Taiwan","Taiwan/IMG_4289.jpeg"],["Taiwan","Taiwan","Taiwan/IMG_4412.jpeg"],
+["Brunei","Brunei","Brunei/IMG_7949.jpeg"],["Brunei","Brunei","Brunei/IMG_7966.jpeg"],["Brunei","Brunei","Brunei/IMG_7968.jpeg"],
+["Brunei","Brunei","Brunei/IMG_7969.jpeg"],["Brunei","Brunei","Brunei/IMG_8029.jpeg"]
+];
+const GEAR = ["Canon EOS R6 Mark III","Fujifilm X100V","Fujifilm X-T30","iPhone 17 Pro Max",
+              "Tamron 24-70mm f/2.8 G2","Canon EF 70-300mm f/4-5.6L IS USM"];
+
+const enc = p => "../images/" + p.split("/").map(encodeURIComponent).join("/");
+const base = p => p.replace(/\.(jpe?g|png)$/i, "");
+const PHOTOS = ITEMS.map(([country, title, path], i) => ({
+  i, country, title, src: enc(path), stem: enc(base(path))
+}));
+
+/* <picture> with the pre-generated AVIF/WebP variants. */
+function pic(p, sizes, eager) {
+  const set = ext => [480, 960, 1920].map(w => `${p.stem}-${w}.${ext} ${w}w`).join(", ");
+  return `<picture>
+    <source type="image/avif" srcset="${set("avif")}" sizes="${sizes}">
+    <source type="image/webp" srcset="${set("webp")}" sizes="${sizes}">
+    <img src="${p.src}" alt="${p.title === p.country ? p.country : p.title}"
+         loading="${eager ? "eager" : "lazy"}" decoding="async">
+  </picture>`;
+}
+const tile = (p, sizes) => `<button class="tile" data-i="${p.i}" aria-label="Open ${p.title}">
+    ${pic(p, sizes)}
+    <figcaption><b>${p.title === p.country ? "Untitled" : p.title}</b>${p.country}</figcaption>
+  </button>`;
+
+/* Hero — the widest frame gets the eager load. */
+const heroPhoto = PHOTOS.find(p => p.src.includes("IMG_2564")) || PHOTOS[0];
+document.getElementById("hero-frame").innerHTML = pic(heroPhoto, "100vw", true);
+
+/* Featured: twelve titled frames. */
+const FEATURED = ["Japan/IMG_0393.JPG","Japan/IMG_6090.JPG","China/IMG_9089.JPG","Japan/IMG_5583.JPG",
+  "China/DSCF8511.JPG","Japan/IMG_1282.JPG","China/IMG_7694.JPG","Japan/IMG_0544.JPG",
+  "Taiwan/IMG_4112.jpeg","Japan/_MG_5886.JPG","China/DSCF7118.JPG","Malaysia/DSCF1078.JPG"];
+const featured = FEATURED.map(f => PHOTOS.find(p => p.src === enc(f))).filter(Boolean);
+document.getElementById("featured").innerHTML =
+  featured.map(p => tile(p, "(min-width:735px) 300px, 45vw")).join("");
+
+/* Portrait */
+const portrait = { stem: enc("alston shi/_MG_5717"), src: enc("alston shi/_MG_5717.jpeg"), title: "Alston Shi", country: "" };
+document.getElementById("portrait").innerHTML = pic(portrait, "(min-width:735px) 400px, 90vw");
+
+document.getElementById("gear").innerHTML = GEAR.map(g => `<span>${g}</span>`).join("");
+
+/* Archive + filters */
+const COUNTRIES = ["All", ...[...new Set(PHOTOS.map(p => p.country))].sort()];
+let active = "All";
+const gridEl = document.getElementById("archive-grid");
+const countEl = document.getElementById("count");
+document.getElementById("filters").innerHTML = COUNTRIES.map(c =>
+  `<button class="chip" data-c="${c}" aria-pressed="${c === active}">${c}</button>`).join("");
+
+function renderArchive() {
+  const list = active === "All" ? PHOTOS : PHOTOS.filter(p => p.country === active);
+  gridEl.innerHTML = list.map(p => tile(p, "(min-width:735px) 300px, 45vw")).join("");
+  countEl.textContent = `${list.length} ${list.length === 1 ? "photograph" : "photographs"}`;
+  document.querySelectorAll("#filters .chip").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.c === active)));
+}
+document.getElementById("filters").addEventListener("click", e => {
+  const b = e.target.closest(".chip"); if (!b) return;
+  active = b.dataset.c; renderArchive();
+});
+renderArchive();
+
+/* Lightbox */
+const lb = document.getElementById("lb"), lbImg = document.getElementById("lb-img"),
+      lbCap = document.getElementById("lb-cap");
+let cur = 0, seq = [];
+function open(i) {
+  seq = active === "All" ? PHOTOS : PHOTOS.filter(p => p.country === active);
+  cur = Math.max(0, seq.findIndex(p => p.i === i));
+  if (cur < 0) { seq = PHOTOS; cur = i; }
+  show(); lb.classList.add("open");
+  requestAnimationFrame(() => lb.classList.add("shown"));
+  document.body.style.overflow = "hidden";
+}
+function show() {
+  const p = seq[cur]; if (!p) return;
+  lbImg.src = `${p.stem}-1920.webp`;
+  lbImg.onerror = () => { lbImg.onerror = null; lbImg.src = p.src; };
+  lbImg.alt = p.title;
+  lbCap.textContent = p.title === p.country ? p.country : `${p.title} · ${p.country}`;
+}
+function close() {
+  lb.classList.remove("shown");
+  setTimeout(() => { lb.classList.remove("open"); document.body.style.overflow = ""; }, 250);
+}
+const step = d => { cur = (cur + d + seq.length) % seq.length; show(); };
+document.addEventListener("click", e => {
+  const t = e.target.closest(".tile");
+  if (t) { open(+t.dataset.i); return; }
+  if (e.target.closest("#lb-x")) return close();
+  if (e.target.closest("#lb-prev")) return step(-1);
+  if (e.target.closest("#lb-next")) return step(1);
+  if (e.target === lb) close();
+});
+document.addEventListener("keydown", e => {
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") close();
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+</script>
+</body>
+</html>
