@@ -206,3 +206,162 @@ input, textarea, select { font-size: 17px; border-radius: 10px; }
   *, *::before, *::after { transition-duration: .01ms !important;
                             animation-duration: .01ms !important; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PASS 2 — the patterns that actually make it read as iOS
+   The first pass changed colour, type and shape. These are the structural
+   conventions a native app has and a restyled web app usually doesn't.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* ── Tab bar: iOS tab items have LABELS ───────────────────────────────
+   Probably the single strongest native signal, and the app already carries
+   the text in aria-label — so it renders with no markup or JS change. */
+:root { --nav-h: 68px; }
+
+.bottomnav { padding: 6px 8px calc(6px + env(safe-area-inset-bottom)); gap: 0; }
+.nav-item {
+  max-width: none; gap: 3px; padding: 5px 0 2px;
+  border-radius: 0;                       /* iOS tab items have no chrome */
+  min-height: 44px;                       /* HIG minimum touch target */
+}
+.nav-item::after {
+  content: attr(aria-label);
+  font-size: 10px; font-weight: 500; letter-spacing: .006em;
+  line-height: 1.1; color: currentColor;
+}
+.nav-item svg { width: 24px; height: 24px; stroke-width: 1.8; }
+/* Selected tab reads heavier, the way SF Symbols shift to .fill */
+.nav-item.active svg { stroke-width: 2.4; }
+.nav-item.active::after { font-weight: 600; }
+
+/* ── Search: iOS search field, not a floating card ────────────────────
+   systemFill grey, no border, no shadow, magnifier inline. */
+.search-box {
+  background: rgba(118,118,128,.12);
+  border: none; box-shadow: none;
+  border-radius: 10px; padding: 0 8px;
+  min-height: 36px;
+}
+.search-box:focus-within {
+  background: rgba(118,118,128,.16);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+.search-box input::placeholder { color: rgba(60,60,67,.6); }
+
+/* systemFill is lighter in dark mode, and the placeholder inverts. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .search-box { background: rgba(118,118,128,.24); }
+  :root:not([data-theme="light"]) .search-box input::placeholder { color: rgba(235,235,245,.6); }
+}
+[data-theme="dark"] .search-box { background: rgba(118,118,128,.24); }
+[data-theme="dark"] .search-box input::placeholder { color: rgba(235,235,245,.6); }
+
+/* ── Separators inset from the leading edge ───────────────────────────
+   iOS hairlines start where the text starts, not at the card edge. Small
+   detail, very recognisable — and it's why native lists look "tidier". */
+.stg-row-sep, .saved-card + .saved-card {
+  border-top: none; position: relative;
+}
+.stg-row-sep::before {
+  content: ""; position: absolute; top: 0; left: 16px; right: 0;
+  height: .5px; background: var(--line);
+}
+.stg-card > .stg-row:first-child::before { display: none; }
+
+/* ── Rows: grey press state, chevron affordance ───────────────────────
+   iOS highlights the whole row grey on touch; it never scales. */
+.stg-row-btn, a.stg-row {
+  transition: background 100ms var(--ease);
+}
+.stg-row-btn:active, a.stg-row:active { background: rgba(118,118,128,.16); }
+.stg-row-btn:active { transform: none; }
+.arr-stop-item:active, .saved-card:active { background: rgba(118,118,128,.12); }
+
+/* ── Route badge: iOS rounded-rect glyph, tinted not inverted ─────────
+   A solid black slab is a very un-Apple amount of contrast for a label. */
+.route-badge {
+  background: var(--accent-soft); color: var(--accent);
+  border-radius: 9px; min-width: 54px; height: 38px;
+  font-size: 17px; font-weight: 600; letter-spacing: -.022em;
+}
+.svc.open .route-badge { background: var(--accent); color: #fff; }
+
+/* ── Grouped-list section headers ─────────────────────────────────────
+   iOS inset-grouped headers: footnote size, secondary colour, 16px inset. */
+.stg-section-title {
+  font-size: 13px; font-weight: 400; letter-spacing: -.008em;
+  color: var(--ink-3); padding-inline: 16px; margin-bottom: 7px;
+}
+
+/* ── Sheets: iOS detent card, grabber, generous top radius ────────────── */
+.sheet, .feedback-sheet, .route-sheet, .arr-sheet {
+  border-radius: 14px 14px 0 0;
+}
+.arr-sheet-handle::before, .sheet-handle {
+  background: rgba(60,60,67,.3); border-radius: 100px;
+}
+
+/* ── Controls: 44pt targets, iOS switch-like segments ─────────────────── */
+.iconbtn { min-width: 44px; min-height: 44px; }
+.theme-seg-btn { border-radius: 7px; font-size: 15px; font-weight: 500; }
+.theme-seg-btn.active { box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+
+/* ── Buttons: iOS filled/tinted pair rather than outline ──────────────── */
+.bigbtn { font-size: 17px; font-weight: 600; min-height: 50px; }
+.bigbtn.outline {
+  background: var(--accent-soft); color: var(--accent); border: none;
+}
+
+/* ── Alerts: iOS centred alert, not a wide card ───────────────────────── */
+.notif-popup-card, .maintenance-card {
+  border-radius: 14px; max-width: 270px; text-align: center;
+}
+.notif-popup-ok, .maintenance-retry {
+  font-size: 17px; font-weight: 600; border-radius: 12px;
+}
+
+/* ── Search over the map: Apple Maps "thick material" ─────────────────
+   The base sheet makes this a solid card with a heavy 20px/35% shadow so
+   it stays readable over both light and dark map tiles — a real
+   constraint. Apple solves the same problem on Maps with a translucent
+   material and a hairline instead of a drop shadow. Same legibility,
+   none of the Material-y elevation. (Needs the parent selector to beat
+   `.arr-search-wrap .search-box`.) */
+.arr-search-wrap .search-box {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: .5px solid var(--glass-line);
+  box-shadow: 0 2px 8px rgba(0,0,0,.10);
+  border-radius: 10px;
+  opacity: 1;
+}
+
+/* ── Back: iOS chevron + label, no pill ──────────────────────────────
+   A bordered pill for Back is a web convention; iOS uses a bare chevron
+   and the destination in the tint colour. */
+.arr-back-btn {
+  border: none; background: none; box-shadow: none;
+  padding: 6px 8px 6px 0; gap: 2px;
+  font-size: 17px; font-weight: 400; letter-spacing: -.022em;
+  min-height: 44px;
+}
+.arr-back-btn:active { background: none; opacity: .45; }
+.arr-back-btn svg { width: 20px; height: 20px; stroke-width: 2.4; }
+
+/* ── Stop meta: keep road + code on one line ──────────────────────────
+   At 17px body the two wrapped onto separate lines next to the action
+   buttons; truncate the road instead. */
+.stop-meta {
+  display: flex; align-items: center; gap: 6px; min-width: 0;
+  font-size: 15px; letter-spacing: -.016em; margin-top: 2px;
+}
+.stop-meta > #stop-road {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0;
+}
+.stop-code {
+  margin-left: 0; flex-shrink: 0; font-size: 13px; font-weight: 600;
+  border: none; border-radius: 6px; padding: 2px 6px;
+  background: rgba(118,118,128,.12); color: var(--ink-2);
+}
+[data-theme="dark"] .stop-code { background: rgba(118,118,128,.24); }
