@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <!-- Content-Security-Policy: contain any injected markup. script-src has no
+       'unsafe-inline' (the app uses no inline scripts/handlers), so an injected
+       <script> or onerror= can't run. style-src keeps 'unsafe-inline' because
+       Leaflet and the map-render code rely on inline styles. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com https://cdn.jsdelivr.net https://accounts.google.com https://www.gstatic.com; style-src 'self' https://unpkg.com 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://alston-b550mh.tail8c7cb3.ts.net https://www.onemap.gov.sg https://overpass-api.de https://router.project-osrm.org https://accounts.google.com; frame-src https://accounts.google.com; object-src 'none'; base-uri 'self'" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" id="theme-color-meta" content="#0d0e10" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="description" content="Live Singapore bus arrival times with machine-learning adjusted predictions." />
+  <title>SG Bus — Apple design preview</title>
+  <meta name="robots" content="noindex" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://a.basemaps.cartocdn.com" />
+  <link rel="preconnect" href="https://b.basemaps.cartocdn.com" />
+  <link rel="preconnect" href="https://c.basemaps.cartocdn.com" />
+  <link rel="preconnect" href="https://d.basemaps.cartocdn.com" />
+  <link rel="stylesheet" href="styles.css?v=1.2.14" />
+  <link rel="stylesheet" href="apple.css?v=1.2.14" />
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="preload" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" as="script" crossorigin="anonymous" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="anonymous" integrity="sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js" defer crossorigin="anonymous" integrity="sha384-JUh163oCRItcbPme8pYnROHQMC6fNKTBWtRG3I3I0erJkzNgL7uxKlNwcrcFKeqF"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+
+<!-- Full-screen maintenance page — shown when the live-data backend can't be reached. -->
+<div id="maintenance-overlay" class="maintenance-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="maintenance-title" aria-live="assertive">
+  <div class="maintenance-card">
+    <div class="maintenance-icon">
+      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6M16 6v6M2 12h19.6M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2V8a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v6c0 .4.1.8.2 1.2C2.5 16.3 3 18 3 18h3"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+    </div>
+    <h1 id="maintenance-title" class="maintenance-title">We'll be right back</h1>
+    <p class="maintenance-msg">SG Bus can't reach the live-data service right now — it may be restarting for maintenance, or your connection dropped. This page reconnects on its own, so there's no need to refresh.</p>
+    <div class="maintenance-status">
+      <span class="maintenance-spinner" aria-hidden="true"></span>
+      <span id="maintenance-status-txt">Reconnecting…</span>
+    </div>
+    <button id="maintenance-retry" class="maintenance-retry" type="button">Try again now</button>
+    <div class="maintenance-foot">SG Bus · live arrivals &amp; AI-adjusted predictions</div>
+  </div>
+</div>
+
+<div id="share-toast" class="share-toast hidden" role="status" aria-live="polite">Link copied to clipboard</div>
+
+<!-- First-visit "Add to Home Screen" guide (iOS Safari only) -->
+<div id="a2hs-guide" class="a2hs-guide hidden" role="dialog" aria-modal="false" aria-labelledby="a2hs-title">
+  <div class="a2hs-backdrop"></div>
+  <div class="a2hs-card">
+    <button id="a2hs-close" class="a2hs-close" aria-label="Dismiss">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="a2hs-head">
+      <div class="a2hs-app-icon"><img src="icons/icon-192.png" alt="" width="46" height="46" /></div>
+      <div>
+        <div id="a2hs-title" class="a2hs-title">Install SG Bus</div>
+        <div class="a2hs-sub">Add it to your Home Screen for a full-screen app — faster, and one tap away.</div>
+      </div>
+    </div>
+    <ol class="a2hs-steps">
+      <li>
+        <span class="a2hs-step-n">1</span>
+        <span>Tap the <b>Share</b> button
+          <span class="a2hs-ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="m8 7 4-4 4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg></span>
+          in Safari's toolbar
+        </span>
+      </li>
+      <li>
+        <span class="a2hs-step-n">2</span>
+        <span>Choose <b>Add to Home Screen</b>
+          <span class="a2hs-ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M12 8v8M8 12h8"/></svg></span>
+        </span>
+      </li>
+    </ol>
+    <p class="a2hs-hint">Don't see "Add to Home Screen"? Scroll the share sheet down, or tap <b>Edit Actions…</b> / <b>More</b> to find it.</p>
+    <button id="a2hs-got" class="a2hs-got" type="button">Got it</button>
+  </div>
+  <div class="a2hs-arrow" aria-hidden="true">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="m6 13 6 6 6-6"/></svg>
+  </div>
+</div>
+
+<!-- New-notification popup — shown on app open when admin sent a new notice -->
+<div id="notif-popup" class="notif-popup hidden" role="dialog" aria-modal="true" aria-labelledby="notif-popup-title">
+  <div class="notif-popup-backdrop"></div>
+  <div class="notif-popup-card">
+    <div class="notif-popup-icon" id="notif-popup-icon">🆕</div>
+    <div class="notif-popup-title" id="notif-popup-title"></div>
+    <div class="notif-popup-body hidden" id="notif-popup-body"></div>
+    <div class="notif-popup-time" id="notif-popup-time"></div>
+    <div class="notif-popup-more hidden" id="notif-popup-more"></div>
+    <button id="notif-popup-ok" class="notif-popup-ok" type="button">Got it</button>
+  </div>
+</div>
+
+<!-- account-btn kept as hidden stub so JS references don't break -->
+<button id="account-btn" style="display:none" aria-hidden="true"></button>
+
+<main class="main">
+
+  <!-- ════ ARRIVALS VIEW ════ -->
+  <section id="view-arrivals" class="view active">
+
+    <!-- Full-screen map (background) -->
+    <div class="arr-map-wrap">
+      <div id="arr-map" class="arr-map"></div>
+    </div>
+
+    <!-- Locate button lives outside arr-map-wrap so its z-index is in the
+         root stacking context (not trapped inside arr-map-wrap's z=1 context) -->
+    <button id="arr-locate-btn" class="arr-locate-btn" aria-label="Center on my location">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+    </button>
+
+    <!-- Floating search bar + bell over the map -->
+    <div class="search-wrap arr-search-wrap">
+      <div class="arr-search-row">
+        <div class="search-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input id="stop-input" type="text" inputmode="search" placeholder="Stop name or 5-digit code"
+                 autocomplete="off" spellcheck="false" enterkeyhint="search" />
+          <button id="search-clear" class="search-clear hidden" aria-label="Clear">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <button id="notif-bell-btn" class="notif-bell-btn hidden" aria-label="Notifications">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span id="notif-bell-badge" class="notif-bell-badge hidden"></span>
+        </button>
+      </div>
+      <div id="autocomplete" class="autocomplete hidden"></div>
+    </div>
+
+    <!-- Bottom sheet over the map -->
+    <div class="arr-sheet">
+      <div class="arr-sheet-handle"></div>
+      <div class="arr-sheet-scroll arr-below">
+
+      <!-- Nearby / default state -->
+      <div id="arr-nearby">
+        <div id="chips-area" class="chips-area"></div>
+        <div id="arr-stops-section" class="hidden">
+          <div class="arr-section-hd">
+            Nearby stops
+            <span id="arr-stops-count" class="panel-badge"></span>
+          </div>
+          <div id="arr-stops-list"></div>
+        </div>
+      </div>
+
+      <!-- Stop arrival detail (shown after a stop is selected) -->
+      <div id="arr-detail" class="hidden">
+        <div class="arr-detail-bar">
+          <button id="arr-back-btn" class="arr-back-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+            Back
+          </button>
+        </div>
+
+        <div id="stop-card" class="stop-card hidden">
+          <div class="stop-card-top">
+            <div class="stop-id">
+              <div id="stop-name" class="stop-name"></div>
+              <div class="stop-meta"><span id="stop-road"></span> <span id="stop-code" class="stop-code"></span></div>
+            </div>
+            <div class="stop-actions">
+              <button id="save-btn" class="pillbtn">
+                <svg id="save-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                <span id="save-label">Save</span>
+              </button>
+              <button id="share-stop-btn" class="iconbtn" aria-label="Share this stop" title="Copy a link to this stop">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              </button>
+              <button id="refresh-btn" class="iconbtn" aria-label="Refresh">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="stop-card-foot">
+            <span id="updated-at"></span>
+            <span class="foot-sep">·</span>
+            <span>auto-refresh 30s</span>
+            <span class="foot-sep">·</span>
+            <span class="ai-note">official LTA times, AI estimate below</span>
+          </div>
+        </div>
+
+        <div id="arrivals-error" class="error-note hidden"></div>
+        <div id="rows" class="rows"></div>
+        <p id="no-services" class="empty hidden">No buses serving this stop right now.</p>
+
+        <!-- Stats / About / Legend — grouped accordion -->
+        <div class="panel-group">
+        <details id="stats-details" class="panel hidden">
+          <summary>
+            <span>Punctuality stats</span>
+            <span id="stats-badge" class="panel-badge">last 30 days</span>
+            <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="panel-body">
+            <p id="no-stats" class="empty hidden">Not enough history for this stop yet — it builds automatically.</p>
+
+            <div id="accuracy-scorecard" class="accuracy-scorecard hidden">
+              <div class="acc-col">
+                <div class="acc-label">LTA timing</div>
+                <div class="acc-pct" id="acc-lta">–</div>
+                <div class="acc-sub">within ±1 min</div>
+              </div>
+              <div class="acc-vs">vs</div>
+              <div class="acc-col ai">
+                <div class="acc-label">AI-adjusted</div>
+                <div class="acc-pct" id="acc-ai">–</div>
+                <div class="acc-sub">within ±1 min</div>
+              </div>
+              <div class="acc-delta-wrap">
+                <span id="acc-delta" class="acc-delta"></span>
+                <div id="acc-mae" class="acc-mae"></div>
+              </div>
+            </div>
+
+            <div id="charts-wrap">
+              <div class="chart-block">
+                <div class="chart-title">Average delay by route <span class="chart-hint" id="chart-service-hint"></span></div>
+                <div class="chart-sub">positive = late, negative = early · bar width = number of observations</div>
+                <div class="chart-box chart-box-tall"><canvas id="chart-service"></canvas></div>
+              </div>
+              <div class="chart-block">
+                <div class="chart-title">On-time rate by route <span class="chart-hint">(% arriving within ±1 min of LTA)</span></div>
+                <div class="chart-box"><canvas id="chart-ontime"></canvas></div>
+              </div>
+              <div class="chart-block">
+                <div class="chart-title">Average delay by hour <span class="chart-hint">(orange = peak hours)</span></div>
+                <div class="chart-sub">how late buses tend to run at each hour of the day</div>
+                <div class="chart-box chart-box-tall"><canvas id="chart-hour"></canvas></div>
+              </div>
+              <div class="chart-block">
+                <div class="chart-title">Daily trend, last 14 days <span id="trend-dir" class="chart-hint"></span></div>
+                <div class="chart-sub">average delay per day — are buses getting better or worse?</div>
+                <div class="chart-box"><canvas id="chart-trend"></canvas></div>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <!-- About -->
+        <details id="about-details" class="panel hidden">
+          <summary>
+            <span>How predictions work</span>
+            <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="panel-body about-body">
+            <p>The big number is the official LTA estimate. Underneath it, the AI
+            estimate shows when the bus will <em>actually</em> arrive based on how
+            this exact route at this exact stop has behaved historically.</p>
+            <p>Two prediction layers work together: a gradient-boosting model that
+            generalises across hour, day, crowding and bus type — and a per-route
+            memory of real measured delays from the last 30 days. Routes with more
+            history lean on real measurements; the correction also shrinks as a bus
+            gets close, since live GPS estimates are most accurate then.</p>
+            <p>Ground truth comes from tracking each bus across successive polls
+            until it arrives. The model retrains itself hourly.</p>
+            <div id="model-info" class="model-info"></div>
+          </div>
+        </details>
+
+        <!-- Legend -->
+        <details id="legend-details" class="panel hidden">
+          <summary>
+            <span>What the labels mean</span>
+            <svg class="chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </summary>
+          <div class="panel-body arr-legend">
+            <div class="stg-legend-group">
+              <div class="stg-legend-head">Bus type</div>
+              <div class="stg-legend-row"><span class="tag">DD</span><span class="stg-legend-txt">Double-deck bus</span></div>
+              <div class="stg-legend-row"><span class="tag">BD</span><span class="stg-legend-txt">Bendy (articulated) bus</span></div>
+              <div class="stg-legend-row"><span class="stg-legend-na">SD</span><span class="stg-legend-txt">Single-deck bus — the default, shown without a tag</span></div>
+            </div>
+            <div class="stg-legend-group">
+              <div class="stg-legend-head">Accessibility</div>
+              <div class="stg-legend-row"><span class="tag wab">♿</span><span class="stg-legend-txt">Wheelchair-accessible bus</span></div>
+            </div>
+            <div class="stg-legend-group">
+              <div class="stg-legend-head">Crowding</div>
+              <div class="stg-legend-row"><span class="load-pill SEA">Seats</span><span class="stg-legend-txt">Seats available</span></div>
+              <div class="stg-legend-row"><span class="load-pill SDA">Standing</span><span class="stg-legend-txt">Standing only</span></div>
+              <div class="stg-legend-row"><span class="load-pill LSD">Crowded</span><span class="stg-legend-txt">Limited standing — packed</span></div>
+            </div>
+            <div class="stg-legend-group">
+              <div class="stg-legend-head">Timing</div>
+              <div class="stg-legend-row"><span class="stg-legend-ai">AI</span><span class="stg-legend-txt">Machine-learning adjusted arrival, refining the raw LTA estimate</span></div>
+            </div>
+          </div>
+        </details>
+        </div><!-- .panel-group -->
+
+      </div><!-- #arr-detail -->
+
+      </div><!-- .arr-sheet-scroll -->
+    </div><!-- .arr-sheet -->
+
+  </section>
+
+  <!-- ════ SAVED VIEW ════ -->
+  <section id="view-saved" class="view">
+    <h2 class="view-title">Saved</h2>
+
+    <!-- not logged in -->
+    <div id="saved-auth-prompt" class="hidden">
+      <p class="empty">Log in to save bus stops and journey routes — they sync to your account across all your devices.</p>
+      <button id="saved-login-btn" class="bigbtn" style="margin-top:0">Log in or create account</button>
+    </div>
+
+    <!-- logged in -->
+    <div id="saved-content">
+      <p id="saved-sync-note" class="view-sub"></p>
+
+      <div class="saved-section-hd">Stops</div>
+      <p id="saved-empty" class="empty hidden">No saved stops yet. Search for a stop and tap Save — monitored 24/7 for sharper predictions.</p>
+      <div id="saved-list" class="saved-list"></div>
+
+      <div class="saved-section-hd" style="margin-top:1.1rem">Routes</div>
+      <p id="saved-journeys-empty" class="empty hidden">No saved routes yet. Plan a journey and tap
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="vertical-align:-1px"><path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+        to save it.
+      </p>
+      <div id="saved-journeys-list" class="saved-journeys-list"></div>
+    </div>
+  </section>
+
+  <!-- ════ PLAN VIEW ════ -->
+  <section id="view-plan" class="view">
+    <div class="plan-hero">
+      <div class="plan-hero-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+      </div>
+      <h2 class="plan-hero-title">Plan a journey</h2>
+      <p class="plan-hero-sub">Bus &amp; MRT routes with live arrival times</p>
+    </div>
+
+    <!-- Quick-fill chips (shown contextually) -->
+    <div id="plan-chips" class="plan-chips hidden">
+      <button id="plan-home-chip" class="plan-chip hidden">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span id="plan-home-chip-name">Home</span>
+      </button>
+      <button id="plan-set-home-chip" class="plan-chip plan-chip-ghost hidden">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span>Set as home</span>
+      </button>
+    </div>
+
+    <div class="plan-form">
+      <!-- From -->
+      <div class="plan-row">
+        <span class="plan-row-label">From</span>
+        <div class="plan-field-wrap">
+          <div class="search-row">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="plan-from-input" type="text" inputmode="search" placeholder="Address or stop" autocomplete="off" spellcheck="false" />
+              <button id="plan-from-clear" class="search-clear hidden" aria-label="Clear">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <button id="plan-from-near" class="near-btn" aria-label="Use current location">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+            <button id="plan-from-pick" class="near-btn" aria-label="Pick bus stop on map" title="Pick a bus stop on a map">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            </button>
+          </div>
+          <div id="plan-from-ac" class="autocomplete hidden"></div>
+        </div>
+      </div>
+
+      <!-- Swap -->
+      <div class="plan-swap-row">
+        <button id="plan-swap" class="plan-swap-btn" aria-label="Swap from and to">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+        </button>
+      </div>
+
+      <!-- To -->
+      <div class="plan-row">
+        <span class="plan-row-label">To</span>
+        <div class="plan-field-wrap">
+          <div class="search-row">
+            <div class="search-box">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <input id="plan-to-input" type="text" inputmode="search" placeholder="Address or stop" autocomplete="off" spellcheck="false" />
+              <button id="plan-to-clear" class="search-clear hidden" aria-label="Clear">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <button id="plan-to-near" class="near-btn" aria-label="Use current location">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+            </button>
+            <button id="plan-to-pick" class="near-btn" aria-label="Pick bus stop on map" title="Pick a bus stop on a map">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+            </button>
+          </div>
+          <div id="plan-to-ac" class="autocomplete hidden"></div>
+        </div>
+      </div>
+
+      <!-- Depart time -->
+      <div class="plan-row plan-time-row">
+        <span class="plan-row-label">Depart</span>
+        <div class="plan-time-wrap">
+          <input id="plan-time" type="time" class="plan-time-input" aria-label="Departure time" />
+          <select id="plan-day" class="plan-day-select" aria-label="Departure day">
+            <option value="now" selected>Now</option>
+            <option value="0">Today</option>
+            <option value="1">Tomorrow</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button id="plan-btn" class="bigbtn plan-go-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+      Plan journey
+    </button>
+
+    <div id="plan-recents" class="plan-recents hidden"></div>
+
+    <div id="plan-loading" class="plan-loading hidden">Finding routes…</div>
+    <div id="plan-error" class="error-note hidden"></div>
+    <div id="plan-results"></div>
+  </section>
+
+  <!-- ════ CHECKPOINT VIEW ════ -->
+  <section id="view-checkpoint" class="view">
+    <div class="cp-header">
+      <div>
+        <h2 class="view-title" style="margin-bottom:.15rem">Checkpoint Traffic</h2>
+        <p id="cp-updated" class="view-sub"></p>
+      </div>
+      <button id="cp-refresh-btn" class="iconbtn" aria-label="Refresh checkpoint data">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+      </button>
+    </div>
+
+    <div class="cp-tabs">
+      <button class="cp-tab active" data-cp="woodlands">Woodlands</button>
+      <button class="cp-tab" data-cp="tuas">Tuas</button>
+    </div>
+
+    <div id="cp-loading" class="plan-loading hidden">Loading…</div>
+    <div id="cp-error" class="error-note hidden"></div>
+
+    <div id="cp-panel-woodlands" class="cp-panel">
+      <div id="cp-carpark" class="cp-carpark-card hidden"></div>
+      <div class="cp-section-hd cp-bus-hd">Bus to checkpoint</div>
+      <details class="cp-bus-acc" id="cp-bus-acc-kranji">
+        <summary class="cp-bus-sum">
+          <div class="cp-bus-sum-left">
+            <span class="cp-bus-origin">From Kranji</span>
+            <button class="cp-bus-stop-btn" data-stop="45139" aria-label="Open stop 45139">45139 ↗</button>
+          </div>
+          <span class="cp-bus-preview" id="cp-bus-pre-kranji"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-kranji"></div>
+      </details>
+      <details class="cp-bus-acc" id="cp-bus-acc-marsiling">
+        <summary class="cp-bus-sum">
+          <div class="cp-bus-sum-left">
+            <span class="cp-bus-origin">From Marsiling</span>
+            <button class="cp-bus-stop-btn" data-stop="47009" aria-label="Open stop 47009">47009 ↗</button>
+          </div>
+          <span class="cp-bus-preview" id="cp-bus-pre-marsiling"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-marsiling"></div>
+      </details>
+      <details class="cp-bus-acc" id="cp-bus-acc-wdlint">
+        <summary class="cp-bus-sum">
+          <div class="cp-bus-sum-left">
+            <span class="cp-bus-origin">From Woodlands Int</span>
+            <button class="cp-bus-stop-btn" data-stop="46211" aria-label="Open stop 46211">46211 ↗</button>
+          </div>
+          <span class="cp-bus-preview" id="cp-bus-pre-wdlint"></span>
+          <svg class="cp-bus-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </summary>
+        <div class="cp-bus-body" id="cp-bus-body-wdlint"></div>
+      </details>
+      <div class="cp-section-hd cp-cam-hd" style="margin-top:1.1rem">Live cameras <span class="cp-cam-note">~90 s refresh by LTA</span></div>
+      <div id="cp-cameras-woodlands" class="cp-cameras"></div>
+    </div>
+
+    <div id="cp-panel-tuas" class="cp-panel hidden">
+      <div class="cp-section-hd cp-cam-hd">Live cameras <span class="cp-cam-note">~90 s refresh by LTA</span></div>
+      <div id="cp-cameras-tuas" class="cp-cameras"></div>
+    </div>
+
+    <p class="cp-note">Live camera feeds from data.gov.sg · Images refresh every ~90 s</p>
+  </section>
+
+  <!-- ════ DATA VIEW ════ -->
+  <section id="view-data" class="view">
+    <h2 class="view-title">Data &amp; model</h2>
+    <p class="view-sub">What the system has collected and learned so far.</p>
+    <div id="data-error" class="error-note hidden"></div>
+    <div id="data-grid" class="stat-grid"></div>
+
+    <div id="monitored-block" class="block hidden">
+      <div class="block-head">Continuously monitored stops <span id="mon-count" class="panel-badge"></span></div>
+      <div id="mon-chips" class="mon-chips"></div>
+    </div>
+
+    <div id="tracking-block" class="block hidden">
+      <div class="block-head">Latest measured delays</div>
+      <div class="tablewrap">
+        <table><thead><tr><th>Stop</th><th>Bus</th><th>When</th><th class="num">Delay</th></tr></thead>
+        <tbody id="tracking-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <div id="records-block" class="block hidden">
+      <div class="block-head">Recent snapshots</div>
+      <div class="tablewrap">
+        <table><thead><tr><th>Stop</th><th>Bus</th><th>When</th><th class="num">Delay</th><th>Load</th></tr></thead>
+        <tbody id="records-tbody"></tbody></table>
+      </div>
+    </div>
+
+    <div id="leaderboard-block" class="block hidden">
+      <div class="block-head">🏆 Most delayed buses <span class="panel-badge">last 30 days</span></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th class="num">#</th><th>Route</th><th class="num">Avg delay</th><th class="num">Trips</th></tr></thead>
+          <tbody id="lb-buses-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="leaderboard-stops-block" class="block hidden">
+      <div class="block-head">🏆 Most delayed stops <span class="panel-badge">last 30 days</span></div>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th class="num">#</th><th>Stop</th><th class="num">Avg delay</th><th class="num">Records</th></tr></thead>
+          <tbody id="lb-stops-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="feedback-admin-block" class="block hidden">
+      <div class="block-head">Feedback <span id="feedback-admin-count" class="panel-badge"></span></div>
+      <div id="feedback-admin-list" class="feedback-admin-list"></div>
+    </div>
+
+    <!-- Usage analytics dashboard — admin only -->
+    <div id="analytics-block" class="block hidden">
+      <div class="block-head">Usage dashboard <span class="panel-badge">live</span></div>
+      <div class="anlyt-metrics">
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-today">–</div>
+          <div class="anlyt-metric-lbl">queries today</div>
+          <div id="anlyt-delta"></div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-week">–</div>
+          <div class="anlyt-metric-lbl">daily avg (7d)</div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-users">–</div>
+          <div class="anlyt-metric-lbl">registered users</div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-sessions">–</div>
+          <div class="anlyt-metric-lbl">active sessions (30d)</div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-arrivals">–</div>
+          <div class="anlyt-metric-lbl">arrival lookups today</div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-plans">–</div>
+          <div class="anlyt-metric-lbl">journey plans today</div>
+        </div>
+        <div class="anlyt-metric">
+          <div class="anlyt-metric-val" id="anlyt-fb">–</div>
+          <div class="anlyt-metric-lbl">feedback rating</div>
+        </div>
+      </div>
+      <div class="anlyt-chart-wrap">
+        <canvas id="anlyt-chart"></canvas>
+      </div>
+
+      <div class="block-head" style="margin-top:1rem">Queries by type</div>
+      <div class="tablewrap">
+        <table class="anlyt-table">
+          <thead><tr><th>Type</th><th class="num">Today</th><th class="num">7d</th><th class="num">30d</th><th class="num">All</th></tr></thead>
+          <tbody id="anlyt-query-totals"></tbody>
+        </table>
+      </div>
+
+      <div class="block-head" style="margin-top:1rem">Top stops this week</div>
+      <div id="anlyt-top-stops" class="anlyt-top-stops"></div>
+
+      <div class="block-head" style="margin-top:1rem">Users</div>
+      <div id="anlyt-users-summary" class="anlyt-users-summary"></div>
+      <div class="tablewrap">
+        <table class="anlyt-table">
+          <thead><tr><th>User</th><th>Via</th><th>Joined</th><th>Last seen</th><th class="num">Saved</th></tr></thead>
+          <tbody id="anlyt-users-list"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="heatmap-block" class="block hidden">
+      <div class="block-head">Punctuality heatmap <span class="panel-badge">90 days</span></div>
+      <div class="heatmap-sub">Average measured delay by day &amp; hour — when buses actually run late across every monitored stop.</div>
+      <div id="heatmap-grid" class="heatmap-grid"></div>
+      <div class="heatmap-legend">
+        <span class="heatmap-legend-lbl">Early</span>
+        <span class="heatmap-legend-bar"></span>
+        <span class="heatmap-legend-lbl">Late</span>
+        <span class="heatmap-legend-na"><span class="heatmap-na-swatch"></span> no data</span>
+      </div>
+    </div>
+
+    <div id="notif-admin-block" class="block hidden">
+      <div class="block-head">System notifications</div>
+      <form id="notif-create-form" class="notif-create-form">
+        <input id="notif-title" type="text" placeholder="Title" maxlength="120" class="notif-create-input" required />
+        <textarea id="notif-body" placeholder="Message (optional)" maxlength="2000" class="notif-create-body" rows="2"></textarea>
+        <div class="notif-create-row">
+          <select id="notif-level" class="notif-create-select">
+            <option value="info">Info</option>
+            <option value="update">Update</option>
+            <option value="warning">Warning</option>
+          </select>
+          <button type="submit" class="pillbtn">Send notification</button>
+        </div>
+      </form>
+      <div id="notif-admin-list" class="notif-admin-list"></div>
+    </div>
+  </section>
+
+  <!-- ════ SETTINGS VIEW ════ -->
+  <section id="view-settings" class="view">
+    <div class="stg-wrap">
+
+      <div class="stg-app-header">
+        <div class="stg-app-name">SG Bus</div>
+        <div class="stg-app-sub">Live arrivals · AI-adjusted predictions</div>
+      </div>
+
+      <!-- Appearance -->
+      <div class="stg-section">
+        <div class="stg-section-title">Appearance</div>
+        <div class="stg-card">
+          <div class="stg-row">
+            <span class="stg-row-label">Theme</span>
+            <div class="theme-seg">
+              <button class="theme-seg-btn" id="theme-btn" data-theme-opt="light">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                Light
+              </button>
+              <button class="theme-seg-btn" id="theme-btn-dark" data-theme-opt="dark">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                Dark
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home location -->
+      <div class="stg-section">
+        <div class="stg-section-title">Home location</div>
+        <div class="stg-card">
+          <button class="stg-row stg-row-btn" id="stg-home-row">
+            <span class="stg-row-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              Home
+            </span>
+            <span id="stg-home-name" class="stg-row-val">Not set</span>
+            <svg class="stg-row-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div id="stg-home-edit" class="stg-home-edit hidden">
+            <div class="stg-home-search-wrap">
+              <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <input id="stg-home-input" type="text" inputmode="search" placeholder="Search address or stop" autocomplete="off" spellcheck="false" />
+                <button id="stg-home-input-clear" class="search-clear hidden" aria-label="Clear">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                </button>
+              </div>
+              <div id="stg-home-ac" class="autocomplete" style="position:absolute;left:0;right:0;top:calc(100% + 4px)"></div>
+            </div>
+            <button id="stg-home-clear-btn" class="stg-home-clear-btn hidden">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+              Clear home
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Account -->
+      <div class="stg-section">
+        <div class="stg-section-title">Account</div>
+        <div class="stg-card">
+          <button class="stg-row stg-row-btn" id="stg-account-row">
+            <span class="stg-row-label">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span id="stg-account-label">Sign in</span>
+            </span>
+            <svg class="stg-row-chev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="stg-section">
+        <div class="stg-section-title">Legend</div>
+        <div class="stg-card stg-legend">
+          <div class="stg-legend-group">
+            <div class="stg-legend-head">Bus type</div>
+            <div class="stg-legend-row"><span class="tag">DD</span><span class="stg-legend-txt">Double-deck bus</span></div>
+            <div class="stg-legend-row"><span class="tag">BD</span><span class="stg-legend-txt">Bendy (articulated) bus</span></div>
+            <div class="stg-legend-row"><span class="stg-legend-na">SD</span><span class="stg-legend-txt">Single-deck bus — the default, shown without a tag</span></div>
+          </div>
+          <div class="stg-legend-group">
+            <div class="stg-legend-head">Accessibility</div>
+            <div class="stg-legend-row"><span class="tag wab">♿</span><span class="stg-legend-txt">Wheelchair-accessible bus (WAB)</span></div>
+          </div>
+          <div class="stg-legend-group">
+            <div class="stg-legend-head">Crowding</div>
+            <div class="stg-legend-row"><span class="load-pill SEA">Seats</span><span class="stg-legend-txt">Seats available (SEA)</span></div>
+            <div class="stg-legend-row"><span class="load-pill SDA">Standing</span><span class="stg-legend-txt">Standing only (SDA)</span></div>
+            <div class="stg-legend-row"><span class="load-pill LSD">Crowded</span><span class="stg-legend-txt">Limited standing — packed (LSD)</span></div>
+          </div>
+          <div class="stg-legend-group">
+            <div class="stg-legend-head">Timing</div>
+            <div class="stg-legend-row"><span class="stg-legend-ai">AI</span><span class="stg-legend-txt">Machine-learning adjusted arrival — refines the raw LTA estimate using live traffic &amp; history</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- About -->
+      <div class="stg-section">
+        <div class="stg-section-title">About</div>
+        <div class="stg-card">
+          <a class="stg-row stg-row-btn" href="/bus/">
+            <span class="stg-row-label">Design</span>
+            <span class="stg-row-val">Apple preview · switch to original ›</span>
+          </a>
+          <div class="stg-row stg-row-sep">
+            <span class="stg-row-label">Version</span>
+            <span class="stg-row-val" id="stg-version-val">1.2.14</span>
+          </div>
+          <div class="stg-row stg-row-sep">
+            <span class="stg-row-label">Data</span>
+            <span class="stg-row-val">LTA DataMall · AI-adjusted</span>
+          </div>
+          <p class="stg-attrib">
+            Contains information from
+            <a href="https://datamall.lta.gov.sg/" target="_blank" rel="noopener">LTA DataMall</a>,
+            made available under the terms of the
+            <a href="https://datamall.lta.gov.sg/content/datamall/en/SingaporeOpenDataLicence.html" target="_blank" rel="noopener">Singapore Open Data Licence v1.0</a>.
+          </p>
+        </div>
+        <button id="feedback-open-btn" class="feedback-open-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Send feedback
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ════ FEEDBACK SHEET ════ -->
+<div id="feedback-overlay" class="feedback-overlay hidden" role="dialog" aria-label="Send feedback" aria-modal="true">
+  <div class="feedback-sheet">
+    <div class="feedback-header">
+      <span class="feedback-title">How's the app?</span>
+      <button id="feedback-close" class="iconbtn" aria-label="Close">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="feedback-body">
+      <div class="feedback-stars" id="feedback-stars" role="radiogroup" aria-label="Rating">
+        <button class="fb-star" data-v="1" aria-label="1 star">😞</button>
+        <button class="fb-star" data-v="2" aria-label="2 stars">😕</button>
+        <button class="fb-star" data-v="3" aria-label="3 stars">😐</button>
+        <button class="fb-star" data-v="4" aria-label="4 stars">😊</button>
+        <button class="fb-star" data-v="5" aria-label="5 stars">😄</button>
+      </div>
+      <textarea id="feedback-text" class="feedback-text" placeholder="Anything to improve? (optional)" rows="3" maxlength="2000"></textarea>
+      <p id="feedback-error" class="feedback-error hidden"></p>
+      <button id="feedback-submit" class="feedback-submit" disabled>Send</button>
+      <button id="feedback-later" class="feedback-later">Maybe later</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ BUS STOP PICKER MODAL ════ -->
+<div id="stop-picker-modal" class="stop-picker-modal hidden" role="dialog" aria-label="Pick a bus stop">
+  <div class="stop-picker-header">
+    <div class="stop-picker-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" y1="3" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="21"/></svg>
+      Pick a bus stop
+    </div>
+    <button id="stop-picker-close" class="iconbtn" aria-label="Close map picker">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="stop-picker-hint">Tap any bus stop pin to select it · pan to explore</div>
+  <div id="stop-picker-map" class="stop-picker-map"></div>
+  <div id="stop-picker-selected" class="stop-picker-selected hidden">
+    <div class="stop-picker-sel-name" id="stop-picker-sel-name"></div>
+    <div class="stop-picker-sel-meta" id="stop-picker-sel-meta"></div>
+    <button id="stop-picker-confirm" class="bigbtn">Confirm stop</button>
+  </div>
+</div>
+<div id="stop-picker-backdrop" class="stop-picker-backdrop hidden"></div>
+
+<!-- Bottom navigation -->
+<nav class="bottomnav">
+  <button class="nav-item active" data-view="arrivals" aria-label="Arrivals">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/><path d="M4 11h16"/><circle cx="8" cy="15" r=".5"/><circle cx="16" cy="15" r=".5"/><path d="M6 19v2M18 19v2"/></svg>
+  </button>
+  <button class="nav-item" data-view="saved" aria-label="Saved">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+  </button>
+  <button class="nav-item" data-view="plan" aria-label="Plan">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+  </button>
+  <button class="nav-item" data-view="checkpoint" aria-label="Checkpoint">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="3" x2="5" y2="21"/>
+      <path d="M5 3l14 6-14 6"/>
+    </svg>
+  </button>
+  <button id="nav-data-btn" class="nav-item hidden" data-view="data" aria-label="Data">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></svg>
+  </button>
+  <button class="nav-item" data-view="settings" aria-label="Settings">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+  </button>
+</nav>
+
+<!-- Account sheet -->
+<div id="sheet-backdrop" class="sheet-backdrop hidden"></div>
+<div id="account-sheet" class="sheet hidden" role="dialog" aria-label="Account">
+  <div class="sheet-handle"></div>
+
+  <!-- logged out -->
+  <div id="auth-forms">
+    <div class="sheet-header">
+      <div class="sheet-title">Sign in to SG Bus</div>
+      <div class="sheet-sub">Save stops, sync across devices, sharper predictions</div>
+    </div>
+    <div id="google-signin-wrap" class="google-signin-wrap hidden">
+      <div id="google-signin-btn"></div>
+      <div class="auth-divider"><span>or</span></div>
+    </div>
+    <div class="seg">
+      <button id="seg-login" class="seg-btn active">Log in</button>
+      <button id="seg-register" class="seg-btn">Create account</button>
+    </div>
+    <form id="auth-form" novalidate>
+      <label class="field">
+        <span>Username</span>
+        <input id="auth-username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" />
+      </label>
+      <label class="field">
+        <span>Password</span>
+        <input id="auth-password" type="password" autocomplete="current-password" />
+      </label>
+      <p id="auth-error" class="error-note hidden"></p>
+      <button id="auth-submit" type="submit" class="bigbtn">Log in</button>
+    </form>
+  </div>
+
+  <!-- logged in -->
+  <div id="auth-profile" class="hidden">
+    <div class="profile-card">
+      <div class="profile-avatar" id="profile-avatar"></div>
+      <div class="profile-info">
+        <div class="profile-name-row">
+          <div id="profile-name" class="profile-name"></div>
+          <button id="name-edit-btn" class="name-edit-btn" type="button" aria-label="Edit display name">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+          </button>
+        </div>
+        <div id="profile-meta" class="profile-meta"></div>
+      </div>
+    </div>
+
+    <div id="name-edit-form" class="name-edit-form hidden">
+      <label class="field">
+        <span>Display name</span>
+        <input id="name-input" type="text" maxlength="60" autocomplete="name"
+               placeholder="How the app should greet you" />
+      </label>
+      <p id="name-error" class="error-note hidden"></p>
+      <div class="pw-btn-row">
+        <button id="name-cancel-btn" class="bigbtn outline" type="button">Cancel</button>
+        <button id="name-save-btn" class="bigbtn" type="button">Save</button>
+      </div>
+    </div>
+
+    <details class="pw-change">
+      <summary>
+        <span>Change password</span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="pw-form">
+        <label class="field">
+          <span>Current password</span>
+          <div class="pw-input-wrap">
+            <input id="pw-current" type="password" autocomplete="current-password" placeholder="Enter current password" />
+            <button type="button" class="pw-eye" data-target="pw-current" aria-label="Show password">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </label>
+        <label class="field">
+          <span>New password</span>
+          <div class="pw-input-wrap">
+            <input id="pw-new" type="password" autocomplete="new-password" placeholder="At least 8 characters" />
+            <button type="button" class="pw-eye" data-target="pw-new" aria-label="Show password">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </label>
+        <label class="field">
+          <span>Confirm new password</span>
+          <div class="pw-input-wrap">
+            <input id="pw-confirm" type="password" autocomplete="new-password" placeholder="Repeat new password" />
+            <button type="button" class="pw-eye" data-target="pw-confirm" aria-label="Show password">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span id="pw-match-hint" class="pw-match-hint hidden"></span>
+        </label>
+        <p id="pw-error" class="error-note hidden"></p>
+        <div class="pw-btn-row">
+          <button id="pw-cancel-btn" class="bigbtn outline" type="button">Cancel</button>
+          <button id="pw-change-btn" class="bigbtn" type="button">Save</button>
+        </div>
+      </div>
+    </details>
+
+    <button id="logout-btn" class="bigbtn outline">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+      Log out
+    </button>
+  </div>
+</div>
+
+<!-- Route viewer sheet (global overlay) -->
+<div id="route-sheet-backdrop" class="route-sheet-backdrop hidden"></div>
+<div id="route-sheet" class="route-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="route-sheet-title">
+  <div class="route-sheet-handle"></div>
+  <div class="route-sheet-head">
+    <div class="route-sheet-info">
+      <span class="route-sheet-badge" id="route-sheet-badge"></span>
+      <div>
+        <div class="route-sheet-title" id="route-sheet-title">Bus Route</div>
+        <div class="route-sheet-sub" id="route-sheet-sub"></div>
+      </div>
+    </div>
+    <button class="route-sheet-close iconbtn" id="route-sheet-close" aria-label="Close route viewer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="route-sheet-tabs hidden" id="route-sheet-tabs"></div>
+  <div class="route-sheet-body" id="route-sheet-body">
+    <div class="route-sheet-loading">Loading route…</div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<!-- Notification dropdown panel (bell lives inside arr-search-wrap) -->
+<div id="notif-panel" class="notif-panel hidden">
+  <div class="notif-panel-head">
+    <span class="notif-panel-title">Notifications</span>
+    <button id="notif-panel-mark-read" class="notif-mark-read hidden">Mark all read</button>
+    <button id="notif-panel-close" class="notif-panel-close" aria-label="Close">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div id="notif-panel-list" class="notif-list"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="anonymous" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH"></script>
+<script src="app.js?v=1.2.14"></script>
+</body>
+</html>

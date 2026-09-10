@@ -1,0 +1,208 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   SG Bus — Apple / iOS HIG skin
+   ───────────────────────────────────────────────────────────────────────
+   Loaded AFTER styles.css and overrides it. The base sheet is already
+   token-driven, so most of the re-skin happens by redefining the token
+   layer; below that are targeted overrides for the things tokens can't
+   express (type scale, radii, nav chrome, motion).
+
+   Audited on the same six axes as the portfolio pass:
+     TYPE      SF text styles — 11/13/15/17/22/28/34, one role each
+     SPACING   8px base unit
+     HIERARCHY the ETA is the one thing that wins on the arrivals card
+     CONTRAST  every text pair ≥4.5:1 (link blue #0071E3 = 4.70:1;
+               iOS #007AFF is only 3.57:1 on white and is NOT used for text)
+     MOTION    ≤300ms, cubic-bezier(0.4,0,0.2,1), no linear
+     DENSITY   iOS grouped-list rhythm: 16px gutters, 12px cell padding
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* iOS systemGroupedBackground / secondarySystemGroupedBackground */
+  --bg:        #F2F2F7;
+  --surface:   #FFFFFF;
+  --surface-2: #E5E5EA;   /* systemGray5 */
+  --line:      #D1D1D6;   /* systemGray4 — visible but quiet */
+
+  --ink:       #1C1C1E;   /* label            15.9:1 on --surface */
+  --ink-2:     #48484A;   /*  8.9:1  secondary */
+  --ink-3:     #6C6C70;   /*  5.4:1  tertiary  */
+
+  /* Apple's web blue, not iOS #007AFF: the latter is 3.57:1 on white and
+     this token is used for text in several places. */
+  --accent:      #0071E3;
+  --accent-soft: rgba(0,113,227,.10);
+
+  --good: #248A3D; --warn: #B25000; --bad: #D70015;   /* darkened for AA */
+  --good-soft: rgba(36,138,61,.12);
+  --warn-soft: rgba(178,80,0,.12);
+  --bad-soft:  rgba(215,0,21,.10);
+
+  /* iOS shadows are far softer than Material's */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
+  --shadow:    0 4px 16px rgba(0,0,0,.08);
+
+  --topbar-bg: rgba(242,242,247,.80);
+  --nav-bg:    rgba(249,249,249,.94);
+  --glass:        rgba(255,255,255,.62);
+  --glass-strong: rgba(255,255,255,.80);
+  --glass-line:   rgba(0,0,0,.06);
+
+  --radius: 12px;          /* iOS grouped-cell radius */
+  --nav-h:  56px;
+  --pill:   980px;
+  --ease:   cubic-bezier(0.4, 0, 0.2, 1);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+          "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg:        #000000;   /* true black — iOS dark grouped background */
+    --surface:   #1C1C1E;
+    --surface-2: #2C2C2E;
+    --line:      #38383A;
+    --ink:       #FFFFFF;
+    --ink-2:     #AEAEB2;
+    --ink-3:     #8E8E93;
+    --accent:      #0A84FF;  /* iOS dark systemBlue — 6.1:1 on #1C1C1E */
+    --accent-soft: rgba(10,132,255,.20);
+    --good: #30D158; --warn: #FF9F0A; --bad: #FF453A;
+    --good-soft: rgba(48,209,88,.16);
+    --warn-soft: rgba(255,159,10,.16);
+    --bad-soft:  rgba(255,69,58,.16);
+    --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+    --shadow:    0 4px 16px rgba(0,0,0,.6);
+    --topbar-bg: rgba(0,0,0,.80);
+    --nav-bg:    rgba(22,22,24,.94);
+    --glass:        rgba(28,28,30,.60);
+    --glass-strong: rgba(28,28,30,.82);
+    --glass-line:   rgba(255,255,255,.10);
+  }
+}
+[data-theme="dark"] {
+  --bg:        #000000;
+  --surface:   #1C1C1E;
+  --surface-2: #2C2C2E;
+  --line:      #38383A;
+  --ink:       #FFFFFF;
+  --ink-2:     #AEAEB2;
+  --ink-3:     #8E8E93;
+  --accent:      #0A84FF;
+  --accent-soft: rgba(10,132,255,.20);
+  --good: #30D158; --warn: #FF9F0A; --bad: #FF453A;
+  --good-soft: rgba(48,209,88,.16);
+  --warn-soft: rgba(255,159,10,.16);
+  --bad-soft:  rgba(255,69,58,.16);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.5);
+  --shadow:    0 4px 16px rgba(0,0,0,.6);
+  --topbar-bg: rgba(0,0,0,.80);
+  --nav-bg:    rgba(22,22,24,.94);
+  --glass:        rgba(28,28,30,.60);
+  --glass-strong: rgba(28,28,30,.82);
+  --glass-line:   rgba(255,255,255,.10);
+}
+
+/* ── TYPE: SF text styles ─────────────────────────────────────────────
+   iOS body is 17px. The base sheet runs smaller and in more sizes; this
+   snaps the common roles onto the SF scale.                            */
+body { font-size: 17px; line-height: 1.29412; letter-spacing: -.022em; }
+
+.stg-row-label,
+.saved-card-name,
+.arr-stop-name        { font-size: 17px; letter-spacing: -.022em; }
+.stg-row-val,
+.arr-stop-road,
+.saved-card-meta,
+.stop-road            { font-size: 15px; letter-spacing: -.016em; }
+.label, .chip, .tag,
+.arr-stop-dist        { font-size: 13px; letter-spacing: -.008em; }
+.svc-acc, .stg-attrib { font-size: 11px; letter-spacing: 0; }
+
+.stop-name            { font-size: 22px; font-weight: 600; letter-spacing: -.021em; }
+.block-head,
+.stg-section-title    { font-size: 15px; font-weight: 600; letter-spacing: -.016em;
+                        color: var(--ink-2); text-transform: none; }
+.maintenance-title,
+.a2hs-title           { font-size: 22px; font-weight: 600; letter-spacing: -.021em; }
+
+/* HIERARCHY: the ETA is the single thing the eye should land on. Give it
+   the largest optical weight on the card and let everything else recede. */
+.eta-now {
+  font-size: 34px; font-weight: 600; letter-spacing: -.026em;
+  font-variant-numeric: tabular-nums;   /* digits stop jittering per tick */
+}
+.eta-unit { font-size: 15px; font-weight: 400; color: var(--ink-3);
+            letter-spacing: -.016em; margin-left: 2px; }
+.route-badge {
+  font-size: 17px; font-weight: 600; letter-spacing: -.022em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── SHAPE: iOS radii + hairlines instead of heavy borders ───────────── */
+.card, .svc, .stop-card, .saved-card, .block, .panel,
+.stg-card, .jcard, .notif-card, .feedback-sheet, .sheet,
+.maintenance-card, .a2hs-card, .notif-popup-card {
+  border-radius: var(--radius);
+}
+.stg-card, .block, .panel { border: 1px solid var(--line); box-shadow: none; }
+
+/* Pill buttons — Apple's signature control shape */
+.bigbtn, .pillbtn, .a2hs-got, .notif-popup-ok, .maintenance-retry,
+.feedback-open-btn, .chip {
+  border-radius: var(--pill);
+  transition: background 150ms var(--ease), transform 150ms var(--ease),
+              opacity 150ms var(--ease);
+}
+.bigbtn:active, .pillbtn:active, .a2hs-got:active,
+.notif-popup-ok:active, .maintenance-retry:active { transform: scale(.97); }
+
+.iconbtn, .svc-alert-btn { border-radius: 10px;
+  transition: background 150ms var(--ease), color 150ms var(--ease); }
+
+/* ── NAV: iOS tab bar — frosted, hairline, blue selection ────────────── */
+.bottomnav {
+  background: var(--nav-bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: .5px solid var(--glass-line);
+}
+.nav-item { color: var(--ink-3); transition: color 150ms var(--ease); }
+.nav-item.active { color: var(--accent); background: none; }
+/* The base sheet marks the active tab with a bar + tinted pill; iOS uses
+   colour alone. */
+.nav-item.active::before { display: none; }
+.nav-item:active { background: none; opacity: .55; }
+
+/* ── MOTION: nothing over 300ms, one curve, no linear ────────────────── */
+.svc, .saved-card, .jcard, .arr-stop-item, .stg-row-btn, .tile {
+  transition: background 200ms var(--ease), transform 200ms var(--ease),
+              box-shadow 200ms var(--ease);
+}
+.sheet, .feedback-sheet, .route-sheet {
+  transition: transform 300ms var(--ease), opacity 250ms var(--ease);
+}
+
+/* ── DENSITY: iOS grouped-list rhythm ────────────────────────────────── */
+.main { padding-inline: 16px; }
+.svc-head { padding: 12px 16px; }
+.stg-row  { padding: 12px 16px; }
+.stop-card { padding: 16px; }
+
+/* Inputs: 17px kills iOS zoom-on-focus and matches the platform */
+input, textarea, select { font-size: 17px; border-radius: 10px; }
+.field input:focus, .name-edit-form input:focus { border-color: var(--accent); }
+
+/* Selected-state chips read as iOS segmented control */
+.chip.active, .chip[aria-pressed="true"] {
+  background: var(--accent); color: #fff; border-color: transparent;
+}
+
+/* Accuracy scorecard — the AI-vs-LTA comparison, in Apple's flat style */
+.accuracy-scorecard { border-radius: var(--radius); }
+.acc-pct { font-variant-numeric: tabular-nums; letter-spacing: -.022em; }
+
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important;
+                            animation-duration: .01ms !important; }
+}
