@@ -43,13 +43,28 @@ jobs:
             echo "FTP_REMOTE_DIR secret is not set" >&2
             exit 1
           fi
-          lftp -c "
+
+          # The host drops SFTP connections intermittently, and a single
+          # dropped transfer used to fail the whole deploy
+          # ("mirror: Fatal error: max-retries exceeded"). Three defences:
+          #   1. more patience inside lftp (10 retries, 60s timeout)
+          #   2. --parallel=2 rather than 4 — fewer concurrent connections is
+          #      easier on shared hosting and drops far less often
+          #   3. --continue plus an outer retry loop, so an interrupted run
+          #      resumes where it stopped instead of starting over
+          attempt=1
+          max_attempts=3
+          until [ "$attempt" -gt "$max_attempts" ]; do
+            echo "── SFTP mirror: attempt $attempt of $max_attempts ──"
+            if lftp -c "
             set sftp:auto-confirm yes;
-            set net:max-retries 3;
-            set net:timeout 30;
+            set net:max-retries 10;
+            set net:timeout 60;
             set net:reconnect-interval-base 5;
+            set net:reconnect-interval-max 30;
+            set mirror:parallel-transfer-count 2;
             open -u '$SFTP_USER','$SFTP_PASS' sftp://$SFTP_HOST;
-            mirror -R --verbose --parallel=4 \
+            mirror -R --verbose --continue --parallel=2 \
               --exclude-glob .git \
               --exclude-glob .git/* \
               --exclude-glob .github \
@@ -78,4 +93,13 @@ jobs:
               --exclude-glob prototype-viewfinder.html \
               ./ '$REMOTE_DIR';
             bye
-          "
+          "; then
+              echo "✔ mirror completed on attempt $attempt"
+              exit 0
+            fi
+            echo "✖ attempt $attempt failed"
+            attempt=$((attempt + 1))
+            [ "$attempt" -le "$max_attempts" ] && sleep $((attempt * 15))
+          done
+          echo "SFTP mirror failed after $max_attempts attempts" >&2
+          exit 1
