@@ -31,6 +31,35 @@ jobs:
       - name: Install lftp
         run: sudo apt-get update && sudo apt-get install -y lftp
 
+      # The mirror below uploads but never deletes, so a folder removed from
+      # the repo lingers on the server forever. These two were the Apple
+      # design previews; they're gone from git and should go from the host
+      # too. Scoped to exactly these paths on purpose — a blanket
+      # `mirror --delete` would wipe anything on the server that isn't in
+      # the repo, which is a foot-gun on shared hosting.
+      # This step is a no-op once they're gone and can be deleted then.
+      - name: Remove retired preview folders
+        env:
+          SFTP_HOST: ${{ secrets.FTP_SERVER }}
+          SFTP_USER: ${{ secrets.FTP_USERNAME }}
+          SFTP_PASS: ${{ secrets.FTP_PASSWORD }}
+          REMOTE_DIR: ${{ secrets.FTP_REMOTE_DIR }}
+        run: |
+          for d in apple bus-apple; do
+            if lftp -c "
+              set sftp:auto-confirm yes;
+              set net:max-retries 3;
+              set net:timeout 30;
+              open -u '$SFTP_USER','$SFTP_PASS' sftp://$SFTP_HOST;
+              rm -r '$REMOTE_DIR/$d';
+              bye
+            " 2>/dev/null; then
+              echo "removed /$d from the server"
+            else
+              echo "/$d already absent — nothing to do"
+            fi
+          done
+
       - name: Mirror repo to SFTP
         env:
           SFTP_HOST: ${{ secrets.FTP_SERVER }}
