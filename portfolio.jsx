@@ -11,6 +11,11 @@ function Portfolio({ go, query, onOpenLightbox }) {
   const [filter, setFilter] = React.useState(initialCountry);
   const [pillStyle, setPillStyle] = React.useState({});
   const pillsRef = React.useRef(null);
+  // "grid" = the existing country-pill filter; "color" swaps it for the
+  // vectorscope. colorTarget is null until the user first touches the
+  // scope, so entering color mode doesn't immediately dim most of the grid.
+  const [mode, setMode] = React.useState("grid");
+  const [colorTarget, setColorTarget] = React.useState(null);
 
   // Clear the stored country after using it
   React.useEffect(() => {
@@ -46,39 +51,66 @@ function Portfolio({ go, query, onOpenLightbox }) {
         <h1 className="portfolio-title reveal in">Archive</h1>
 
         <div className="meta-row">
-          <div className="filters" ref={pillsRef}>
-            <div className="filters-bg" style={pillStyle} />
-            {window.COUNTRIES.map((c) => {
-              const countryPhotos = c === "All" ? items : items.filter(i => i.country === c);
-              const hasPhotos = countryPhotos.length > 0;
-              return (
-                <button
-                  key={c}
-                  className={"filter-pill" + (filter === c ? " active" : "") + (!hasPhotos ? " disabled" : "")}
-                  onClick={() => hasPhotos && setFilter(c)}
-                  data-cursor={hasPhotos ? "hover" : "auto"}
-                  disabled={!hasPhotos}
-                  style={{
-                    opacity: hasPhotos ? 1 : 0.5,
-                    cursor: hasPhotos ? "pointer" : "default",
-                  }}
-                  title={!hasPhotos ? "Coming Soon" : ""}
-                >
-                  {c}
-                </button>
-              );
-            })}
-          </div>
-          <div className="label">
-            {filter === "All"
-              ? String(items.length).padStart(2, "0")
-              : String(items.filter((i) => i.country === filter).length).padStart(2, "0")
-            } / {String(items.length).padStart(2, "0")} Shown
+          {mode === "grid" ? (
+            <div className="filters" ref={pillsRef}>
+              <div className="filters-bg" style={pillStyle} />
+              {window.COUNTRIES.map((c) => {
+                const countryPhotos = c === "All" ? items : items.filter(i => i.country === c);
+                const hasPhotos = countryPhotos.length > 0;
+                return (
+                  <button
+                    key={c}
+                    className={"filter-pill" + (filter === c ? " active" : "") + (!hasPhotos ? " disabled" : "")}
+                    onClick={() => hasPhotos && setFilter(c)}
+                    data-cursor={hasPhotos ? "hover" : "auto"}
+                    disabled={!hasPhotos}
+                    style={{
+                      opacity: hasPhotos ? 1 : 0.5,
+                      cursor: hasPhotos ? "pointer" : "default",
+                    }}
+                    title={!hasPhotos ? "Coming Soon" : ""}
+                  >
+                    {c}
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="label dim">Drag the scope below to browse by color</div>
+          )}
+          <div className="meta-row-right">
+            <div className="label">
+              {mode === "grid"
+                ? (filter === "All"
+                    ? String(items.length).padStart(2, "0")
+                    : String(items.filter((i) => i.country === filter).length).padStart(2, "0"))
+                : String(items.length).padStart(2, "0")
+              } / {String(items.length).padStart(2, "0")} Shown
+            </div>
+            <div className="mode-toggle">
+              <button className={mode === "grid" ? "active" : ""} onClick={() => setMode("grid")} data-cursor="hover">Grid</button>
+              <button className={mode === "color" ? "active" : ""} onClick={() => setMode("color")} data-cursor="hover">Color</button>
+            </div>
           </div>
         </div>
       </header>
 
-      <PortfolioGrid items={items} filter={filter} onOpenLightbox={onOpenLightbox} />
+      {mode === "color" && (
+        <window.Vectorscope
+          items={items}
+          target={colorTarget}
+          onTargetChange={setColorTarget}
+          onOpenLightbox={onOpenLightbox}
+        />
+      )}
+
+      <PortfolioGrid
+        items={items}
+        filter={filter}
+        mode={mode}
+        colorTarget={colorTarget}
+        onOpenLightbox={onOpenLightbox}
+      />
 
       <Footer go={go} />
     </div>
@@ -86,7 +118,7 @@ function Portfolio({ go, query, onOpenLightbox }) {
 }
 
 // Grid with FLIP-style animation on filter change
-function PortfolioGrid({ items, filter, onOpenLightbox }) {
+function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
   const gridRef = React.useRef(null);
   const prevPositions = React.useRef({});
 
@@ -155,15 +187,21 @@ function PortfolioGrid({ items, filter, onOpenLightbox }) {
   return (
     <div className="port-grid uniform" ref={gridRef}>
       {items.map((item, i) => {
-        const hidden = filter !== "All" && item.country !== filter;
+        // Grid mode removes non-matching tiles from layout (display:none,
+        // FLIP-animated back in on filter change — see the layout effect
+        // above). Color mode instead just dims: the target updates on every
+        // drag frame, and reflowing the whole grid at that rate would be
+        // both janky and pointless busywork for a purely visual fade.
+        const hidden = mode === "grid" && filter !== "All" && item.country !== filter;
+        const colorDim = mode === "color" && colorTarget && !window.vsIsMatch(window.vsGetColor(item), colorTarget);
         return (
           <div
             key={item.id}
             data-id={item.id}
-            className={"tile t-uniform tile-reveal" + (hidden ? " filtered-out" : "")}
+            className={"tile t-uniform tile-reveal" + (hidden ? " filtered-out" : "") + (colorDim ? " color-dim" : "")}
             data-cursor="view"
             data-cursor-label="Open"
-            onClick={() => !hidden && onOpenLightbox(i)}
+            onClick={() => !hidden && !colorDim && onOpenLightbox(i)}
             style={{ display: hidden ? "none" : "", "--d": `${(i % 6) * 0.07}s` }}
           >
             <div className="tile-img" style={{ backgroundImage: window.bgImage(item.src, 960) }} />

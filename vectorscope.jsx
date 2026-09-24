@@ -1,0 +1,213 @@
+// ============ Vectorscope — browse the archive by color ============
+//
+// A hue/saturation scope (angle = hue, distance from centre = saturation),
+// in the spirit of a video vectorscope or DaVinci Resolve's color-grading
+// tools: one dot per photo, plotted at its dominant color (computed at
+// build time by scripts/extract-colors.js into color-data.js). Drag the
+// crosshair anywhere in the circle to set a target color; the archive grid
+// below dims everything that doesn't match. Click a dot directly to jump
+// straight to that photo.
+//
+// Hue-wheel orientation: red (0deg) at 12 o'clock, increasing clockwise
+// (yellow, green, cyan, blue, magenta) — the layout most people already
+// know from color pickers, not literal broadcast-vectorscope geometry.
+
+const VS_SIZE = 200;       // SVG viewBox units (square)
+const VS_CENTER = 100;
+const VS_MAX_R = 80;       // radius of the 100%-saturation ring
+const VS_LABEL_R = 92;     // R/Y/G/C/B/M ring — must stay inside the 100-unit
+                            // half-width (viewBox edge) with margin for glyphs
+const VS_HUE_TOL = 30;     // degrees either side of target hue counted as a match
+const VS_SAT_TOL = 24;     // saturation points either side counted as a match
+
+function vsCircDist(a, b) {
+  const d = Math.abs(a - b) % 360;
+  return d > 180 ? 360 - d : d;
+}
+
+// hue/sat (0-360, 0-100) -> viewBox xy. Inverse of vsXyToHueSat below.
+function vsHueSatToXy(h, s) {
+  const theta = ((90 - h) * Math.PI) / 180;
+  const r = (Math.min(s, 100) / 100) * VS_MAX_R;
+  return { x: VS_CENTER + r * Math.cos(theta), y: VS_CENTER - r * Math.sin(theta) };
+}
+
+function vsXyToHueSat(x, y) {
+  const dx = x - VS_CENTER, dy = VS_CENTER - y;
+  const r = Math.min(Math.hypot(dx, dy), VS_MAX_R);
+  let theta = (Math.atan2(dy, dx) * 180) / Math.PI;
+  let h = (((90 - theta) % 360) + 360) % 360;
+  return { h, s: (r / VS_MAX_R) * 100 };
+}
+
+function vsIsMatch(color, target) {
+  if (!color || !target) return false;
+  return vsCircDist(color.h, target.h) <= VS_HUE_TOL && Math.abs(color.s - target.s) <= VS_SAT_TOL;
+}
+
+// A photo's relative path, matching the keys extract-colors.js writes to
+// color-data.js — decode the per-segment URI-encoding IMG() applied and
+// drop the "images/" prefix.
+function vsRelPath(src) {
+  return decodeURIComponent(src.replace(/^images\//, ""));
+}
+
+function vsGetColor(item) {
+  return (window.PHOTO_COLORS && window.PHOTO_COLORS[vsRelPath(item.src)]) || null;
+}
+
+function hslToCss(h, s, l) {
+  return `hsl(${h}deg ${s}% ${l}%)`;
+}
+
+function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
+  const svgRef = React.useRef(null);
+  const dragging = React.useRef(false);
+  const pendingTarget = React.useRef(null);
+  const rafId = React.useRef(null);
+
+  // Precompute {item, index, color} once per items identity — items is
+  // window.PORTFOLIO, which never changes at runtime, so this is
+  // effectively a one-time cost.
+  const dots = React.useMemo(() => {
+    return items
+      .map((item, index) => ({ item, index, color: vsGetColor(item) }))
+      .filter((d) => d.color);
+  }, [items]);
+
+  const commit = React.useCallback((next) => {
+    pendingTarget.current = next;
+    if (rafId.current) return;
+    rafId.current = requestAnimationFrame(() => {
+      rafId.current = null;
+      onTargetChange(pendingTarget.current);
+    });
+  }, [onTargetChange]);
+
+  const pointToTarget = (clientX, clientY) => {
+    const svg = svgRef.current;
+    if (!svg) return null;
+    const rect = svg.getBoundingClientRect();
+    const x = ((clientX - rect.left) / rect.width) * VS_SIZE;
+    const y = ((clientY - rect.top) / rect.height) * VS_SIZE;
+    return vsXyToHueSat(x, y);
+  };
+
+  const onPointerDown = (e) => {
+    // A tap on a dot opens that photo instead of starting a drag — handled
+    // by the dot's own onPointerDown (which stops propagation) — so
+    // reaching here means the background/scope area was hit.
+    dragging.current = true;
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const t = pointToTarget(e.clientX, e.clientY);
+    if (t) commit(t);
+  };
+  const onPointerMove = (e) => {
+    if (!dragging.current) return;
+    const t = pointToTarget(e.clientX, e.clientY);
+    if (t) commit(t);
+  };
+  const endDrag = () => { dragging.current = false; };
+
+  React.useEffect(() => () => { if (rafId.current) cancelAnimationFrame(rafId.current); }, []);
+
+  const matchCount = target
+    ? dots.reduce((n, d) => n + (vsIsMatch(d.color, target) ? 1 : 0), 0)
+    : dots.length;
+
+  // Ring/spoke grid + hue-wheel labels, drawn once.
+  const rings = [0.25, 0.5, 0.75, 1].map((f) => VS_MAX_R * f);
+  const spokes = Array.from({ length: 6 }, (_, i) => i * 60);
+  const wheelLabels = [
+    { h: 0, t: "R" }, { h: 60, t: "Y" }, { h: 120, t: "G" },
+    { h: 180, t: "C" }, { h: 240, t: "B" }, { h: 300, t: "M" },
+  ];
+
+  return (
+    <div className="vscope">
+      <div className="vscope-stage">
+        <svg
+          ref={svgRef}
+          className="vscope-svg"
+          viewBox={`0 0 ${VS_SIZE} ${VS_SIZE}`}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          role="application"
+          aria-label="Color scope — drag to browse the archive by hue and saturation"
+        >
+          <circle className="vscope-face" cx={VS_CENTER} cy={VS_CENTER} r={VS_MAX_R} />
+          {rings.map((r) => (
+            <circle key={r} className="vscope-ring" cx={VS_CENTER} cy={VS_CENTER} r={r} />
+          ))}
+          {spokes.map((h) => {
+            const p = vsHueSatToXy(h, 100);
+            return <line key={h} className="vscope-spoke" x1={VS_CENTER} y1={VS_CENTER} x2={p.x} y2={p.y} />;
+          })}
+          <circle className="vscope-ring vscope-ring-outer" cx={VS_CENTER} cy={VS_CENTER} r={VS_MAX_R} />
+
+          {dots.map(({ item, index, color }) => {
+            const p = vsHueSatToXy(color.h, color.s);
+            const dim = target && !vsIsMatch(color, target);
+            return (
+              <circle
+                key={item.id}
+                className={"vscope-dot" + (dim ? " dim" : "")}
+                cx={p.x} cy={p.y} r={dim ? 1.6 : 2.3}
+                fill={hslToCss(color.h, Math.max(color.s, 20), 58)}
+                onPointerDown={(e) => { e.stopPropagation(); }}
+                onClick={(e) => { e.stopPropagation(); onOpenLightbox(index); }}
+                data-cursor="view"
+              >
+                <title>{item.title === item.country ? item.country : `${item.title} · ${item.country}`}</title>
+              </circle>
+            );
+          })}
+
+          {target && (() => {
+            const cp = vsHueSatToXy(target.h, target.s);
+            return (
+              <g className="vscope-crosshair" style={{ transform: `translate(${cp.x}px, ${cp.y}px)` }}>
+                <circle className="vscope-crosshair-ring" r={6} />
+                <line x1={-10} y1={0} x2={-3} y2={0} />
+                <line x1={3} y1={0} x2={10} y2={0} />
+                <line x1={0} y1={-10} x2={0} y2={-3} />
+                <line x1={0} y1={3} x2={0} y2={10} />
+              </g>
+            );
+          })()}
+
+          {wheelLabels.map(({ h, t }) => {
+            const theta = ((90 - h) * Math.PI) / 180;
+            const x = VS_CENTER + VS_LABEL_R * Math.cos(theta);
+            const y = VS_CENTER - VS_LABEL_R * Math.sin(theta);
+            return <text key={t} className="vscope-label" x={x} y={y} dominantBaseline="middle" textAnchor="middle">{t}</text>;
+          })}
+        </svg>
+      </div>
+
+      <div className="vscope-readout">
+        {target ? (
+          <React.Fragment>
+            <div className="vscope-readout-row">
+              <span className="vscope-readout-item"><span className="label dim">Hue</span> {Math.round(target.h)}&deg;</span>
+              <span className="vscope-readout-item"><span className="label dim">Sat</span> {Math.round(target.s)}%</span>
+              <span className="vscope-swatch" style={{ background: hslToCss(target.h, target.s, 55) }} aria-hidden="true" />
+            </div>
+            <div className="vscope-readout-row">
+              <span className="label ochre">{matchCount} {matchCount === 1 ? "match" : "matches"}</span>
+              <button className="vscope-reset" onClick={() => onTargetChange(null)} data-cursor="hover">Reset</button>
+            </div>
+          </React.Fragment>
+        ) : (
+          <p className="vscope-hint">Drag inside the circle to browse by color. Tap any dot to open that photo.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+window.Vectorscope = Vectorscope;
+window.vsGetColor = vsGetColor;
+window.vsIsMatch = vsIsMatch;

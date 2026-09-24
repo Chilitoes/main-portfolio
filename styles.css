@@ -747,6 +747,7 @@ footer.site-footer {
   border-top: 1px solid var(--line);
   padding-top: 20px;
 }
+.meta-row-right { display: flex; align-items: baseline; gap: 20px; }
 .filters {
   display: inline-flex;
   gap: 8px;
@@ -780,6 +781,90 @@ footer.site-footer {
   z-index: 0;
 }
 .filters { position: relative; }
+
+/* ===== Vectorscope — browse the archive by color ===== */
+.mode-toggle {
+  display: inline-flex; gap: 8px; padding: 6px;
+  border: 1px solid var(--line); border-radius: 999px;
+  background: rgba(255,255,255,0.015); backdrop-filter: blur(6px);
+}
+.mode-toggle button {
+  padding: 8px 18px; border-radius: 999px;
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--fg-dim);
+  transition: color 0.3s var(--ease-soft), background 0.3s var(--ease-soft);
+}
+.mode-toggle button.active { color: var(--bg); background: var(--ochre); }
+.mode-toggle button:hover:not(.active) { color: var(--fg); }
+
+.vscope {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 40px; padding: 20px 40px 44px;
+}
+.vscope-stage { width: 260px; flex-shrink: 0; }
+.vscope-svg {
+  width: 100%; aspect-ratio: 1; display: block; touch-action: none; cursor: crosshair;
+  overflow: visible;
+}
+.vscope-face { fill: var(--bg-elev); stroke: var(--line); stroke-width: 1; }
+.vscope-ring { fill: none; stroke: var(--line); stroke-width: 0.5; }
+.vscope-ring-outer { stroke-width: 1; }
+.vscope-spoke { stroke: var(--line); stroke-width: 0.5; }
+.vscope-label {
+  font-family: var(--mono); font-size: 7px; letter-spacing: 0.05em;
+  fill: var(--fg-mute);
+}
+.vscope-dot {
+  stroke: rgba(14,13,11,0.5); stroke-width: 0.4;
+  transition: opacity 0.35s var(--ease-soft), r 0.25s var(--ease-soft);
+  cursor: pointer;
+}
+.vscope-dot.dim { opacity: 0.22; }
+.vscope-dot:hover { stroke: var(--fg); stroke-width: 0.8; }
+.vscope-crosshair {
+  pointer-events: none;
+}
+.vscope-crosshair-ring { fill: none; stroke: var(--ochre); stroke-width: 1.2; }
+.vscope-crosshair line { stroke: var(--ochre); stroke-width: 1.2; }
+
+.vscope-readout {
+  display: flex; flex-direction: column; gap: 14px;
+  min-width: 220px;
+}
+.vscope-readout-row {
+  display: flex; align-items: center; gap: 14px;
+}
+.vscope-readout-item {
+  font-family: var(--mono); font-size: 13px; color: var(--fg);
+  letter-spacing: 0.01em; display: flex; align-items: baseline; gap: 6px;
+}
+.vscope-readout-item .label { font-size: 9px; }
+.vscope-swatch {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1px solid var(--line); margin-left: auto;
+}
+.vscope-reset {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--fg-dim);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+  transition: color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft);
+}
+.vscope-reset:hover { color: var(--fg); border-color: var(--fg-dim); }
+.vscope-hint {
+  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  color: var(--fg-dim); letter-spacing: 0.01em; max-width: 260px;
+}
+
+.tile.color-dim { opacity: 0.15; pointer-events: none; }
+
+@media (max-width: 700px) {
+  .vscope { padding: 16px 22px 36px; gap: 24px; }
+  .vscope-stage { width: 220px; }
+  .vscope-readout { min-width: 0; width: 100%; align-items: center; text-align: center; }
+  .vscope-readout-row { justify-content: center; }
+  .vscope-swatch { margin-left: 0; }
+  .vscope-hint { text-align: center; max-width: 280px; }
+}
 
 .port-grid {
   padding: 20px 40px 120px;
@@ -1453,6 +1538,7 @@ picture { display: contents; }
   .portfolio-head { padding: 140px 22px 40px; }
   .port-grid { padding: 20px 22px 80px; grid-auto-rows: 24vw; }
   .portfolio-head .meta-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .meta-row-right { width: 100%; justify-content: space-between; }
   .filters { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; flex-wrap: nowrap; }
   .filter-pill { padding: 8px 14px; font-size: 9px; white-space: nowrap; }
 }
