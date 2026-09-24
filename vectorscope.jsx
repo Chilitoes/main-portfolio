@@ -5,8 +5,8 @@
 // tools: one dot per photo, plotted at its dominant color (computed at
 // build time by scripts/extract-colors.js into color-data.js). Drag the
 // crosshair anywhere in the circle to set a target color; the archive grid
-// below dims everything that doesn't match. Click a dot directly to jump
-// straight to that photo.
+// below re-sorts to bring the closest-matching photos first (see
+// vsColorDistance). Click a dot directly to jump straight to that photo.
 //
 // Hue-wheel orientation: red (0deg) at 12 o'clock, increasing clockwise
 // (yellow, green, cyan, blue, magenta) — the layout most people already
@@ -53,6 +53,17 @@ function vsXyToHueSat(x, y) {
 function vsIsMatch(color, target) {
   if (!color || !target) return false;
   return vsCircDist(color.h, target.h) <= VS_HUE_TOL && Math.abs(color.s - target.s) <= VS_SAT_TOL;
+}
+
+// Continuous closeness (0 = identical, larger = further) for sorting the
+// grid by "most like this color" rather than a hard match/no-match cutoff.
+// Hue and saturation are both normalized to 0-1 before combining, since raw
+// hue distance (0-180) and saturation distance (0-100) aren't comparable.
+function vsColorDistance(color, target) {
+  if (!color || !target) return Infinity;
+  const hueDist = vsCircDist(color.h, target.h) / 180;
+  const satDist = Math.abs(color.s - target.s) / 100;
+  return Math.hypot(hueDist, satDist);
 }
 
 // A photo's relative path, matching the keys extract-colors.js writes to
@@ -121,7 +132,7 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
 
   React.useEffect(() => () => { if (rafId.current) cancelAnimationFrame(rafId.current); }, []);
 
-  const matchCount = target
+  const closeCount = target
     ? dots.reduce((n, d) => n + (vsIsMatch(d.color, target) ? 1 : 0), 0)
     : dots.length;
 
@@ -210,7 +221,7 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
               <span className="vscope-swatch" style={{ background: hslToCss(target.h, target.s, 55) }} aria-hidden="true" />
             </div>
             <div className="vscope-readout-row">
-              <span className="label ochre">{matchCount} {matchCount === 1 ? "match" : "matches"}</span>
+              <span className="label dim">Sorted by closeness &middot; {closeCount} close {closeCount === 1 ? "match" : "matches"}</span>
               <button className="vscope-reset" onClick={() => onTargetChange(null)} data-cursor="hover">Reset</button>
             </div>
           </React.Fragment>
@@ -225,3 +236,4 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
 window.Vectorscope = Vectorscope;
 window.vsGetColor = vsGetColor;
 window.vsIsMatch = vsIsMatch;
+window.vsColorDistance = vsColorDistance;

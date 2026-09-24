@@ -117,10 +117,54 @@ function Portfolio({ go, query, onOpenLightbox }) {
   );
 }
 
-// Grid with FLIP-style animation on filter change
+// Trails `value`, updating at most once per `delayMs` — with a trailing
+// update so the final value always lands even after changes stop. Used to
+// cap how often the color-mode re-sort below actually reflows the grid;
+// the crosshair/readout in the scope itself stay on the raw, un-throttled
+// value and only this copy (fed into the sort) is capped.
+function useThrottledValue(value, delayMs) {
+  const [throttled, setThrottled] = React.useState(value);
+  const lastRef = React.useRef(0);
+  const timeoutRef = React.useRef(null);
+  React.useEffect(() => {
+    const elapsed = Date.now() - lastRef.current;
+    if (elapsed >= delayMs) {
+      lastRef.current = Date.now();
+      setThrottled(value);
+    } else {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        lastRef.current = Date.now();
+        setThrottled(value);
+      }, delayMs - elapsed);
+    }
+    return () => clearTimeout(timeoutRef.current);
+  }, [value, delayMs]);
+  return throttled;
+}
+
+// Grid with FLIP-style animation on filter change / color re-sort
 function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
   const gridRef = React.useRef(null);
   const prevPositions = React.useRef({});
+
+  // Re-sorting 109 tiles on every drag-frame update would fight the FLIP
+  // animation below constantly — cap it to a rate that still reads as live.
+  const throttledTarget = useThrottledValue(mode === "color" ? colorTarget : null, 120);
+
+  // Color mode re-sorts the full archive by closeness to the dragged color
+  // (closest first) instead of hiding anything, so drag position always
+  // maps to "most like this" → "least like this" rather than a hard cutoff.
+  // Grid mode's country filter, by contrast, hides non-matching tiles
+  // outright (display:none) since it's a real filter, not a ranking.
+  const ordered = React.useMemo(() => {
+    const withIndex = items.map((item, index) => ({ item, index }));
+    if (!throttledTarget) return withIndex;
+    return withIndex.slice().sort((a, b) =>
+      window.vsColorDistance(window.vsGetColor(a.item), throttledTarget) -
+      window.vsColorDistance(window.vsGetColor(b.item), throttledTarget)
+    );
+  }, [items, throttledTarget]);
 
   // Staggered scroll reveal: tiles cascade in as they enter the viewport
   // (previously every tile was hardcoded ".in" and never animated). Once a
@@ -138,9 +182,9 @@ function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
     }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
     grid.querySelectorAll(".tile-reveal:not(.in)").forEach((t) => io.observe(t));
     return () => io.disconnect();
-  }, [filter]);
+  }, [filter, ordered]);
 
-  // Record positions BEFORE filter changes render (layout effect runs before paint)
+  // Record positions BEFORE filter/sort changes render (layout effect runs before paint)
   React.useLayoutEffect(() => {
     const grid = gridRef.current;
     if (!grid) return;
@@ -173,7 +217,7 @@ function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
           t.style.transition = "none";
           t.style.transform = `translate(${dx}px, ${dy}px)`;
           requestAnimationFrame(() => {
-            t.style.transition = "transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)";
+            t.style.transition = "transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1)";
             t.style.transform = "";
           });
         }
@@ -181,31 +225,28 @@ function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
     });
 
     prevPositions.current = newPositions;
-  }, [filter]);
+  }, [filter, ordered]);
 
   // Uniform: one tile class, consistent aspect ratio
   return (
     <div className="port-grid uniform" ref={gridRef}>
-      {items.map((item, i) => {
+      {ordered.map(({ item, index }, i) => {
         // Grid mode removes non-matching tiles from layout (display:none,
         // FLIP-animated back in on filter change — see the layout effect
-        // above). Color mode instead just dims: the target updates on every
-        // drag frame, and reflowing the whole grid at that rate would be
-        // both janky and pointless busywork for a purely visual fade.
+        // above). Color mode never hides anything — it only reorders.
         const hidden = mode === "grid" && filter !== "All" && item.country !== filter;
-        const colorDim = mode === "color" && colorTarget && !window.vsIsMatch(window.vsGetColor(item), colorTarget);
         return (
           <div
             key={item.id}
             data-id={item.id}
-            className={"tile t-uniform tile-reveal" + (hidden ? " filtered-out" : "") + (colorDim ? " color-dim" : "")}
+            className={"tile t-uniform tile-reveal" + (hidden ? " filtered-out" : "")}
             data-cursor="view"
             data-cursor-label="Open"
-            onClick={() => !hidden && !colorDim && onOpenLightbox(i)}
+            onClick={() => !hidden && onOpenLightbox(index)}
             style={{ display: hidden ? "none" : "", "--d": `${(i % 6) * 0.07}s` }}
           >
             <div className="tile-img" style={{ backgroundImage: window.bgImage(item.src, 960) }} />
-            <div className="tile-idx label">{String(i + 1).padStart(3, "0")}</div>
+            <div className="tile-idx label">{String(index + 1).padStart(3, "0")}</div>
             <div className="tile-cap">
               <div className="label tile-cap-label">{item.country} · {item.city}</div>
               <div className="tile-cap-title">{item.title}</div>
