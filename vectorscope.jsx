@@ -26,9 +26,18 @@ function vsCircDist(a, b) {
 }
 
 // hue/sat (0-360, 0-100) -> viewBox xy. Inverse of vsXyToHueSat below.
+//
+// Radius uses sqrt(sat) rather than sat directly. Most of this archive sits
+// at fairly low real-world saturation (moody, desaturated grading), which
+// under a linear mapping bunched nearly every dot within the inner quarter
+// of the circle — indistinguishable from each other and from the "no
+// color" center. The sqrt curve spreads that common low-sat range across
+// much more of the radius while still landing fully-saturated colors on
+// the outer ring, so the actual hue variety in the collection is visible
+// at a glance instead of collapsed into one grey clump.
 function vsHueSatToXy(h, s) {
   const theta = ((90 - h) * Math.PI) / 180;
-  const r = (Math.min(s, 100) / 100) * VS_MAX_R;
+  const r = Math.sqrt(Math.min(Math.max(s, 0), 100) / 100) * VS_MAX_R;
   return { x: VS_CENTER + r * Math.cos(theta), y: VS_CENTER - r * Math.sin(theta) };
 }
 
@@ -37,7 +46,8 @@ function vsXyToHueSat(x, y) {
   const r = Math.min(Math.hypot(dx, dy), VS_MAX_R);
   let theta = (Math.atan2(dy, dx) * 180) / Math.PI;
   let h = (((90 - theta) % 360) + 360) % 360;
-  return { h, s: (r / VS_MAX_R) * 100 };
+  const norm = r / VS_MAX_R;
+  return { h, s: norm * norm * 100 };
 }
 
 function vsIsMatch(color, target) {
@@ -148,14 +158,18 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
           <circle className="vscope-ring vscope-ring-outer" cx={VS_CENTER} cy={VS_CENTER} r={VS_MAX_R} />
 
           {dots.map(({ item, index, color }) => {
+            // Position and matching (vsIsMatch, above) always use the photo's
+            // real hue/saturation. The fill color floors saturation/lightness
+            // purely so muted, low-chroma photos still render as a clearly
+            // legible hue instead of a near-grey speck — cosmetic only.
             const p = vsHueSatToXy(color.h, color.s);
             const dim = target && !vsIsMatch(color, target);
             return (
               <circle
                 key={item.id}
                 className={"vscope-dot" + (dim ? " dim" : "")}
-                cx={p.x} cy={p.y} r={dim ? 1.6 : 2.3}
-                fill={hslToCss(color.h, Math.max(color.s, 20), 58)}
+                cx={p.x} cy={p.y} r={dim ? 1.8 : 2.6}
+                fill={hslToCss(color.h, Math.max(color.s, 48), Math.min(Math.max(color.l, 42), 62))}
                 onPointerDown={(e) => { e.stopPropagation(); }}
                 onClick={(e) => { e.stopPropagation(); onOpenLightbox(index); }}
                 data-cursor="view"
