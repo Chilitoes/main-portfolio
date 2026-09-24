@@ -114,32 +114,11 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
     return vsXyToHueSat(x, y);
   };
 
-  // iOS Safari can still misread a drag on the scope as a pinch/double-tap
-  // zoom gesture — the grid re-sorting underneath keeps shifting layout
-  // under the finger, and that combination is what was reported as the
-  // page "jittering and zooming in and out" while dragging on mobile.
-  // touch-action: none on the SVG (below) isn't always enough on its own,
-  // so also pin the page's zoom for the duration of the drag itself and
-  // restore whatever the tag said before.
-  const viewportZoomLock = React.useRef(null);
-  const lockZoom = () => {
-    const meta = document.querySelector('meta[name="viewport"]');
-    if (!meta || viewportZoomLock.current) return;
-    viewportZoomLock.current = meta.getAttribute("content");
-    meta.setAttribute("content", viewportZoomLock.current + ", maximum-scale=1, user-scalable=no");
-  };
-  const unlockZoom = () => {
-    const meta = document.querySelector('meta[name="viewport"]');
-    if (meta && viewportZoomLock.current) meta.setAttribute("content", viewportZoomLock.current);
-    viewportZoomLock.current = null;
-  };
-
   const onPointerDown = (e) => {
     // A tap on a dot opens that photo instead of starting a drag — handled
     // by the dot's own onPointerDown (which stops propagation) — so
     // reaching here means the background/scope area was hit.
     dragging.current = true;
-    lockZoom();
     e.currentTarget.setPointerCapture?.(e.pointerId);
     if (e.cancelable) e.preventDefault();
     const t = pointToTarget(e.clientX, e.clientY);
@@ -151,9 +130,7 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
     const t = pointToTarget(e.clientX, e.clientY);
     if (t) commit(t);
   };
-  const endDrag = () => { dragging.current = false; unlockZoom(); };
-
-  React.useEffect(() => () => unlockZoom(), []);
+  const endDrag = () => { dragging.current = false; };
 
   React.useEffect(() => () => { if (rafId.current) cancelAnimationFrame(rafId.current); }, []);
 

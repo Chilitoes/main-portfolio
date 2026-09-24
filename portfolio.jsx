@@ -103,30 +103,25 @@ function Portfolio({ go, query, onOpenLightbox }) {
   );
 }
 
-// Trails `value`, updating at most once per `delayMs` — with a trailing
-// update so the final value always lands even after changes stop. Used to
-// cap how often the color-mode re-sort below actually reflows the grid;
-// the crosshair/readout in the scope itself stay on the raw, un-throttled
-// value and only this copy (fed into the sort) is capped.
-function useThrottledValue(value, delayMs) {
-  const [throttled, setThrottled] = React.useState(value);
-  const lastRef = React.useRef(0);
-  const timeoutRef = React.useRef(null);
+// Settles on `value` only once it stops changing for `delayMs` (a plain
+// trailing debounce, not a throttle — every change pushes the timer back
+// out). Used to hold off the color-mode re-sort below until the drag
+// actually pauses or ends; the crosshair/readout in the scope itself stay
+// on the raw, un-debounced value so those still update every frame.
+//
+// This used to be a throttle firing every ~120ms *during* the drag, which
+// meant re-measuring and FLIP-animating all 109 tiles many times a second
+// while a finger was moving on mobile — that layout-thrashing was reported
+// as the page "jittering and zooming in and out" mid-drag. Deferring the
+// reflow to once the gesture settles removes that cost from the hot path
+// entirely; the grid still catches up almost immediately after a pause.
+function useDebouncedValue(value, delayMs) {
+  const [debounced, setDebounced] = React.useState(value);
   React.useEffect(() => {
-    const elapsed = Date.now() - lastRef.current;
-    if (elapsed >= delayMs) {
-      lastRef.current = Date.now();
-      setThrottled(value);
-    } else {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        lastRef.current = Date.now();
-        setThrottled(value);
-      }, delayMs - elapsed);
-    }
-    return () => clearTimeout(timeoutRef.current);
+    const id = setTimeout(() => setDebounced(value), delayMs);
+    return () => clearTimeout(id);
   }, [value, delayMs]);
-  return throttled;
+  return debounced;
 }
 
 // Grid with FLIP-style animation on filter change / color re-sort
@@ -134,9 +129,7 @@ function PortfolioGrid({ items, filter, colorTarget, onOpenLightbox }) {
   const gridRef = React.useRef(null);
   const prevPositions = React.useRef({});
 
-  // Re-sorting 109 tiles on every drag-frame update would fight the FLIP
-  // animation below constantly — cap it to a rate that still reads as live.
-  const throttledTarget = useThrottledValue(colorTarget, 120);
+  const debouncedTarget = useDebouncedValue(colorTarget, 160);
 
   // The color scope re-sorts the full archive by closeness to the dragged
   // color (closest first) instead of hiding anything, so drag position
@@ -147,12 +140,12 @@ function PortfolioGrid({ items, filter, colorTarget, onOpenLightbox }) {
   // from whatever order that produced.
   const ordered = React.useMemo(() => {
     const withIndex = items.map((item, index) => ({ item, index }));
-    if (!throttledTarget) return withIndex;
+    if (!debouncedTarget) return withIndex;
     return withIndex.slice().sort((a, b) =>
-      window.vsColorDistance(window.vsGetColor(a.item), throttledTarget) -
-      window.vsColorDistance(window.vsGetColor(b.item), throttledTarget)
+      window.vsColorDistance(window.vsGetColor(a.item), debouncedTarget) -
+      window.vsColorDistance(window.vsGetColor(b.item), debouncedTarget)
     );
-  }, [items, throttledTarget]);
+  }, [items, debouncedTarget]);
 
   // Staggered scroll reveal: tiles cascade in as they enter the viewport
   // (previously every tile was hardcoded ".in" and never animated). Once a
