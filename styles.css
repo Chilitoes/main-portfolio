@@ -783,20 +783,6 @@ footer.site-footer {
 .filters { position: relative; }
 
 /* ===== Vectorscope — browse the archive by color ===== */
-.mode-toggle {
-  display: inline-flex; gap: 8px; padding: 6px;
-  border: 1px solid var(--line); border-radius: 999px;
-  background: rgba(255,255,255,0.015); backdrop-filter: blur(6px);
-}
-.mode-toggle button {
-  padding: 8px 18px; border-radius: 999px;
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.22em;
-  text-transform: uppercase; color: var(--fg-dim);
-  transition: color 0.3s var(--ease-soft), background 0.3s var(--ease-soft);
-}
-.mode-toggle button.active { color: var(--bg); background: var(--ochre); }
-.mode-toggle button:hover:not(.active) { color: var(--fg); }
-
 .vscope {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
   gap: 40px; padding: 20px 40px 44px;

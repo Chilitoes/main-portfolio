@@ -11,10 +11,9 @@ function Portfolio({ go, query, onOpenLightbox }) {
   const [filter, setFilter] = React.useState(initialCountry);
   const [pillStyle, setPillStyle] = React.useState({});
   const pillsRef = React.useRef(null);
-  // "grid" = the existing country-pill filter; "color" swaps it for the
-  // vectorscope. colorTarget is null until the user first touches the
-  // scope, so entering color mode doesn't immediately dim most of the grid.
-  const [mode, setMode] = React.useState("grid");
+  // The country pills and the color scope apply together on one grid —
+  // colorTarget is null until the user first touches the scope, so it
+  // starts with no effect on sort order.
   const [colorTarget, setColorTarget] = React.useState(null);
 
   // Clear the stored country after using it
@@ -51,63 +50,50 @@ function Portfolio({ go, query, onOpenLightbox }) {
         <h1 className="portfolio-title reveal in">Archive</h1>
 
         <div className="meta-row">
-          {mode === "grid" ? (
-            <div className="filters" ref={pillsRef}>
-              <div className="filters-bg" style={pillStyle} />
-              {window.COUNTRIES.map((c) => {
-                const countryPhotos = c === "All" ? items : items.filter(i => i.country === c);
-                const hasPhotos = countryPhotos.length > 0;
-                return (
-                  <button
-                    key={c}
-                    className={"filter-pill" + (filter === c ? " active" : "") + (!hasPhotos ? " disabled" : "")}
-                    onClick={() => hasPhotos && setFilter(c)}
-                    data-cursor={hasPhotos ? "hover" : "auto"}
-                    disabled={!hasPhotos}
-                    style={{
-                      opacity: hasPhotos ? 1 : 0.5,
-                      cursor: hasPhotos ? "pointer" : "default",
-                    }}
-                    title={!hasPhotos ? "Coming Soon" : ""}
-                  >
-                    {c}
-                  </button>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="label dim">Drag the scope below to browse by color</div>
-          )}
+          <div className="filters" ref={pillsRef}>
+            <div className="filters-bg" style={pillStyle} />
+            {window.COUNTRIES.map((c) => {
+              const countryPhotos = c === "All" ? items : items.filter(i => i.country === c);
+              const hasPhotos = countryPhotos.length > 0;
+              return (
+                <button
+                  key={c}
+                  className={"filter-pill" + (filter === c ? " active" : "") + (!hasPhotos ? " disabled" : "")}
+                  onClick={() => hasPhotos && setFilter(c)}
+                  data-cursor={hasPhotos ? "hover" : "auto"}
+                  disabled={!hasPhotos}
+                  style={{
+                    opacity: hasPhotos ? 1 : 0.5,
+                    cursor: hasPhotos ? "pointer" : "default",
+                  }}
+                  title={!hasPhotos ? "Coming Soon" : ""}
+                >
+                  {c}
+                </button>
+              );
+            })}
+          </div>
           <div className="meta-row-right">
             <div className="label">
-              {mode === "grid"
-                ? (filter === "All"
-                    ? String(items.length).padStart(2, "0")
-                    : String(items.filter((i) => i.country === filter).length).padStart(2, "0"))
-                : String(items.length).padStart(2, "0")
+              {filter === "All"
+                ? String(items.length).padStart(2, "0")
+                : String(items.filter((i) => i.country === filter).length).padStart(2, "0")
               } / {String(items.length).padStart(2, "0")} Shown
-            </div>
-            <div className="mode-toggle">
-              <button className={mode === "grid" ? "active" : ""} onClick={() => setMode("grid")} data-cursor="hover">Grid</button>
-              <button className={mode === "color" ? "active" : ""} onClick={() => setMode("color")} data-cursor="hover">Color</button>
             </div>
           </div>
         </div>
       </header>
 
-      {mode === "color" && (
-        <window.Vectorscope
-          items={items}
-          target={colorTarget}
-          onTargetChange={setColorTarget}
-          onOpenLightbox={onOpenLightbox}
-        />
-      )}
+      <window.Vectorscope
+        items={items}
+        target={colorTarget}
+        onTargetChange={setColorTarget}
+        onOpenLightbox={onOpenLightbox}
+      />
 
       <PortfolioGrid
         items={items}
         filter={filter}
-        mode={mode}
         colorTarget={colorTarget}
         onOpenLightbox={onOpenLightbox}
       />
@@ -144,19 +130,21 @@ function useThrottledValue(value, delayMs) {
 }
 
 // Grid with FLIP-style animation on filter change / color re-sort
-function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
+function PortfolioGrid({ items, filter, colorTarget, onOpenLightbox }) {
   const gridRef = React.useRef(null);
   const prevPositions = React.useRef({});
 
   // Re-sorting 109 tiles on every drag-frame update would fight the FLIP
   // animation below constantly — cap it to a rate that still reads as live.
-  const throttledTarget = useThrottledValue(mode === "color" ? colorTarget : null, 120);
+  const throttledTarget = useThrottledValue(colorTarget, 120);
 
-  // Color mode re-sorts the full archive by closeness to the dragged color
-  // (closest first) instead of hiding anything, so drag position always
-  // maps to "most like this" → "least like this" rather than a hard cutoff.
-  // Grid mode's country filter, by contrast, hides non-matching tiles
-  // outright (display:none) since it's a real filter, not a ranking.
+  // The color scope re-sorts the full archive by closeness to the dragged
+  // color (closest first) instead of hiding anything, so drag position
+  // always maps to "most like this" → "least like this" rather than a hard
+  // cutoff. The country pills, by contrast, hide non-matching tiles outright
+  // (display:none) since that's a real filter, not a ranking — the two
+  // combine: sort runs first, then non-matching-country tiles are hidden
+  // from whatever order that produced.
   const ordered = React.useMemo(() => {
     const withIndex = items.map((item, index) => ({ item, index }));
     if (!throttledTarget) return withIndex;
@@ -231,10 +219,11 @@ function PortfolioGrid({ items, filter, mode, colorTarget, onOpenLightbox }) {
   return (
     <div className="port-grid uniform" ref={gridRef}>
       {ordered.map(({ item, index }, i) => {
-        // Grid mode removes non-matching tiles from layout (display:none,
-        // FLIP-animated back in on filter change — see the layout effect
-        // above). Color mode never hides anything — it only reorders.
-        const hidden = mode === "grid" && filter !== "All" && item.country !== filter;
+        // The country pill removes non-matching tiles from layout
+        // (display:none, FLIP-animated back in on filter change — see the
+        // layout effect above). The color scope never hides anything —
+        // it only reorders (see the `ordered` memo above).
+        const hidden = filter !== "All" && item.country !== filter;
         return (
           <div
             key={item.id}
