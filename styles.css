@@ -666,12 +666,19 @@ footer.site-footer {
 }
 .filters { position: relative; }
 
-/* ===== Vectorscope — browse the archive by color ===== */
-.vscope {
-  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
-  gap: 40px; padding: 20px 40px 44px;
+/* ===== Archive layout: color scope (left, sticky) + photo grid (right) ===== */
+.archive-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 56px;
+  align-items: start;
+  padding: 20px 40px 120px;
 }
-.vscope-stage { width: 260px; flex-shrink: 0; }
+.archive-scope { position: sticky; top: 100px; }
+
+/* ===== Vectorscope — browse the archive by color ===== */
+.vscope { display: flex; flex-direction: column; gap: 28px; }
+.vscope-stage { width: 100%; }
 .vscope-svg {
   width: 100%; aspect-ratio: 1; display: block; touch-action: none; cursor: crosshair;
   overflow: visible;
@@ -697,9 +704,12 @@ footer.site-footer {
 .vscope-crosshair-ring { fill: none; stroke: var(--ochre); stroke-width: 1.2; }
 .vscope-crosshair line { stroke: var(--ochre); stroke-width: 1.2; }
 
+/* Fixed height, so swapping the hint for the live readout never changes
+   the column's height, and fixed-width digits (tabular-nums + zero-padded
+   values in the JSX), so the numbers can't reflow as they change. */
 .vscope-readout {
-  display: flex; flex-direction: column; gap: 14px;
-  min-width: 220px;
+  display: flex; flex-direction: column; justify-content: center; gap: 14px;
+  height: 84px;
 }
 .vscope-readout-row {
   display: flex; align-items: center; gap: 14px;
@@ -707,6 +717,7 @@ footer.site-footer {
 .vscope-readout-item {
   font-family: var(--mono); font-size: 13px; color: var(--fg);
   letter-spacing: 0.01em; display: flex; align-items: baseline; gap: 6px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .vscope-readout-item .label { font-size: 9px; }
 .vscope-swatch {
@@ -722,29 +733,37 @@ footer.site-footer {
 .vscope-reset:hover { color: var(--fg); border-color: var(--fg-dim); }
 .vscope-hint {
   font-family: var(--mono); font-size: 11px; line-height: 1.7;
-  color: var(--fg-dim); letter-spacing: 0.01em; max-width: 260px;
-}
-
-@media (max-width: 700px) {
-  .vscope { padding: 16px 22px 36px; gap: 24px; }
-  .vscope-stage { width: 220px; }
-  .vscope-readout { min-width: 0; width: 100%; align-items: center; text-align: center; }
-  .vscope-readout-row { justify-content: center; }
-  .vscope-swatch { margin-left: 0; }
-  .vscope-hint { text-align: center; max-width: 280px; }
+  color: var(--fg-dim); letter-spacing: 0.01em;
 }
 
 .port-grid {
-  padding: 20px 40px 120px;
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   /* auto, not a fixed vw: each tile's height comes from its own
      aspect-ratio (see .tile.t-uniform), and a fixed row height that
      doesn't exactly match that computed height makes rows overlap
      (mismatch grows fast if the column count/width ever changes, e.g.
      the mobile breakpoint below). */
   grid-auto-rows: auto;
-  gap: 6px;
+  gap: 8px;
+}
+@media (min-width: 1500px) {
+  .port-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 1000px) {
+  .archive-layout { grid-template-columns: 240px minmax(0, 1fr); gap: 32px; }
+}
+/* Phones: scope on top, grid below */
+@media (max-width: 760px) {
+  .archive-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 16px 22px 80px; }
+  .archive-scope { position: static; }
+  .vscope { gap: 20px; }
+  .vscope-stage { width: 240px; margin: 0 auto; }
+  .vscope-readout { align-items: center; text-align: center; }
+  .vscope-readout-row { justify-content: center; }
+  .vscope-swatch { margin-left: 0; }
+  .vscope-hint { text-align: center; max-width: 280px; }
+  .port-grid { gap: 4px; }
 }
 .port-grid .tile { transition: transform 0.6s var(--ease-soft), opacity 0.5s var(--ease-soft); }
 .port-grid .tile.filtered-out { opacity: 0; transform: scale(0.96); pointer-events: none; }
@@ -1409,7 +1428,6 @@ picture { display: contents; }
   .contact { padding: 140px 22px 60px; }
   .contact-grid { grid-template-columns: 1fr; gap: 48px; }
   .portfolio-head { padding: 140px 22px 40px; }
-  .port-grid { padding: 20px 22px 80px; grid-template-columns: repeat(3, 1fr); gap: 4px; }
   .portfolio-head .meta-row { flex-direction: column; align-items: flex-start; gap: 16px; }
   .meta-row-right { width: 100%; justify-content: space-between; }
   .filters { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; flex-wrap: nowrap; }

@@ -77,6 +77,12 @@ function vsGetColor(item) {
   return (window.PHOTO_COLORS && window.PHOTO_COLORS[vsRelPath(item.src)]) || null;
 }
 
+// Readout values are zero-padded to a constant 3 digits so the text never
+// changes width (and nudges the layout) as the numbers change mid-drag.
+function vsPad3(n) {
+  return String(Math.round(n)).padStart(3, "0");
+}
+
 function hslToCss(h, s, l) {
   return `hsl(${h}deg ${s}% ${l}%)`;
 }
@@ -218,17 +224,17 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
         {target ? (
           <React.Fragment>
             <div className="vscope-readout-row">
-              <span className="vscope-readout-item"><span className="label dim">Hue</span> {Math.round(target.h)}&deg;</span>
-              <span className="vscope-readout-item"><span className="label dim">Sat</span> {Math.round(target.s)}%</span>
+              <span className="vscope-readout-item"><span className="label dim">Hue</span> {vsPad3(target.h)}&deg;</span>
+              <span className="vscope-readout-item"><span className="label dim">Sat</span> {vsPad3(target.s)}%</span>
               <span className="vscope-swatch" style={{ background: hslToCss(target.h, target.s, 55) }} aria-hidden="true" />
             </div>
             <div className="vscope-readout-row">
-              <span className="label dim">Sorted by closeness &middot; {closeCount} close {closeCount === 1 ? "match" : "matches"}</span>
+              <span className="vscope-readout-item"><span className="label dim">Close matches</span> {vsPad3(closeCount)}</span>
               <button className="vscope-reset" onClick={() => onTargetChange(null)} data-cursor="hover">Reset</button>
             </div>
           </React.Fragment>
         ) : (
-          <p className="vscope-hint">Drag inside the circle to browse by color. Tap any dot to open that photo.</p>
+          <p className="vscope-hint">Drag inside the circle to sort the archive by color, closest first. Tap any dot to open that photo.</p>
         )}
       </div>
     </div>

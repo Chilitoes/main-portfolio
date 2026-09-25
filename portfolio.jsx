@@ -84,19 +84,23 @@ function Portfolio({ go, query, onOpenLightbox }) {
         </div>
       </header>
 
-      <window.Vectorscope
-        items={items}
-        target={colorTarget}
-        onTargetChange={setColorTarget}
-        onOpenLightbox={onOpenLightbox}
-      />
+      <div className="archive-layout">
+        <aside className="archive-scope">
+          <window.Vectorscope
+            items={items}
+            target={colorTarget}
+            onTargetChange={setColorTarget}
+            onOpenLightbox={onOpenLightbox}
+          />
+        </aside>
 
-      <PortfolioGrid
-        items={items}
-        filter={filter}
-        colorTarget={colorTarget}
-        onOpenLightbox={onOpenLightbox}
-      />
+        <PortfolioGrid
+          items={items}
+          filter={filter}
+          colorTarget={colorTarget}
+          onOpenLightbox={onOpenLightbox}
+        />
+      </div>
 
       <Footer go={go} />
     </div>
