@@ -669,16 +669,33 @@ footer.site-footer {
 /* ===== Archive layout: color scope (left, sticky) + photo grid (right) ===== */
 .archive-layout {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
-  gap: 56px;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 48px;
   align-items: start;
   padding: 20px 40px 120px;
 }
-.archive-scope { position: sticky; top: 100px; }
+.archive-scope { position: sticky; top: 104px; }
 
-/* ===== Vectorscope — browse the archive by color ===== */
-.vscope { display: flex; flex-direction: column; gap: 28px; }
-.vscope-stage { width: 100%; }
+/* ===== Vectorscope — browse the archive by color =====
+   A self-contained panel (same border/fill as the .filters pill bar):
+   header → centered scope → readout → hint, on an 8px spacing rhythm. */
+.vscope {
+  display: flex; flex-direction: column; gap: 24px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.015);
+}
+.vscope-head {
+  display: flex; align-items: center; justify-content: space-between;
+  min-height: 28px;
+}
+.vscope-title { color: var(--ochre); }
+.vscope-stage {
+  width: 100%; max-width: 232px;
+  margin: 0 auto;
+  padding: 8px 0;
+}
 .vscope-svg {
   width: 100%; aspect-ratio: 1; display: block; touch-action: none; cursor: crosshair;
   overflow: visible;
@@ -704,26 +721,29 @@ footer.site-footer {
 .vscope-crosshair-ring { fill: none; stroke: var(--ochre); stroke-width: 1.2; }
 .vscope-crosshair line { stroke: var(--ochre); stroke-width: 1.2; }
 
-/* Fixed height, so swapping the hint for the live readout never changes
-   the column's height, and fixed-width digits (tabular-nums + zero-padded
-   values in the JSX), so the numbers can't reflow as they change. */
+/* Swatch + three stat cells in fixed grid tracks. The markup is identical
+   with or without a target (placeholders, not swapped content), and the
+   digits are fixed-width (tabular-nums + zero-padded in the JSX), so the
+   panel never changes size while dragging. */
 .vscope-readout {
-  display: flex; flex-direction: column; justify-content: center; gap: 14px;
-  height: 84px;
+  display: grid;
+  grid-template-columns: 32px repeat(3, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
 }
-.vscope-readout-row {
-  display: flex; align-items: center; gap: 14px;
+.vscope-stat { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.vscope-stat .label { font-size: 9px; letter-spacing: 0.16em; }
+.vscope-stat-val {
+  font-family: var(--mono); font-size: 14px; color: var(--fg);
+  font-variant-numeric: tabular-nums; white-space: nowrap; line-height: 1;
 }
-.vscope-readout-item {
-  font-family: var(--mono); font-size: 13px; color: var(--fg);
-  letter-spacing: 0.01em; display: flex; align-items: baseline; gap: 6px;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-}
-.vscope-readout-item .label { font-size: 9px; }
 .vscope-swatch {
-  width: 22px; height: 22px; border-radius: 6px;
-  border: 1px solid var(--line); margin-left: auto;
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--line);
 }
+.vscope-swatch.empty { border-style: dashed; }
 .vscope-reset {
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
   text-transform: uppercase; color: var(--fg-dim);
@@ -732,7 +752,8 @@ footer.site-footer {
 }
 .vscope-reset:hover { color: var(--fg); border-color: var(--fg-dim); }
 .vscope-hint {
-  font-family: var(--mono); font-size: 11px; line-height: 1.7;
+  margin: 0;
+  font-family: var(--mono); font-size: 11px; line-height: 1.6;
   color: var(--fg-dim); letter-spacing: 0.01em;
 }
 
@@ -751,18 +772,17 @@ footer.site-footer {
   .port-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 @media (max-width: 1000px) {
-  .archive-layout { grid-template-columns: 240px minmax(0, 1fr); gap: 32px; }
+  .archive-layout { grid-template-columns: 272px minmax(0, 1fr); gap: 32px; }
+  .vscope { padding: 20px; gap: 20px; }
+  .vscope-readout { grid-template-columns: 28px repeat(3, minmax(0, 1fr)); gap: 12px; padding-top: 20px; }
+  .vscope-swatch { width: 28px; height: 28px; }
+  .vscope-stat-val { font-size: 13px; }
 }
-/* Phones: scope on top, grid below */
+/* Phones: scope panel on top, grid below */
 @media (max-width: 760px) {
-  .archive-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; padding: 16px 22px 80px; }
-  .archive-scope { position: static; }
-  .vscope { gap: 20px; }
-  .vscope-stage { width: 240px; margin: 0 auto; }
-  .vscope-readout { align-items: center; text-align: center; }
-  .vscope-readout-row { justify-content: center; }
-  .vscope-swatch { margin-left: 0; }
-  .vscope-hint { text-align: center; max-width: 280px; }
+  .archive-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 16px 22px 80px; }
+  .archive-scope { position: static; width: 100%; max-width: 400px; margin: 0 auto; }
+  .vscope-stage { max-width: 248px; }
   .port-grid { gap: 4px; }
 }
 .port-grid .tile { transition: transform 0.6s var(--ease-soft), opacity 0.5s var(--ease-soft); }

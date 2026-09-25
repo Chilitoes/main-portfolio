@@ -154,6 +154,18 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
 
   return (
     <div className="vscope">
+      <div className="vscope-head">
+        <span className="label vscope-title">Browse by color</span>
+        {/* Always rendered (just hidden) so the header never changes size */}
+        <button
+          className="vscope-reset"
+          onClick={() => onTargetChange(null)}
+          data-cursor="hover"
+          style={{ visibility: target ? "visible" : "hidden" }}
+          tabIndex={target ? 0 : -1}
+        >Reset</button>
+      </div>
+
       <div className="vscope-stage">
         <svg
           ref={svgRef}
@@ -220,23 +232,29 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
         </svg>
       </div>
 
+      {/* Same structure with or without a target — placeholders instead of
+          swapping in different content — so nothing shifts on first drag. */}
       <div className="vscope-readout">
-        {target ? (
-          <React.Fragment>
-            <div className="vscope-readout-row">
-              <span className="vscope-readout-item"><span className="label dim">Hue</span> {vsPad3(target.h)}&deg;</span>
-              <span className="vscope-readout-item"><span className="label dim">Sat</span> {vsPad3(target.s)}%</span>
-              <span className="vscope-swatch" style={{ background: hslToCss(target.h, target.s, 55) }} aria-hidden="true" />
-            </div>
-            <div className="vscope-readout-row">
-              <span className="vscope-readout-item"><span className="label dim">Close matches</span> {vsPad3(closeCount)}</span>
-              <button className="vscope-reset" onClick={() => onTargetChange(null)} data-cursor="hover">Reset</button>
-            </div>
-          </React.Fragment>
-        ) : (
-          <p className="vscope-hint">Drag inside the circle to sort the archive by color, closest first. Tap any dot to open that photo.</p>
-        )}
+        <span
+          className={"vscope-swatch" + (target ? "" : " empty")}
+          style={target ? { background: hslToCss(target.h, target.s, 55) } : undefined}
+          aria-hidden="true"
+        />
+        <div className="vscope-stat">
+          <span className="label dim">Hue</span>
+          <span className="vscope-stat-val">{target ? `${vsPad3(target.h)}°` : "———"}</span>
+        </div>
+        <div className="vscope-stat">
+          <span className="label dim">Sat</span>
+          <span className="vscope-stat-val">{target ? `${vsPad3(target.s)}%` : "———"}</span>
+        </div>
+        <div className="vscope-stat">
+          <span className="label dim">Matches</span>
+          <span className="vscope-stat-val">{target ? vsPad3(closeCount) : "———"}</span>
+        </div>
       </div>
+
+      <p className="vscope-hint">Drag inside the circle to sort the archive by color, closest first. Tap a dot to open that photo.</p>
     </div>
   );
 }
