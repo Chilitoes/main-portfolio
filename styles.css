@@ -711,10 +711,9 @@ footer.site-footer {
 .vscope-dot {
   stroke: rgba(14,13,11,0.5); stroke-width: 0.4;
   transition: opacity 0.35s var(--ease-soft), r 0.25s var(--ease-soft);
-  cursor: pointer;
+  pointer-events: none;
 }
 .vscope-dot.dim { opacity: 0.22; }
-.vscope-dot:hover { stroke: var(--fg); stroke-width: 0.8; }
 .vscope-crosshair {
   pointer-events: none;
 }
@@ -778,11 +777,37 @@ footer.site-footer {
   .vscope-swatch { width: 28px; height: 28px; }
   .vscope-stat-val { font-size: 13px; }
 }
-/* Phones: scope panel on top, grid below */
+/* Phones: a compact panel above the grid — scope on the left, readout and
+   hint stacked beside it — so the photos start about half a screen higher
+   than with the stacked desktop panel. */
 @media (max-width: 760px) {
-  .archive-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 16px 22px 80px; }
-  .archive-scope { position: static; width: 100%; max-width: 400px; margin: 0 auto; }
-  .vscope-stage { max-width: 248px; }
+  .archive-layout { grid-template-columns: minmax(0, 1fr); gap: 16px; padding: 8px 22px 80px; }
+  .archive-scope { position: static; width: 100%; max-width: 420px; margin: 0 auto; }
+  .vscope {
+    display: grid;
+    grid-template-columns: 148px minmax(0, 1fr);
+    grid-template-rows: auto auto 1fr;
+    grid-template-areas:
+      "head head"
+      "stage readout"
+      "stage hint";
+    column-gap: 16px; row-gap: 12px;
+    padding: 16px;
+    border-radius: 14px;
+  }
+  .vscope-head { grid-area: head; min-height: 24px; }
+  .vscope-reset { padding: 4px 12px; }
+  .vscope-stage { grid-area: stage; max-width: none; margin: 0; padding: 0; align-self: center; }
+  .vscope-readout {
+    grid-area: readout;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 0; border-top: 0;
+  }
+  .vscope-swatch { width: 28px; height: 28px; }
+  .vscope-stat { gap: 6px; }
+  .vscope-stat-val { font-size: 13px; }
+  .vscope-hint { grid-area: hint; font-size: 10px; line-height: 1.5; }
   .port-grid { gap: 4px; }
 }
 .port-grid .tile { transition: transform 0.6s var(--ease-soft), opacity 0.5s var(--ease-soft); }

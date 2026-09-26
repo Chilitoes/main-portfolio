@@ -4,9 +4,9 @@
 // in the spirit of a video vectorscope or DaVinci Resolve's color-grading
 // tools: one dot per photo, plotted at its dominant color (computed at
 // build time by scripts/extract-colors.js into color-data.js). Drag the
-// crosshair anywhere in the circle to set a target color; the archive grid
-// below re-sorts to bring the closest-matching photos first (see
-// vsColorDistance). Click a dot directly to jump straight to that photo.
+// crosshair anywhere in the circle (or tap a dot) to set a target color;
+// the archive grid re-sorts to bring the closest-matching photos first
+// (see vsColorDistance).
 //
 // Hue-wheel orientation: red (0deg) at 12 o'clock, increasing clockwise
 // (yellow, green, cyan, blue, magenta) — the layout most people already
@@ -87,18 +87,18 @@ function hslToCss(h, s, l) {
   return `hsl(${h}deg ${s}% ${l}%)`;
 }
 
-function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
+function Vectorscope({ items, target, onTargetChange }) {
   const svgRef = React.useRef(null);
   const dragging = React.useRef(false);
   const pendingTarget = React.useRef(null);
   const rafId = React.useRef(null);
 
-  // Precompute {item, index, color} once per items identity — items is
+  // Precompute {item, color} once per items identity — items is
   // window.PORTFOLIO, which never changes at runtime, so this is
   // effectively a one-time cost.
   const dots = React.useMemo(() => {
     return items
-      .map((item, index) => ({ item, index, color: vsGetColor(item) }))
+      .map((item) => ({ item, color: vsGetColor(item) }))
       .filter((d) => d.color);
   }, [items]);
 
@@ -121,9 +121,6 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
   };
 
   const onPointerDown = (e) => {
-    // A tap on a dot opens that photo instead of starting a drag — handled
-    // by the dot's own onPointerDown (which stops propagation) — so
-    // reaching here means the background/scope area was hit.
     dragging.current = true;
     e.currentTarget.setPointerCapture?.(e.pointerId);
     if (e.cancelable) e.preventDefault();
@@ -188,11 +185,14 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
           })}
           <circle className="vscope-ring vscope-ring-outer" cx={VS_CENTER} cy={VS_CENTER} r={VS_MAX_R} />
 
-          {dots.map(({ item, index, color }) => {
+          {dots.map(({ item, color }) => {
             // Position and matching (vsIsMatch, above) always use the photo's
             // real hue/saturation. The fill color floors saturation/lightness
             // purely so muted, low-chroma photos still render as a clearly
             // legible hue instead of a near-grey speck — cosmetic only.
+            // Dots are display-only (pointer-events: none in CSS): a tap on
+            // one lands on the scope underneath and targets that color,
+            // exactly like dragging there.
             const p = vsHueSatToXy(color.h, color.s);
             const dim = target && !vsIsMatch(color, target);
             return (
@@ -201,12 +201,7 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
                 className={"vscope-dot" + (dim ? " dim" : "")}
                 cx={p.x} cy={p.y} r={dim ? 1.8 : 2.6}
                 fill={hslToCss(color.h, Math.max(color.s, 48), Math.min(Math.max(color.l, 42), 62))}
-                onPointerDown={(e) => { e.stopPropagation(); }}
-                onClick={(e) => { e.stopPropagation(); onOpenLightbox(index); }}
-                data-cursor="view"
-              >
-                <title>{item.title === item.country ? item.country : `${item.title} · ${item.country}`}</title>
-              </circle>
+              />
             );
           })}
 
@@ -254,7 +249,7 @@ function Vectorscope({ items, target, onTargetChange, onOpenLightbox }) {
         </div>
       </div>
 
-      <p className="vscope-hint">Drag inside the circle to sort the archive by color, closest first. Tap a dot to open that photo.</p>
+      <p className="vscope-hint">Tap or drag inside the circle to sort the photos by color, closest first.</p>
     </div>
   );
 }

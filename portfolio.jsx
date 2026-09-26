@@ -90,7 +90,6 @@ function Portfolio({ go, query, onOpenLightbox }) {
             items={items}
             target={colorTarget}
             onTargetChange={setColorTarget}
-            onOpenLightbox={onOpenLightbox}
           />
         </aside>
 
