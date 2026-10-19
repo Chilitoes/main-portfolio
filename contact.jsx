@@ -223,7 +223,7 @@ function Contact({ go }) {
             </div>
           </div>
           <div className="group">
-            <div className="label">Instagram, in tree form</div>
+            <div className="label">Follow on Instagram</div>
             <window.QrTree size={360} />
           </div>
         </aside>
