@@ -1200,6 +1200,26 @@ picture { display: contents; }
 }
 .social-chip:hover { background: var(--ochre); color: #0E0D0B; border-color: var(--ochre); }
 
+/* ===== QR tree (Instagram) — see qr-tree.jsx ===== */
+.qrt { margin: 0; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.qrt-stage {
+  display: block; width: 100%; aspect-ratio: 1; padding: 0;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: rgba(255,255,255,0.015);
+  overflow: hidden; cursor: pointer;
+}
+.qrt-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.qrt-stage:focus-visible { outline: 2px solid var(--ochre); outline-offset: 3px; }
+.qrt-cap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 28px; }
+.qrt-replay {
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--fg-dim);
+  border: 1px solid var(--line); border-radius: 999px; padding: 6px 14px;
+  transition: color 0.3s var(--ease-soft), border-color 0.3s var(--ease-soft);
+}
+.qrt-replay:hover { color: var(--fg); border-color: var(--fg-dim); }
+.about-qr { padding-top: 32px; }
+
 /* ===== Gear tags (About) ===== */
 .about-gear-section .gear-tags,
 .about-gear-inline .gear-tags {

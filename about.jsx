@@ -60,6 +60,10 @@ function About({ go, onOpenLightbox }) {
             <a className="about-social-link" href="https://instagram.com/alstonsjpeg"
                target="_blank" rel="noopener" data-cursor="hover">Instagram</a>
           </div>
+
+          <div className="about-qr">
+            <window.QrTree size={240} />
+          </div>
         </div>
       </section>
 

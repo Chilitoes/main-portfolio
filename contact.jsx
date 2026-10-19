@@ -222,6 +222,10 @@ function Contact({ go }) {
               <a className="social-chip" href="mailto:alstonjpeg@gmail.com" data-cursor="hover">Email</a>
             </div>
           </div>
+          <div className="group">
+            <div className="label">Instagram, in tree form</div>
+            <window.QrTree size={360} />
+          </div>
         </aside>
       </div>
 
