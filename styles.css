@@ -593,7 +593,8 @@ footer.site-footer {
 .site-footer .footer-brand-mark .italic { font-style: italic; color: var(--ochre); }
 .site-footer .footer-nav {
   display: flex;
-  gap: 28px;
+  flex-wrap: wrap;
+  gap: 12px 28px;
   font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -607,6 +608,9 @@ footer.site-footer {
   font-size: 10.5px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
+}
+@media (max-width: 760px) {
+  footer.site-footer { padding: 48px 22px 32px; }
 }
 
 /* ===== Portfolio page ===== */
@@ -809,6 +813,21 @@ footer.site-footer {
   .vscope-stat-val { font-size: 13px; }
   .vscope-hint { grid-area: hint; font-size: 10px; line-height: 1.5; }
   .port-grid { gap: 4px; }
+}
+/* Very narrow windows (Split View on an unfolded iPhone Duo or iPad,
+   ~313px): the readout column beside the scope would be ~70px, so stack the
+   stats in one column and run the hint full-width underneath. */
+@media (max-width: 359px) {
+  .vscope {
+    grid-template-columns: 120px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+      "head head"
+      "stage readout"
+      "hint hint";
+  }
+  .vscope-readout { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .vscope-stat { flex-direction: row; align-items: baseline; justify-content: space-between; gap: 8px; }
 }
 .port-grid .tile { transition: transform 0.6s var(--ease-soft), opacity 0.5s var(--ease-soft); }
 .port-grid .tile.filtered-out { opacity: 0; transform: scale(0.96); pointer-events: none; }
