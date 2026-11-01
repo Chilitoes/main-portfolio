@@ -19,7 +19,9 @@ RewriteRule ^redesign(/.*)?$ / [R=301,L]
 
 # ─── Compression ────────────────────────────────────────────────────────
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json text/xml application/xml application/rss+xml image/svg+xml
+  # This host labels .js as text/javascript, so list both JS types —
+  # with only application/javascript, every script went out uncompressed.
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/manifest+json text/xml application/xml application/rss+xml image/svg+xml
 </IfModule>
 
 # ─── Long-term caching for hashed/static assets ─────────────────────────
@@ -32,6 +34,7 @@ RewriteRule ^redesign(/.*)?$ / [R=301,L]
   ExpiresByType image/svg+xml "access plus 1 year"
   ExpiresByType text/css "access plus 1 month"
   ExpiresByType application/javascript "access plus 1 month"
+  ExpiresByType text/javascript "access plus 1 month"
   ExpiresByType font/woff2 "access plus 1 year"
   ExpiresByType font/woff "access plus 1 year"
 </IfModule>
