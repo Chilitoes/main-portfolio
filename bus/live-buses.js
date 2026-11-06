@@ -162,7 +162,10 @@
   // Buses without GPS are only placed once; later refreshes just re-time them.
   const DWELL = 5;              // seconds at each bus stop
   const PASSED_S = 20;          // arrival this long ago = it has left (LTA lists buses ~1 min after)
-  const LEAVE_MS = 4000;        // drive-off animation
+  const LEAVE_MS = 180000;      // after reaching the stop it drives on along its route this long (still tappable → "I'm on it")
+  const LEAVE_FADE_MS = 8000;   // …fading out over the last few seconds
+  const LEAVE_SPEED = 7;        // m/s past the stop (≈ ride pace incl. stops)
+  const leaveFade = (b, now) => Math.max(0.05, Math.min(1, (LEAVE_MS - (now - b.leaving)) / LEAVE_FADE_MS));
   const START_M = 40;           // within this of the route's first stop = still at the interchange
   function plan(b) {
     const stops = (b.path.stopsS || []).filter((x) => x < b.s0 - 15).sort((x, y) => y - x);   // in the order it meets them
@@ -205,9 +208,10 @@
   }
   function step(b, now) {
     if (b.leaving) {
-      // From wherever it is, on through the stop at ~9 m/s.
+      // From wherever it is, on through the stop and along its route
+      // (negative s = metres past our stop; see queue()).
       b.leaveFrom ??= b.sDisp ?? 0;
-      b.sDisp = Math.min(b.leaveFrom, 0) - 9 * (now - b.leaving) / 1000 + Math.max(b.leaveFrom, 0) * Math.max(0, 1 - (now - b.leaving) / 1500);
+      b.sDisp = Math.min(b.leaveFrom, 0) - LEAVE_SPEED * (now - b.leaving) / 1000 + Math.max(b.leaveFrom, 0) * Math.max(0, 1 - (now - b.leaving) / 1500);
       return;
     }
     const target = sModel(b, now);
@@ -327,7 +331,7 @@
       // stop with a similar ETA, or (its target stop changed) same service
       // drawn close to where this one is.
       let b = LB.buses.find((o) => !keep.has(o) && o.svc === w.svc && o.stop === w.stop && Math.abs(o.eta - w.eta) < 150)
-           || LB.buses.find((o) => !keep.has(o) && o.svc === w.svc && o.pos && Math.hypot(o.pos.x - w.pt.x, o.pos.y - w.pt.y) < 250);
+           || LB.buses.find((o) => !keep.has(o) && !o.leaving && o.svc === w.svc && o.pos && Math.hypot(o.pos.x - w.pt.x, o.pos.y - w.pt.y) < 250);
       if (!b) { b = { id: ++_uid, svc: w.svc, born: now }; LB.buses.push(b); }
       // Without GPS there's nothing new to learn about *where* a bus we're
       // already showing is — only when it'll arrive — so keep it where it's
@@ -344,8 +348,9 @@
       keep.add(b);
     }
     // Drawn buses that are gone from the feed (or listed as passed): if one
-    // was at or near the stop, it drives off past it and fades instead of
-    // vanishing — or being left stuck at the stop saying "Arr".
+    // was at or near the stop, it drives on past it along its route for
+    // LEAVE_MS (so you can still find it and tap "I'm on it" after boarding)
+    // instead of vanishing — or being left stuck at the stop saying "Arr".
     for (const b of LB.buses) {
       if (keep.has(b)) continue;
       const wasPassed = passedC.some((c) => c.svc === b.svc && c.stop === b.stop);
@@ -427,7 +432,7 @@
       const eta = b.eta - (now - b.t0) / 1000;
       const label = b.leaving ? "Left" : LB.mode === "nearby" ? "-" : eta < 60 ? "Arr" : `${Math.round(eta / 60)} min`;
       if (b._label !== label) { b._label = label; b.chip?.setIcon(chipIcon(b, b.leaving ? -999 : eta)); }
-      if (b.leaving) { const el = b.chip?._el; if (el) el.style.opacity = String(Math.max(0, 1 - (now - b.leaving) / LEAVE_MS)); }
+      if (b.leaving) { const el = b.chip?._el; if (el) el.style.opacity = String(leaveFade(b, now)); }
     });
     followFrame(now);
     if (LB.layer && _arrMap._gl) _arrMap._gl.triggerRepaint();
@@ -447,7 +452,13 @@
     // never shuffles buses along the road.
     const k = QUEUE_K;
     const placed = [];
-    LB.buses.filter((b) => b.leaving).forEach((b) => { b.pos = pointAt(b.path, b.sDisp); });
+    // Past our stop the path ends, so follow the service's full route from
+    // here on (fetched once per departing bus; straight ahead until it's in).
+    LB.buses.filter((b) => b.leaving).forEach((b) => {
+      b.afterP ||= ridePath(b.svc, b.stop || LB.stop)
+        .then((p) => { if (p && p.pts.length > 1) b.after = { p, s0: p.stops[p.from]?.s ?? 0 }; }).catch(() => {});
+      b.pos = b.after && b.sDisp < 0 ? rideAt(b.after.p, b.after.s0 - b.sDisp) : pointAt(b.path, b.sDisp);
+    });
     [...LB.buses].filter((b) => !b.hidden && !b.leaving).sort((a, b) => a.sDisp - b.sDisp).forEach((b) => {
       let sq = b.sDisp, pt = pointAt(b.path, sq);
       for (let n = 0; n < 40 && b.sDisp < QUEUE_M; n++) {
@@ -665,7 +676,7 @@
           b.obj.visible = true;
           b.obj.position.set(b.pos.x, b.pos.y, 0);
           b.obj.rotation.z = Math.PI / 2 - b.pos.heading;
-          const fade = b.leaving ? Math.max(0.05, 1 - (Date.now() - b.leaving) / LEAVE_MS) : 1;
+          const fade = b.leaving ? leaveFade(b, Date.now()) : 1;
           const sc = (LB.sel === b.id ? k * 1.25 : k) * fade;
           b.obj.scale.setScalar(sc);
           // Bendy: put the trailer on the road behind, so it bends on corners.
@@ -673,6 +684,7 @@
           if (tr) {
             const back = 9.6 * sc;   // centre-to-centre, scaled like the bus
             const p2 = b.isRide && LB.ride ? rideAt(LB.ride.path, LB.ride.sDisp - back)
+              : b.leaving && b.after && b.sDisp < 0 ? rideAt(b.after.p, b.after.s0 - b.sDisp - back)
               : b.path ? pointAt(b.path, (b.sDisp ?? 0) + (b.qOff || 0) + back) : null;
             if (p2) {
               const rot = b.obj.rotation.z, dx = p2.x - b.pos.x, dy = p2.y - b.pos.y;
